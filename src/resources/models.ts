@@ -6,10 +6,13 @@ export interface RenderingModel {
   position: WebGLBuffer
   color: WebGLBuffer
   indices: WebGLBuffer
+  outlineIndices?: WebGLBuffer
+  outlineColor?: WebGLBuffer
   normals: WebGLBuffer
   textureCoords: WebGLBuffer
   texture: WebGLTexture | null
   vertexCount: number
+  outlineVertexCount?: number
 }
 
 const materials: { [key: string]: number[] } = {

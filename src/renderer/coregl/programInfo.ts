@@ -136,7 +136,7 @@ function setNormalAttribute(gl: WebGL2RenderingContext, normalsBuffer: WebGLBuff
   gl.enableVertexAttribArray(vertexNormal)
 }
 
-function setColorAttribute(gl: WebGL2RenderingContext, colorsBuffer: WebGLBuffer, vertexColor: number) {
+export function setColorAttribute(gl: WebGL2RenderingContext, colorsBuffer: WebGLBuffer, vertexColor: number) {
   const numComponents = 4
   const type = gl.FLOAT
   const normalize = false
