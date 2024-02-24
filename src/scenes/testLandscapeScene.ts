@@ -10,6 +10,10 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   let deltaTime = 0
 
   return {
+    resize: () => {
+      rootRenderer.dispose()
+      rootRenderer = createRootRenderer(gl, resources, createTileRenderer(gl, resources))
+    },
     update: (now: number) => {
       if (isFirst) {
         resources.soundEffects.bootUp()
@@ -22,7 +26,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       deltaTime = now - then
       then = now
 
-      rootRenderer(game, deltaTime, RenderEffect.None)
+      rootRenderer.render(game, deltaTime, RenderEffect.None)
       return null
     },
   }

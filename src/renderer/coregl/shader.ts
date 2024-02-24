@@ -1,4 +1,7 @@
-import { ShaderSource } from "./resources/resources"
+export interface ShaderSource {
+  frag: string
+  vert: string
+}
 
 export function loadShader(gl: WebGL2RenderingContext, type: number, source: string) {
   const shader = gl.createShader(type)!

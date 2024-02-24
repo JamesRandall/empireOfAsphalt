@@ -2,9 +2,8 @@
 // Each character is positioned at a 16 offset (character 0 - x = 0, character 1 x = 16, character 2 x = 32 etc.)
 // There are 96 characters in the strip
 
-import { compileShaderProgram, compileShaderProgram2 } from "../../shader"
+import { compileShaderProgram2 } from "../coregl/shader"
 import { createSquareModelWithLoadedTexture } from "../../resources/models"
-import { LocalBubble } from "../../model/localBubble"
 import { mat4, quat, vec2, vec3, vec4 } from "gl-matrix"
 import { setCommonAttributes, setCommonAttributes2D, setViewUniformLocations } from "../coregl/programInfo"
 import { Resources } from "../../resources/resources"

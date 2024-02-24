@@ -1,8 +1,8 @@
 import { RendererFunc } from "../scenes/scene"
 import { bindBufferAndSetViewport, createFrameBufferTexture, setupGl } from "./coregl/common"
 import { Game } from "../model/game"
-import { Resources, ShaderSource } from "../resources/resources"
-import { compileShaderProgram2 } from "./coregl/shader"
+import { Resources } from "../resources/resources"
+import { compileShaderProgram2, ShaderSource } from "./coregl/shader"
 import { createSquareModel } from "../resources/models"
 import { mat4, quat, vec2 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
@@ -75,7 +75,8 @@ function createRenderer(
   mat4.ortho(projectionMatrix, 0, width, height, 0, -1.0, 1.0)
   const resolution = vec2.fromValues(width, height)
 
-  return function (position: vec2, size: vec2, texture: WebGLTexture, time: number) {
+  const dispose = () => {}
+  const render = function (position: vec2, size: vec2, texture: WebGLTexture, time: number) {
     // the divide by two is because the model has extents of -1.0 to 1.0
     const modelViewMatrix = mat4.fromRotationTranslationScale(
       mat4.create(),
@@ -106,18 +107,19 @@ function createRenderer(
     const offset = 0
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
   }
+  return { render, dispose }
 }
 
 function createFrameBuffer(gl: WebGL2RenderingContext, width: number, height: number) {
   const frameBufferTexture = createFrameBufferTexture(gl, width, height)!
-  const frameBuffer = gl.createFramebuffer()
+  const frameBuffer = gl.createFramebuffer()!
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frameBufferTexture, 0)
   const depthBuffer = gl.createRenderbuffer()
   gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer)
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, width, height)
   gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer)
-  return [frameBuffer!, frameBufferTexture!]
+  return { frameBuffer, frameBufferTexture }
 }
 
 export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resources, sceneRenderer: RendererFunc) {
@@ -125,7 +127,7 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
   const height = gl.canvas.height
 
   // This sets up a frame buffer that will render to a texture and attaches a depth buffer to it
-  const [frameBuffer, frameBufferTexture] = createFrameBuffer(gl, width, height)
+  const { frameBuffer, frameBufferTexture } = createFrameBuffer(gl, width, height)
 
   const createGlobalRenderEffect = (src: ShaderSource) =>
     createRenderer(gl, width, height, src, resources.textures.noise)
@@ -139,7 +141,13 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
   ])
   let time = 0.0
 
-  return (game: Game, timeDelta: number, effect: RenderEffect) => {
+  const dispose = () => {
+    gl.deleteFramebuffer(frameBuffer)
+    gl.deleteTexture(frameBufferTexture)
+    globalEffects.forEach((ge) => ge.dispose())
+  }
+
+  const render = (game: Game, timeDelta: number, effect: RenderEffect) => {
     const projectionMatrix = mat4.create()
     mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -1000, 1000)
 
@@ -152,6 +160,8 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     // finally target the output buffer and render our texture applying a whole screen post processing effect if
     // required
     bindBufferAndSetViewport(gl, null, width, height)
-    globalEffects.get(effect)!([0, 0], [width, height], frameBufferTexture, time)
+    globalEffects.get(effect)!.render([0, 0], [width, height], frameBufferTexture, time)
   }
+
+  return { render, dispose }
 }

@@ -1,10 +1,6 @@
 import { loadTexture } from "./texture"
 import { createSoundEffects, SoundEffects } from "../audio"
-
-export interface ShaderSource {
-  frag: string
-  vert: string
-}
+import { ShaderSource } from "../renderer/coregl/shader"
 
 export interface Resources {
   textures: {

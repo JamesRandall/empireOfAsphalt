@@ -3,6 +3,7 @@ import { Game } from "../model/game"
 import { mat4 } from "gl-matrix"
 
 export interface Scene {
+  resize: () => void
   update: (now: number) => Scene | null
 }
 

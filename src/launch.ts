@@ -4,19 +4,12 @@ import { createTestLandscapeScene } from "./scenes/testLandscapeScene"
 require("./extensions.ts")
 
 async function mount(viewCanvas: HTMLCanvasElement) {
-  const urlSearchParams = new URLSearchParams(window.location.search)
   function setSize() {
     viewCanvas.width = viewCanvas.clientWidth
     viewCanvas.height = viewCanvas.clientHeight
   }
-  let resizeDebounce: ReturnType<typeof setTimeout> | undefined = undefined
-  window.addEventListener("resize", (ev) => {
-    clearTimeout(resizeDebounce)
-    resizeDebounce = setTimeout(() => {
-      setSize()
-    }, 100)
-  })
-  setSize()
+
+  const urlSearchParams = new URLSearchParams(window.location.search)
 
   const gl = viewCanvas.getContext("webgl2")
   if (gl === null) {
@@ -25,7 +18,18 @@ async function mount(viewCanvas: HTMLCanvasElement) {
   }
 
   const resources = await loadResources(gl)
+  setSize()
   let scene = createTestLandscapeScene(gl, resources)
+
+  let resizeDebounce: ReturnType<typeof setTimeout> | undefined = undefined
+  window.addEventListener("resize", (ev) => {
+    clearTimeout(resizeDebounce)
+    resizeDebounce = setTimeout(() => {
+      setSize()
+      scene.resize()
+    }, 100)
+  })
+
   function render(now: number) {
     scene = scene.update(now) ?? scene
     requestAnimationFrame(render)

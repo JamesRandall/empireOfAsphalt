@@ -1,4 +1,4 @@
-import { compileShaderProgram2 } from "../../shader"
+import { compileShaderProgram2 } from "../coregl/shader"
 import { createSquareModel } from "../../resources/models"
 import { mat4, quat, vec2 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "../coregl/programInfo"
