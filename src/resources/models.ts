@@ -1,6 +1,6 @@
 import { vec2, vec3, vec4 } from "gl-matrix"
 import { loadTexture } from "./texture"
-import { createBoundingBox, getConstraints, getSizeFromConstraints } from "../utilities"
+import { sizes } from "../constants"
 
 export interface RenderingModel {
   position: WebGLBuffer
@@ -10,9 +10,6 @@ export interface RenderingModel {
   textureCoords: WebGLBuffer
   texture: WebGLTexture | null
   vertexCount: number
-  boundingBox: vec3[]
-  boundingBoxSize: vec3
-  faceNormal: vec3 | null
 }
 
 const materials: { [key: string]: number[] } = {
@@ -30,57 +27,6 @@ interface FaceVertex {
   vertexIndex: number
   textureIndex: number | null
   normalIndex: number | null
-}
-
-function extractFromWrl(
-  lines: string[],
-  scale: number,
-  vertices: vec3[],
-  faceIndices: FaceVertex[][],
-  materialChanges: string[],
-  vertexNormals: vec3[],
-  vertexTextures: vec2[],
-) {
-  let isReadingFaceInidcies = false
-  let isReadingCoords = false
-  lines.forEach((line) => {
-    const trimmedLine = line.trim()
-    if (trimmedLine.indexOf("coordIndex [") > -1) {
-      isReadingFaceInidcies = true
-    } else if (isReadingFaceInidcies) {
-      if (trimmedLine.indexOf("]") > -1) {
-        isReadingFaceInidcies = false
-      } else {
-        const components = trimmedLine
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s !== "" && s !== "-1")
-        // ignore more complex shapes for now
-        const newFace = components.reverse().map((index) => {
-          return {
-            vertexIndex: parseInt(index),
-            textureIndex: null,
-            normalIndex: null,
-          }
-        })
-        faceIndices.push(newFace)
-      }
-    } else if (trimmedLine.indexOf("coord Coordinate { point [") > -1) {
-      isReadingCoords = true
-    } else if (isReadingCoords) {
-      if (trimmedLine.indexOf("]") > -1) {
-        isReadingCoords = false
-      } else {
-        const components = trimmedLine.replace(",", "").split(" ")
-        const newVector = vec3.fromValues(
-          parseFloat(components[0]) * scale,
-          parseFloat(components[1]) * scale,
-          parseFloat(components[2]) * scale,
-        )
-        vertices.push(newVector)
-      }
-    }
-  })
 }
 
 function extractFromObj(
@@ -157,11 +103,7 @@ export async function loadRawModel(path: string, scale: number) {
   //const materialChanges:{[faceIndex:number], material:string}[] = []
   const materialChanges: string[] = []
 
-  if (path.endsWith(".obj")) {
-    extractFromObj(lines, scale, vertices, faceIndices, materialChanges, vertexNormals, vertexTextures)
-  } else if (path.endsWith(".wrl")) {
-    extractFromWrl(lines, scale, vertices, faceIndices, materialChanges, vertexNormals, vertexTextures)
-  }
+  extractFromObj(lines, scale, vertices, faceIndices, materialChanges, vertexNormals, vertexTextures)
 
   // Our models all have the nose pointing the wrong way so we rotate them as we load
   vertices = vertices.map((v) => vec3.rotateY(vec3.create(), v, [0, 0, 0], Math.PI))
@@ -211,45 +153,6 @@ export async function loadRawModel(path: string, scale: number) {
   return { vertices, faces }
 }
 
-export async function loadExplosionFromModel(gl: WebGL2RenderingContext, path: string, scale: number = 1.0) {
-  const { vertices, faces } = await loadRawModel(path, scale)
-  const models = faces.map((face) => {
-    const positions = face.vertices.flatMap((v) => [v[0], v[1], v[2]])
-    const normals = face.normals.flatMap((fn) => [fn[0], fn[1], fn[2]])
-    const indices = [0, 1, 2]
-    const colors = face.vertices.flatMap((_) => face.color)
-
-    const positionBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-    const normalBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW)
-    const indexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
-    const colorBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
-
-    let constraints = getConstraints(face.vertices)
-
-    return {
-      position: positionBuffer,
-      color: colorBuffer,
-      indices: indexBuffer,
-      normals: normalBuffer,
-      vertexCount: indices.length,
-      textureCoords: 0,
-      texture: null,
-      boundingBox: createBoundingBox(constraints),
-      boundingBoxSize: getSizeFromConstraints(constraints),
-      faceNormal: face.normals[0],
-    } as RenderingModel
-  })
-  return models
-}
-
 export async function loadModel(gl: WebGL2RenderingContext, path: string, scale: number = 1.0) {
   const { vertices, faces } = await loadRawModel(path, scale)
 
@@ -274,8 +177,6 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
 
-  let constraints = getConstraints(vertices)
-
   return {
     position: positionBuffer,
     color: colorBuffer,
@@ -284,9 +185,82 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
     vertexCount: indices.length,
     textureCoords: 0,
     texture: null,
-    boundingBox: createBoundingBox(constraints),
-    boundingBoxSize: getSizeFromConstraints(constraints),
     faceNormal: null,
+  } as RenderingModel
+}
+
+export function createTile(
+  gl: WebGL2RenderingContext,
+  color: vec4,
+  heights: {
+    topLeft: number
+    topRight: number
+    bottomLeft: number
+    bottomRight: number
+  },
+) {
+  const half = sizes.tile / 2
+  const positions = [
+    -half,
+    heights.topLeft,
+    -half,
+    half,
+    heights.topRight,
+    -half,
+    half,
+    heights.bottomRight,
+    half,
+    -half,
+    heights.bottomLeft,
+    half,
+  ]
+  const indices = [3, 0, 1, 3, 1, 2]
+  //const normals = [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+  const normals = [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]
+  const textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+  const colors = [
+    color[0],
+    color[1],
+    color[2],
+    color[3],
+    color[0],
+    color[1],
+    color[2],
+    color[3],
+    color[0],
+    color[1],
+    color[2],
+    color[3],
+    color[0],
+    color[1],
+    color[2],
+    color[3],
+  ]
+
+  const positionBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+  const normalBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW)
+  const indexBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
+  const colorBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
+  const textureCoordBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
+
+  return {
+    position: positionBuffer,
+    color: colorBuffer,
+    indices: indexBuffer,
+    normals: normalBuffer,
+    vertexCount: indices.length,
+    textureCoords: textureCoordBuffer,
+    texture: null,
   } as RenderingModel
 }
 
@@ -349,69 +323,6 @@ export function createSquareModel(
     texture: null,
   } as RenderingModel
 }
-
-/*
-export function createSquareModelWithTexture(
-  gl: WebGL2RenderingContext,
-  texture: string,
-  flipY: boolean = true,
-  topLeftBased = false,
-  smoothScaling: boolean = false,
-) {
-  const positions = !topLeftBased
-    ? [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0]
-    : [0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0]
-  const normals = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
-  const indices = [0, 1, 2, 0, 2, 3]
-  const textureCoords = flipY ? [0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0] : [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
-
-  const color = [1.0, 1.0, 1.0, 1.0]
-  const colors = [
-    color[0],
-    color[1],
-    color[2],
-    color[3],
-    color[0],
-    color[1],
-    color[2],
-    color[3],
-    color[0],
-    color[1],
-    color[2],
-    color[3],
-    color[0],
-    color[1],
-    color[2],
-    color[3],
-  ]
-
-  const positionBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-  const normalBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW)
-  const indexBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
-  const colorBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
-  const textureCoordBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
-  const glTexture = loadTexture(gl, texture, smoothScaling)
-
-  return {
-    position: positionBuffer,
-    color: colorBuffer,
-    indices: indexBuffer,
-    normals: normalBuffer,
-    vertexCount: indices.length,
-    textureCoords: textureCoordBuffer,
-    texture: glTexture,
-  } as Model
-}*/
 
 export function createSquareModelWithLoadedTexture(
   gl: WebGL2RenderingContext,

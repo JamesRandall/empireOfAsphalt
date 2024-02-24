@@ -4,6 +4,7 @@ export function setupGl(gl: WebGL2RenderingContext) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0)
   gl.clearDepth(1.0)
   gl.disable(gl.DEPTH_TEST)
+  gl.disable(gl.CULL_FACE)
   gl.depthFunc(gl.LEQUAL)
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)

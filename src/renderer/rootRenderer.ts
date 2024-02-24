@@ -140,11 +140,14 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
   let time = 0.0
 
   return (game: Game, timeDelta: number, effect: RenderEffect) => {
+    const projectionMatrix = mat4.create()
+    mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -1000, 1000)
+
     time += timeDelta
     // Now select the frame buffer
     bindBufferAndSetViewport(gl, frameBuffer, width, height)
     setupGl(gl)
-    sceneRenderer(game, timeDelta)
+    sceneRenderer(projectionMatrix, game, timeDelta)
 
     // finally target the output buffer and render our texture applying a whole screen post processing effect if
     // required

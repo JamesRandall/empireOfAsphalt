@@ -22,6 +22,7 @@ export interface Resources {
     greenCrt: ShaderSource
     vcr: ShaderSource
     motionBlur: ShaderSource
+    lighting: ShaderSource
   }
   soundEffects: SoundEffects
 }
@@ -36,11 +37,21 @@ async function loadShaderSource(name: string) {
 }
 
 export async function loadResources(gl: WebGL2RenderingContext): Promise<Resources> {
-  const shaderNames = ["uColor", "text", "simpleTexture", "crt", "ambercrt", "greencrt", "vcr", "motionblur"]
+  const shaderNames = [
+    "uColor",
+    "text",
+    "simpleTexture",
+    "crt",
+    "ambercrt",
+    "greencrt",
+    "vcr",
+    "motionblur",
+    "lighting",
+  ]
   const loadedShaders = await Promise.all(shaderNames.map((sn) => loadShaderSource(sn)))
   const namedShaders = new Map<string, ShaderSource>(shaderNames.map((sn, index) => [sn, loadedShaders[index]]))
 
-  const textureNames = ["noise", "font", "starmask", "scanner"]
+  const textureNames = ["grass", "dirt", "font", "noise"]
   const loadedTextures = await Promise.all(textureNames.map((tn) => loadTexture(gl, `./${tn}.png`)))
   const textures = new Map<string, WebGLTexture>(loadedTextures.map((t, i) => [textureNames[i], t]))
   return {
@@ -59,6 +70,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       greenCrt: namedShaders.get("greencrt")!,
       vcr: namedShaders.get("vcr")!,
       motionBlur: namedShaders.get("motionblur")!,
+      lighting: namedShaders.get("lighting")!,
     },
     soundEffects: await createSoundEffects(),
   }
