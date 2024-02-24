@@ -1,0 +1,36 @@
+import { loadResources } from "./resources/resources"
+import { createTestLandscapeScene } from "./scenes/testLandscapeScene"
+
+require("./extensions.ts")
+
+async function mount(viewCanvas: HTMLCanvasElement) {
+  const urlSearchParams = new URLSearchParams(window.location.search)
+  function setSize() {
+    viewCanvas.width = viewCanvas.clientWidth
+    viewCanvas.height = viewCanvas.clientHeight
+  }
+  let resizeDebounce: ReturnType<typeof setTimeout> | undefined = undefined
+  window.addEventListener("resize", (ev) => {
+    clearTimeout(resizeDebounce)
+    resizeDebounce = setTimeout(() => {
+      setSize()
+    }, 100)
+  })
+  setSize()
+
+  const gl = viewCanvas.getContext("webgl2")
+  if (gl === null) {
+    console.error("Your browser doesn't support WebGL 2")
+    return
+  }
+
+  const resources = await loadResources(gl)
+  let scene = createTestLandscapeScene(gl, resources)
+  function render(now: number) {
+    scene = scene.update(now) ?? scene
+    requestAnimationFrame(render)
+  }
+  requestAnimationFrame(render)
+}
+
+mount(document.getElementById("canvas") as HTMLCanvasElement)
