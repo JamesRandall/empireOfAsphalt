@@ -19,8 +19,10 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   const colors: number[] = []
 
   const half = sizes.tile / 2
-  const faceIndices = [3, 0, 1, 3, 1, 2]
-  const standardTextureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+  const faceIndices = [0, 1, 2, 3, 4, 5] //[3, 0, 1, 3, 1, 2]
+  const standardTextureCoords =
+    // [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+    [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]
   const grass = vec4.fromValues(0, 1, 0, 1)
   const water = vec4.fromValues(0, 0, 1, 1)
   const desert = vec4.fromValues(1, 1, 0, 1)
@@ -38,11 +40,30 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     for (let x = 0; x < rowTopHeights.length - 1; x++) {
       const left = sizes.tile * x - leftExtent
       const indexOffset = positions.length / 3
-      const v0 = vec3.fromValues(-half + left, rowTopHeights[x], half + top)
-      const v1 = vec3.fromValues(half + left, rowTopHeights[x + 1], half + top)
-      const v2 = vec3.fromValues(half + left, rowBottomHeights[x + 1], -half + top)
-      const v3 = vec3.fromValues(-half + left, rowBottomHeights[x], -half + top)
-      const tilePositions = [v0[0], v0[1], v0[2], v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2]]
+      const v0 = vec3.fromValues(-half + left, rowTopHeights[x], half + top) // tl
+      const v1 = vec3.fromValues(half + left, rowTopHeights[x + 1], half + top) // tr
+      const v2 = vec3.fromValues(half + left, rowBottomHeights[x + 1], -half + top) //br
+      const v3 = vec3.fromValues(-half + left, rowBottomHeights[x], -half + top) // bl
+      const tilePositions = [
+        v3[0], // bl
+        v3[1],
+        v3[2],
+        v0[0], // tl
+        v0[1],
+        v0[2],
+        v1[0], // tr
+        v1[1],
+        v1[2],
+        v3[0], // bl
+        v3[1],
+        v3[2],
+        v1[0], // tr
+        v1[1],
+        v1[2],
+        v2[0], // br
+        v2[1],
+        v2[2],
+      ]
 
       tilePositions.forEach((p) => positions.push(p))
       faceIndices.forEach((i) => indices.push(i + indexOffset))
@@ -55,6 +76,12 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       normals.push(n1[0])
       normals.push(n1[1])
       normals.push(n1[2])
+      normals.push(n1[0])
+      normals.push(n1[1])
+      normals.push(n1[2])
+      normals.push(n2[0])
+      normals.push(n2[1])
+      normals.push(n2[2])
       normals.push(n2[0])
       normals.push(n2[1])
       normals.push(n2[2])
@@ -63,7 +90,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       normals.push(n2[2])
 
       standardTextureCoords.forEach((stc) => textureCoords.push(stc))
-      for (let v = 0; v < 4; v++) {
+      for (let v = 0; v < 6; v++) {
         let color = x === 0 ? water : y === 0 ? desert : y === 1 ? fire : grass
         colors.push(color[0])
         colors.push(color[1])
