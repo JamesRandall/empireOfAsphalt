@@ -1,6 +1,6 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
-import { RenderingModel } from "./models"
+import { Outline, RenderingModel } from "./models"
 
 function calculateTriangleNormal(v1: vec3, v2: vec3, v3: vec3) {
   let edge1 = vec3.create()
@@ -16,11 +16,12 @@ function calculateTriangleNormal(v1: vec3, v2: vec3, v3: vec3) {
 export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
   const positions: number[] = []
   const indices: number[] = []
-  const outlineIndices: number[] = []
+
   const normals: number[] = []
   const textureCoords: number[] = []
   const colors: number[] = []
-  const outlineColors: number[] = []
+  //const outlineColors: number[] = []
+  const outlines: Outline[] = []
 
   const half = sizes.tile / 2
   const faceIndices = [3, 0, 1, 3, 1, 2]
@@ -33,6 +34,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     let rowBottomHeights = heights[y + 1]
     const top = sizes.tile * y
 
+    const outlineIndices: number[] = []
     for (let x = 0; x < rowTopHeights.length - 1; x++) {
       const left = sizes.tile * x
       const indexOffset = positions.length / 3
@@ -74,12 +76,20 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         colors.push(grass[2])
         colors.push(grass[3])
 
-        outlineColors.push(0)
-        outlineColors.push(0)
-        outlineColors.push(0)
-        outlineColors.push(1)
+        //outlineColors.push(0)
+        //outlineColors.push(0)
+        //outlineColors.push(0)
+        //outlineColors.push(1)
       }
     }
+    const outlineIndexBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, outlineIndexBuffer)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(outlineIndices), gl.STATIC_DRAW)
+    outlines.push({
+      indices: outlineIndexBuffer!,
+      vertexCount: outlineIndices.length,
+      color: vec4.fromValues(0, 0, 0, 1),
+    })
   }
 
   const positionBuffer = gl.createBuffer()
@@ -91,15 +101,13 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
-  const outlineIndexBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, outlineIndexBuffer)
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(outlineIndices), gl.STATIC_DRAW)
+
   const colorBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
-  const outlineColorBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, outlineColorBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(outlineColors), gl.STATIC_DRAW)
+  //const outlineColorBuffer = gl.createBuffer()
+  //gl.bindBuffer(gl.ARRAY_BUFFER, outlineColorBuffer)
+  //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(outlineColors), gl.STATIC_DRAW)
   const textureCoordBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
@@ -108,8 +116,9 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     position: positionBuffer,
     color: colorBuffer,
     indices: indexBuffer,
-    outlineIndices: outlineIndexBuffer,
-    outlineVertexCount: outlineIndices.length,
+    //outlineIndices: outlineIndexBuffer,
+    //outlineVertexCount: outlineIndices.length,
+    outlines: outlines,
     normals: normalBuffer,
     vertexCount: indices.length,
     textureCoords: textureCoordBuffer,

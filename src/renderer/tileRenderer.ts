@@ -107,13 +107,17 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
 
     gl.useProgram(outlineProgramInfo.program)
     setCommonAttributes(gl, tile, outlineProgramInfo)
-    setViewUniformLocations(gl, outlineProgramInfo, {
-      projectionMatrix,
-      modelViewMatrix,
-      color: vec4.fromValues(0, 0, 0, 1),
+
+    gl.disable(gl.DEPTH_TEST)
+    tile.outlines?.forEach((ol) => {
+      setViewUniformLocations(gl, outlineProgramInfo, {
+        projectionMatrix,
+        modelViewMatrix,
+        color: ol.color,
+      })
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ol.indices)
+      gl.drawElements(gl.LINE_STRIP, ol.vertexCount, type, offset)
     })
-    //gl.disable(gl.DEPTH_TEST)
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tile.outlineIndices!)
-    gl.drawElements(gl.LINE_STRIP, tile.outlineVertexCount!, type, offset)
+    gl.enable(gl.DEPTH_TEST)
   }
 }

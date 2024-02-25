@@ -2,17 +2,24 @@ import { vec2, vec3, vec4 } from "gl-matrix"
 import { loadTexture } from "./texture"
 import { sizes } from "../constants"
 
+export interface Outline {
+  indices: WebGLBuffer
+  color: vec4
+  vertexCount: number
+}
+
 export interface RenderingModel {
   position: WebGLBuffer
   color: WebGLBuffer
   indices: WebGLBuffer
-  outlineIndices?: WebGLBuffer
-  outlineColor?: WebGLBuffer
+  //outlineIndices?: WebGLBuffer
+  //outlineColor?: WebGLBuffer
   normals: WebGLBuffer
   textureCoords: WebGLBuffer
   texture: WebGLTexture | null
   vertexCount: number
-  outlineVertexCount?: number
+  //outlineVertexCount?: number
+  outlines: Outline[] | null
 }
 
 const materials: { [key: string]: number[] } = {
@@ -189,6 +196,7 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
     textureCoords: 0,
     texture: null,
     faceNormal: null,
+    outlines: null,
   } as RenderingModel
 }
 
