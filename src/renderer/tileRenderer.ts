@@ -66,27 +66,33 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
   })
   const h = 16
   const landscape = createLandscape(gl, [
-    [0, h, h, 0, 0],
-    [0, h, h, 0, 0],
-    [0, 0, 0, 0, h],
-    [0, 0, 0, 0, h],
+    [0, h, h, 0, 0, 0],
+    [0, h, h, 0, 0, h],
+    [0, 0, 0, 0, h, h],
+    [0, 0, 0, 0, h, h],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [h, h, h, h, h, h],
   ])
 
   return function (projectionMatrix: mat4, game: Game) {
     gl.useProgram(programInfo.program)
     setViewUniformLocations(gl, programInfo, {
       projectionMatrix,
-      lightWorldPosition: [1000, 100, 1000],
+      lightWorldPosition: [400, 100, 300],
     })
 
     const tile = landscape
 
     const modelViewMatrix = mat4.create()
-    const zoom = 4
-    mat4.rotateX(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(35.264)) // Tilt
-    mat4.rotateY(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(45))
-    mat4.scale(modelViewMatrix, modelViewMatrix, [zoom, zoom, zoom])
-    mat4.translate(modelViewMatrix, modelViewMatrix, [sizes.tile, 0, -sizes.tile])
+    //mat4.rotateX(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(35.264)) // Tilt
+    //mat4.rotateY(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(45))
+    mat4.scale(modelViewMatrix, modelViewMatrix, [game.camera.zoom, game.camera.zoom, game.camera.zoom])
+
+    //mat4.translate(modelViewMatrix, modelViewMatrix, [-sizes.tile * 2.5, 0, -sizes.tile * 2.5])
+    //mat4.translate(modelViewMatrix, modelViewMatrix, [sizes.tile, 0, -sizes.tile])
+    //mat4.translate(modelViewMatrix, modelViewMatrix, [sizes.tile, sizes.tile, 0])
+    //mat4.translate(modelViewMatrix, modelViewMatrix, [0, sizes.tile, 0])
 
     const normalMatrix = mat4.create()
     mat4.invert(normalMatrix, modelViewMatrix)

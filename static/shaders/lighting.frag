@@ -41,7 +41,7 @@ void main(void) {
     cos_angle = pow(cos_angle, uShininess);
 
     if (cos_angle > 0.0) {
-        specular_color = lightColor * cos_angle;
+        //specular_color = lightColor * cos_angle;
         diffuse_color = diffuse_color * (1.0 - cos_angle);
     } else {
         specular_color = vec3(0.0, 0.0, 0.0);

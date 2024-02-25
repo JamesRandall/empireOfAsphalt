@@ -4,7 +4,7 @@ import { Game } from "../model/game"
 import { Resources } from "../resources/resources"
 import { compileShaderProgram2, ShaderSource } from "./coregl/shader"
 import { createSquareModel } from "../resources/models"
-import { mat4, quat, vec2 } from "gl-matrix"
+import { mat4, quat, vec2, vec3 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
 
 export enum RenderEffect {
@@ -151,11 +151,24 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     const projectionMatrix = mat4.create()
     mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -1000, 1000)
 
+    let cameraPosition = game.camera.position
+    let lookAtTarget = game.camera.lookAt
+    let upDirection = vec3.fromValues(0, 1, 0)
+
+    let viewMatrix = mat4.create()
+    mat4.lookAt(viewMatrix, cameraPosition, lookAtTarget, upDirection)
+
+    //const lookAt = vec3.fromValues(0, 0, 0)
+    //const cameraMatrix = mat4.lookAt(mat4.create(), lookAt, [0, 0, 0], [0, 1, 0])
+    //const cameraMatrix = mat4.translate(mat4.create(), mat4.create(), [0, 0, 0])
+    //const viewMatrix = mat4.invert(mat4.create(), cameraMatrix)
+    const viewProjectionMatrix = mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
+
     time += timeDelta
     // Now select the frame buffer
     bindBufferAndSetViewport(gl, frameBuffer, width, height)
     setupGl(gl)
-    sceneRenderer(projectionMatrix, game, timeDelta)
+    sceneRenderer(viewProjectionMatrix, game, timeDelta)
 
     // finally target the output buffer and render our texture applying a whole screen post processing effect if
     // required
