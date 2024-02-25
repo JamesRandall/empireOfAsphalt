@@ -1,16 +1,13 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
-import { Outline, RenderingModel } from "./models"
+import { RenderingModel } from "./models"
 
 function calculateTriangleNormal(v1: vec3, v2: vec3, v3: vec3) {
-  let edge1 = vec3.create()
-  vec3.subtract(edge1, v2, v1)
-  let edge2 = vec3.create()
-  vec3.subtract(edge2, v3, v1)
-  let normal = vec3.create()
-  vec3.cross(normal, edge1, edge2)
+  const edge1 = vec3.subtract(vec3.create(), v2, v1)
+  const edge2 = vec3.subtract(vec3.create(), v3, v1)
+  const normal = vec3.cross(vec3.create(), edge1, edge2)
   vec3.normalize(normal, normal)
-  return normal // This is the surface normal
+  return normal
 }
 
 export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
@@ -20,8 +17,6 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   const normals: number[] = []
   const textureCoords: number[] = []
   const colors: number[] = []
-  //const outlineColors: number[] = []
-  const outlines: Outline[] = []
 
   const half = sizes.tile / 2
   const faceIndices = [3, 0, 1, 3, 1, 2]
@@ -49,20 +44,11 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       const v3 = vec3.fromValues(-half + left, rowBottomHeights[x], -half + top)
       const tilePositions = [v0[0], v0[1], v0[2], v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2]]
 
-      //const n1 = calculateTriangleNormal(v1, v0, v3)
-      //const n2 = calculateTriangleNormal(v2, v1, v3)
-      const n1 = calculateTriangleNormal(v3, v0, v1)
-      const n2 = calculateTriangleNormal(v3, v1, v2)
-
       tilePositions.forEach((p) => positions.push(p))
       faceIndices.forEach((i) => indices.push(i + indexOffset))
-      //faceIndices.forEach((i) => outlineIndices.push(i + indexOffset))
-      outlineIndices.push(indexOffset + 3)
-      outlineIndices.push(indexOffset)
-      outlineIndices.push(indexOffset + 1)
-      outlineIndices.push(indexOffset + 2)
-      //outlineIndices.push(indexOffset)
-      //standardNormals.forEach((n) => normals.push(n))
+
+      const n1 = calculateTriangleNormal(v3, v0, v1)
+      const n2 = calculateTriangleNormal(v3, v1, v2)
       normals.push(n1[0])
       normals.push(n1[1])
       normals.push(n1[2])
@@ -83,21 +69,8 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         colors.push(color[1])
         colors.push(color[2])
         colors.push(color[3])
-
-        //outlineColors.push(0)
-        //outlineColors.push(0)
-        //outlineColors.push(0)
-        //outlineColors.push(1)
       }
     }
-    const outlineIndexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, outlineIndexBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(outlineIndices), gl.STATIC_DRAW)
-    outlines.push({
-      indices: outlineIndexBuffer!,
-      vertexCount: outlineIndices.length,
-      color: vec4.fromValues(0, 0, 0, 1),
-    })
   }
 
   const positionBuffer = gl.createBuffer()
@@ -124,9 +97,6 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     position: positionBuffer,
     color: colorBuffer,
     indices: indexBuffer,
-    //outlineIndices: outlineIndexBuffer,
-    //outlineVertexCount: outlineIndices.length,
-    outlines: outlines,
     normals: normalBuffer,
     vertexCount: indices.length,
     textureCoords: textureCoordBuffer,

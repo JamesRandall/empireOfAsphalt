@@ -51,7 +51,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   game.terrain.size = 32
   game.terrain.heightMap = generateHeightMap(game.terrain.size)
   game.terrain.model = createLandscape(gl, game.terrain.heightMap)
-  game.light.position = vec3.fromValues(0, 200, -200)
+  game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
   game.camera.zoom = 1.5
   bindKeys(game.controlState.current)
 

@@ -1,19 +1,14 @@
 #version 300 es
-    precision highp int;
+precision highp int;
 precision highp float;
 
 in lowp vec4 vColor;
 in highp vec3 vNormal;
-in highp vec3 vVertex;
 in highp vec2 vTextureCoord;
-//in highp vec3 v_surfaceToLight;
-
-out lowp vec4 outputColor;
-
-uniform highp float uShininess;
 uniform vec3 uLightWorldPosition;
 uniform highp float uZoomedTileSize;
 
+out lowp vec4 outputColor;
 
 void main(void) {
     float borderSize = 1.0/uZoomedTileSize;
@@ -21,7 +16,19 @@ void main(void) {
         outputColor = vec4(0.0, 0.0, 0.0, 0.5);
     }
     else {
-        vec3 to_light;
+        //outputColor = vColor;
+        vec3 normal = normalize(vNormal);
+        float light = dot(normal, normalize(uLightWorldPosition)*-1.0);
+        vec3 ambientColor = vec3(0.3, 0.3, 0.3) * vColor.rgb;
+        outputColor = vColor;
+        outputColor.rgb *= light;
+        outputColor.rgb += ambientColor;
+        //vec3 surfaceToLightDirection = normalize(uLightWorldPosition);
+        //float light = dot(vNormal, surfaceToLightDirection);
+        //outputColor = vColor;
+        //outputColor.rgb *= light;
+
+        /*vec3 to_light;
         vec3 vertex_normal;
         vec3 reflection;
         vec3 to_camera;
@@ -57,7 +64,7 @@ void main(void) {
 
         color = ambient_color + diffuse_color + specular_color;
 
-        outputColor = vec4(color, vColor.a);
+        outputColor = vec4(color, vColor.a);*/
     }
 
     // this simpler lighting model can be used for debugging normals
