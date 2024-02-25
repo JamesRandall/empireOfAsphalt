@@ -2,6 +2,7 @@
     in vec4 aVertexPosition;
 in vec3 aVertexNormal;
 in vec4 aVertexColor;
+in vec2 aTextureCoord;
 
 uniform mat4 uNormalMatrix;
 uniform mat4 uModelViewMatrix;
@@ -11,6 +12,7 @@ uniform mat4 uProjectionMatrix;
 out lowp vec4 vColor;
 out highp vec3 vNormal;
 out highp vec3 vVertex;
+out highp vec2 vTextureCoord;
 //out highp vec3 v_surfaceToLight;
 
 uniform vec3 uLightWorldPosition;
@@ -21,6 +23,7 @@ void main(void) {
     vVertex = vec3(uModelViewMatrix*aVertexPosition);
     highp vec3 transformedNormal = mat3(uNormalMatrix) * aVertexNormal;
     vNormal = transformedNormal;
+    vTextureCoord = aTextureCoord;
 
     // this simpler lighting model can be used to test normals
 /*

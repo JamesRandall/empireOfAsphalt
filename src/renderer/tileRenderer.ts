@@ -5,6 +5,7 @@ import { Resources } from "../resources/resources"
 import { Game } from "../model/game"
 import { createLandscape, createTile } from "../resources/landscapeTile"
 import { sizes } from "../constants"
+import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 
 function initOutlineShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.uColor)
@@ -37,6 +38,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
       vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
       vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+      textureCoords: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
     },
     uniformLocations: {
       projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix")!,
@@ -44,6 +46,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix")!,
       lightWorldPosition: gl.getUniformLocation(shaderProgram, "uLightWorldPosition")!,
       shininess: gl.getUniformLocation(shaderProgram, "uShininess")!,
+      zoomedTileSize: gl.getUniformLocation(shaderProgram, "uZoomedTileSize"),
     },
   }
 }
@@ -65,34 +68,18 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
     bottomRight: 0,
   })
   const h = 16
-  const landscape = createLandscape(gl, [
-    [0, h, h, 0, 0, 0],
-    [0, h, h, 0, 0, h],
-    [0, 0, 0, 0, h, h],
-    [0, 0, 0, 0, h, h],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [h, h, h, h, h, h],
-  ])
-
   return function (projectionMatrix: mat4, game: Game) {
+    const tile = game.terrain.model
+    if (!tile) return
+
     gl.useProgram(programInfo.program)
     setViewUniformLocations(gl, programInfo, {
       projectionMatrix,
-      lightWorldPosition: [400, 100, 300],
+      lightWorldPosition: game.light.position,
     })
 
-    const tile = landscape
-
     const modelViewMatrix = mat4.create()
-    //mat4.rotateX(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(35.264)) // Tilt
-    //mat4.rotateY(modelViewMatrix, modelViewMatrix, glMatrix.toRadian(45))
     mat4.scale(modelViewMatrix, modelViewMatrix, [game.camera.zoom, game.camera.zoom, game.camera.zoom])
-
-    //mat4.translate(modelViewMatrix, modelViewMatrix, [-sizes.tile * 2.5, 0, -sizes.tile * 2.5])
-    //mat4.translate(modelViewMatrix, modelViewMatrix, [sizes.tile, 0, -sizes.tile])
-    //mat4.translate(modelViewMatrix, modelViewMatrix, [sizes.tile, sizes.tile, 0])
-    //mat4.translate(modelViewMatrix, modelViewMatrix, [0, sizes.tile, 0])
 
     const normalMatrix = mat4.create()
     mat4.invert(normalMatrix, modelViewMatrix)
@@ -106,15 +93,15 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       normalMatrix,
       shininess: 16.0,
     })
+    gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * game.camera.zoom * 1.5)
     const vertexCount = tile.vertexCount
     const type = gl.UNSIGNED_SHORT
     const offset = 0
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
 
-    gl.useProgram(outlineProgramInfo.program)
+    /*gl.useProgram(outlineProgramInfo.program)
     setCommonAttributes(gl, tile, outlineProgramInfo)
 
-    gl.disable(gl.DEPTH_TEST)
     tile.outlines?.forEach((ol) => {
       setViewUniformLocations(gl, outlineProgramInfo, {
         projectionMatrix,
@@ -123,7 +110,6 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       })
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ol.indices)
       gl.drawElements(gl.LINE_STRIP, ol.vertexCount, type, offset)
-    })
-    gl.enable(gl.DEPTH_TEST)
+    })*/
   }
 }

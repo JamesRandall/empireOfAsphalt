@@ -6,6 +6,7 @@ import { compileShaderProgram2, ShaderSource } from "./coregl/shader"
 import { createSquareModel } from "../resources/models"
 import { mat4, quat, vec2, vec3 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
+import { sizes } from "../constants"
 
 export enum RenderEffect {
   None,
@@ -149,7 +150,8 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
 
   const render = (game: Game, timeDelta: number, effect: RenderEffect) => {
     const projectionMatrix = mat4.create()
-    mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -1000, 1000)
+    const maxDepth = game.terrain.size * sizes.tile * game.camera.zoom * 2
+    mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -maxDepth, maxDepth)
 
     let cameraPosition = game.camera.position
     let lookAtTarget = game.camera.lookAt
