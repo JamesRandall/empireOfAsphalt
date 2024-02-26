@@ -150,7 +150,7 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
 
   const render = (game: Game, timeDelta: number, effect: RenderEffect) => {
     const projectionMatrix = mat4.create()
-    const maxDepth = game.terrain.size * sizes.tile * game.camera.zoom * 2
+    const maxDepth = game.terrain.size * sizes.tile
     mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -maxDepth, maxDepth)
 
     let cameraPosition = game.camera.position

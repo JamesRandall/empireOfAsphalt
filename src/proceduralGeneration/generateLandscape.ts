@@ -18,8 +18,6 @@ export function generateHeightMap(size: number) {
   rows[size - 1][size - 1] = randomHeight()
 
   recursivelyFill(rows, 0, size - 1, 0, size - 1)
-  diamondStep(rows, 0, size - 1, 0, size - 1)
-  squareStep(rows, 0, size - 1, 0, size - 1)
 
   const newRows = smooth2(smooth2(smooth2(rows))) //smooth(rows)
   //smooth(newRows)

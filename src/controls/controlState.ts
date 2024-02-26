@@ -5,6 +5,7 @@ export interface ControlState {
   mapRight: boolean
   mapRotateClockwise: boolean
   mapRotateAnticlockwise: boolean
+  mouseZoom: number
 }
 
 export function getDefaultControlState() {
@@ -15,5 +16,6 @@ export function getDefaultControlState() {
     mapRight: false,
     mapRotateClockwise: false,
     mapRotateAnticlockwise: false,
+    mouseZoom: 0,
   }
 }
