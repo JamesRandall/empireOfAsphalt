@@ -1,29 +1,9 @@
-import { compileShaderProgram, compileShaderProgram2, loadShader } from "./coregl/shader"
-import { glMatrix, mat4, quat, vec3, vec4 } from "gl-matrix"
-import { setColorAttribute, setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
+import { compileShaderProgram2 } from "./coregl/shader"
+import { mat4 } from "gl-matrix"
+import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
 import { Resources } from "../resources/resources"
 import { Game } from "../model/game"
-import { createLandscape, createTile } from "../resources/landscapeTile"
 import { sizes } from "../constants"
-
-function initOutlineShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
-  const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.uColor)
-  if (!shaderProgram) {
-    return null
-  }
-
-  return {
-    program: shaderProgram,
-    attribLocations: {
-      vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-    },
-    uniformLocations: {
-      projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix")!,
-      modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix")!,
-      color: gl.getUniformLocation(shaderProgram, "uColor")!,
-    },
-  }
-}
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.directional)

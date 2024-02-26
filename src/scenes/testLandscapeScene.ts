@@ -6,7 +6,7 @@ import { bindKeys } from "../controls/bindKeys"
 import { glMatrix, vec3 } from "gl-matrix"
 import { map, sizes } from "../constants"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
-import { createLandscape } from "../resources/landscapeTile"
+import { createLandscape } from "../resources/landscape"
 
 function applyControlState(game: Game, timeDelta: number) {
   const speed = map.movementSpeedTilesPerSecond * timeDelta * game.camera.zoom

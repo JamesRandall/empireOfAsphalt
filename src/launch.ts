@@ -11,7 +11,7 @@ async function mount(viewCanvas: HTMLCanvasElement) {
 
   const urlSearchParams = new URLSearchParams(window.location.search)
 
-  const gl = viewCanvas.getContext("webgl2")
+  const gl = viewCanvas.getContext("webgl2", { antialias: true })
   if (gl === null) {
     console.error("Your browser doesn't support WebGL 2")
     return

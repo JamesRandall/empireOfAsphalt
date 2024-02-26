@@ -3,7 +3,10 @@ import { map, sizes } from "../constants"
 // we're generating the height map using the diamond square algorithm
 // note that sizes must be 2^n + 1
 // https://en.wikipedia.org/wiki/Diamond-square_algorithm
-
+// This generates a Transport Tycoon / Sim City 2000 esque landscape.
+// Its harder to get this than a smooth rolling landscape - if you want that basically
+// remove the alignment to whole numbers on heights and the limits on "1 rise or fall per unit" rules
+// and smooth the result and you'll get a lovely rolling landscape
 export function generateHeightMap(size: number) {
   size++
   const rows = getLevelTerrain(size)
@@ -18,7 +21,7 @@ export function generateHeightMap(size: number) {
   diamondStep(rows, 0, size - 1, 0, size - 1)
   squareStep(rows, 0, size - 1, 0, size - 1)
 
-  const newRows = smooth2(smooth2(rows)) //smooth(rows)
+  const newRows = smooth2(smooth2(smooth2(rows))) //smooth(rows)
   //smooth(newRows)
   //smooth(newRows)
 

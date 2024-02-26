@@ -9,6 +9,9 @@ export function setupGl(gl: WebGL2RenderingContext) {
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+  //gl.enable(gl.SAMPLE_COVERAGE)
+  //sgl.sampleCoverage(0.9, false)
 }
 
 export function bindBufferAndSetViewport(
