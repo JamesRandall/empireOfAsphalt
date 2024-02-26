@@ -48,7 +48,17 @@ function applyControlState(game: Game, timeDelta: number) {
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let rootRenderer = createRootRenderer(gl, resources, createTileRenderer(gl, resources))
   const game = getDefaultGame()
+  const threeHigh = [
+    [16, 16],
+    [0, 16],
+  ]
+  const threeHigh2 = [
+    [0, 16],
+    [16, 16],
+  ]
+
   game.terrain.size = 32
+  //game.terrain.heightMap = threeHigh2
   game.terrain.heightMap = generateHeightMap(game.terrain.size)
   game.terrain.model = createLandscape(gl, game.terrain.heightMap)
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light

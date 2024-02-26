@@ -13,64 +13,13 @@ out lowp vec4 outputColor;
 void main(void) {
     float borderSize = 1.0/uZoomedTileSize;
     if (vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) {
-        outputColor = vec4(0.0, 0.0, 0.0, 0.5);
+        outputColor = vec4(0.0, 0.3, 0.0, 1.0);
     }
     else {
-        //outputColor = vColor;
         vec3 normal = normalize(vNormal);
         float light = dot(normal, normalize(uLightWorldPosition)*-1.0);
-        vec3 ambientColor = vec3(0.3, 0.3, 0.3) * vColor.rgb;
+        //light = (0.6 * light) + 0.4; // this makes the light range from "mid" to bright
         outputColor = vColor;
-        outputColor.rgb *= light;
-        outputColor.rgb += ambientColor;
-        //vec3 surfaceToLightDirection = normalize(uLightWorldPosition);
-        //float light = dot(vNormal, surfaceToLightDirection);
-        //outputColor = vColor;
-        //outputColor.rgb *= light;
-
-        /*vec3 to_light;
-        vec3 vertex_normal;
-        vec3 reflection;
-        vec3 to_camera;
-        float cos_angle;
-        vec3 diffuse_color;
-        vec3 specular_color;
-        vec3 ambient_color;
-        vec3 color;
-
-        vec3 lightColor = vec3(1.0, 1.0, 1.0);
-        ambient_color = vec3(0.6, 0.6, 0.6) * vColor.rgb;
-        to_light = uLightWorldPosition - vVertex;
-        to_light = normalize(to_light);
-
-        vertex_normal = normalize(vNormal);
-        cos_angle = dot(vertex_normal, to_light);
-        cos_angle = clamp(cos_angle, 0.0, 1.0);
-        diffuse_color = vec3(vColor) * cos_angle;
-        reflection = 2.0 * dot(vertex_normal, to_light) * vertex_normal - to_light;
-        to_camera = -1.0 * vVertex;
-        reflection = normalize(reflection);
-        to_camera = normalize(to_camera);
-        cos_angle = dot(reflection, to_camera);
-        cos_angle = clamp(cos_angle, 0.0, 1.0);
-        cos_angle = pow(cos_angle, uShininess);
-
-        if (cos_angle > 0.0) {
-            //specular_color = lightColor * cos_angle;
-            diffuse_color = diffuse_color * (1.0 - cos_angle);
-        } else {
-            specular_color = vec3(0.0, 0.0, 0.0);
-        }
-
-        color = ambient_color + diffuse_color + specular_color;
-
-        outputColor = vec4(color, vColor.a);*/
+        outputColor.rgb *= (light+0.4);
     }
-
-    // this simpler lighting model can be used for debugging normals
-/*
-        vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
-        float light = dot(vNormal, surfaceToLightDirection);
-        outputColor = vColor;
-        outputColor.rgb *= light;*/
 }
