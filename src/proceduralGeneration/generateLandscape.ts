@@ -1,4 +1,4 @@
-import { map, sizes } from "../constants"
+import { map } from "../constants"
 
 // we're generating the height map using the diamond square algorithm
 // note that sizes must be 2^n + 1
@@ -8,6 +8,9 @@ import { map, sizes } from "../constants"
 // remove the alignment to whole numbers on heights and the limits on "1 rise or fall per unit" rules
 // and smooth the result and you'll get a lovely rolling landscape
 export function generateHeightMap(size: number) {
+  if (!isPowerOfTwo(size)) {
+    throw Error("Map sizes must be a power of two: 16, 32, 64, etc.")
+  }
   size++
   const rows = getLevelTerrain(size)
 
@@ -19,14 +22,12 @@ export function generateHeightMap(size: number) {
 
   recursivelyFill(rows, 0, size - 1, 0, size - 1)
 
-  const newRows = smooth2(smooth2(smooth2(rows))) //smooth(rows)
-  //smooth(newRows)
-  //smooth(newRows)
+  const newRows = smooth(smooth(smooth(rows)))
 
   return newRows.map((row) => row.map((h) => h * map.unitRenderHeight))
 }
 
-function smooth2(heightMap: number[][]) {
+function smooth(heightMap: number[][]) {
   const width = heightMap.length
   const height = heightMap[0].length
   const smoothedMap = Array.from(Array(width), () => Array(height).fill(0))
@@ -43,33 +44,6 @@ function smooth2(heightMap: number[][]) {
     }
   }
   return smoothedMap
-}
-
-function smooth(rows: number[][]) {
-  const height = rows.length
-  const width = rows[0].length
-  const newRows: number[][] = []
-
-  function calculateAverage(x: number, y: number) {
-    const values = []
-    for (let sy = y - 1; sy <= y + 1; sy++) {
-      for (let sx = x - 1; sx <= x + 1; sx++) {
-        if (sx >= 0 && sy >= 0 && sx < width && sy < height) {
-          values.push(rows[y][x])
-        }
-      }
-    }
-    return Math.round(values.reduce((t, c) => t + c, 0) / values.length)
-  }
-
-  for (let y = 0; y < height; y++) {
-    const newRow = []
-    for (let x = 0; x < width; x++) {
-      newRow.push(calculateAverage(x, y))
-    }
-    newRows.push(newRow)
-  }
-  return newRows
 }
 
 function recursivelyFill(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {
@@ -89,21 +63,6 @@ function recursivelyFill(rows: number[][], fromX: number, toX: number, fromY: nu
 
 function randomHeight() {
   return Math.floor(Math.random() * map.maxHeight)
-}
-
-function clampToMapHeight(value: number) {
-  value = Math.round(value)
-  if (value < 0) {
-    value = 0
-  }
-  if (value > map.maxHeight) {
-    value = map.maxHeight
-  }
-  return value
-}
-
-function getRandomAdjustment() {
-  return Math.round(Math.random() * 2) - 1
 }
 
 function diamondStep(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {
@@ -159,9 +118,7 @@ function squareStep(rows: number[][], fromX: number, toX: number, fromY: number,
     const highestNeighbour = Math.max(v1, v2, v3)
     const maximumHeight = Math.min(map.maxHeight, lowestNeighbour + distance) // maximum is 1 unit per tile increase from lowest neighbour
     const minimumHeight = Math.max(0, highestNeighbour - distance) // minimum is 1 unit per tile down from hieghest newighbour
-    //const max = Math.min(map.maxHeight, Math.max(v1, v2, v3) + 1)
-    const newValue = Math.round(Math.random() * (maximumHeight - minimumHeight) + minimumHeight)
-    return newValue
+    return Math.round(Math.random() * (maximumHeight - minimumHeight) + minimumHeight)
   }
 
   const centerValue = rows[centerY][centerX]
@@ -191,4 +148,8 @@ function getLevelTerrain(size: number) {
     rows.push(row)
   }
   return rows
+}
+
+function isPowerOfTwo(n: number) {
+  return n > 0 && (n & (n - 1)) === 0
 }
