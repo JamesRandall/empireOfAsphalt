@@ -1,6 +1,7 @@
 import { ControlState, getDefaultControlState } from "../controls/controlState"
 import { vec3 } from "gl-matrix"
 import { RenderingModel } from "../resources/models"
+import { Landscape } from "./Landscape"
 
 export enum RotationEnum {
   North,
@@ -25,14 +26,10 @@ export interface Game {
   light: {
     position: vec3
   }
-  terrain: {
-    size: number
-    heightMap: HeightMap
-    model: RenderingModel | null
-  }
+  landscape: Landscape
 }
 
-export function getDefaultGame(): Game {
+export function createGameWithLandscape(landscape: Landscape): Game {
   return {
     controlState: {
       current: getDefaultControlState(),
@@ -47,10 +44,6 @@ export function getDefaultGame(): Game {
     light: {
       position: vec3.fromValues(0, 300, 0),
     },
-    terrain: {
-      size: 0,
-      heightMap: [],
-      model: null,
-    },
+    landscape: landscape,
   }
 }

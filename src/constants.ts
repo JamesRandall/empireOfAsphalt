@@ -4,6 +4,8 @@ export const sizes = {
 
 export const map = {
   movementSpeedTilesPerSecond: sizes.tile * 12,
-  maxHeight: 6,
+  maxHeight: 12,
   unitRenderHeight: sizes.tile / 2,
+  maxZoom: 10.0,
+  minZoom: 0.1,
 }

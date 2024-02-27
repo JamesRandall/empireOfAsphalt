@@ -1,11 +1,45 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
+import { Landscape } from "../model/Landscape"
 
 // Index buffers have a max index of 64k as they are unsigned shorts - our large landscapes are bigger than that
 // so we chunk them up - doing ths will probably help us with terrain levelling performance in any case as we'll
 // have less geometry to update
+
 export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
+  const chunkSize = 32
+  let heightMapSize = heights.length
+  const landscape: Landscape = {
+    heights: heights,
+    terrainType: [],
+    chunkSize: chunkSize,
+    chunks: [],
+    size: heightMapSize,
+  }
+  for (let y = 0; y < heightMapSize - 1; y += chunkSize) {
+    for (let x = 0; x < heightMapSize - 1; x += chunkSize) {
+      const toX = Math.min(heightMapSize - 1, x + chunkSize - 1)
+      const toY = Math.min(heightMapSize - 1, y + chunkSize - 1)
+      const chunk = {
+        fromX: x,
+        fromY: y,
+        model: createLandscapeChunk(gl, heights, x, y, toX, toY),
+      }
+      landscape.chunks.push(chunk)
+    }
+  }
+  return landscape
+}
+
+function createLandscapeChunk(
+  gl: WebGL2RenderingContext,
+  heights: number[][],
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+) {
   const positions: number[] = []
   const indices: number[] = []
 
@@ -23,14 +57,13 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   const leftExtent = (sizes.tile * heights[0].length) / 2
   const topExtent = (-sizes.tile * heights[0].length) / 2
 
-  let maxZ = 0
-
-  for (let y = 0; y < heights.length - 1; y++) {
+  for (let y = fromY; y <= toY; y++) {
     let rowTopHeights = heights[y]
     let rowBottomHeights = heights[y + 1]
+    if (rowBottomHeights === undefined) debugger
 
     const top = -sizes.tile * y - topExtent
-    for (let x = 0; x < rowTopHeights.length - 1; x++) {
+    for (let x = fromX; x <= toX; x++) {
       const left = sizes.tile * x - leftExtent
       const indexOffset = positions.length / 3
       const cellHeights = [rowTopHeights[x], rowTopHeights[x + 1], rowBottomHeights[x + 1], rowBottomHeights[x]]

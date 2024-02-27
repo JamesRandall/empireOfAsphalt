@@ -1,10 +1,9 @@
 import { Resources } from "../resources/resources"
 import { createRootRenderer, RenderEffect } from "../renderer/rootRenderer"
 import { createTileRenderer } from "../renderer/tileRenderer"
-import { Game, getDefaultGame, RotationEnum } from "../model/game"
+import { createGameWithLandscape } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
-import { glMatrix, vec3 } from "gl-matrix"
-import { map, sizes } from "../constants"
+import { vec3 } from "gl-matrix"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
@@ -12,20 +11,10 @@ import { applyControlState } from "../gameLoop/applyControlState"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let rootRenderer = createRootRenderer(gl, resources, createTileRenderer(gl, resources))
-  const game = getDefaultGame()
-  const threeHigh = [
-    [16, 16],
-    [0, 16],
-  ]
-  const threeHigh2 = [
-    [0, 16],
-    [16, 16],
-  ]
+  const heightmap = generateHeightMap(256)
+  const landscape = createLandscape(gl, heightmap)
+  const game = createGameWithLandscape(landscape)
 
-  game.terrain.size = 128
-  //game.terrain.heightMap = threeHigh2
-  game.terrain.heightMap = generateHeightMap(game.terrain.size)
-  game.terrain.model = createLandscape(gl, game.terrain.heightMap)
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
   game.camera.zoom = 1.5
   bindKeys(game.controlState.current)

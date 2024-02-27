@@ -3,7 +3,7 @@ import { map } from "../constants"
 import { glMatrix, vec3 } from "gl-matrix"
 
 export function applyControlState(game: Game, timeDelta: number) {
-  const speed = map.movementSpeedTilesPerSecond * timeDelta * game.camera.zoom
+  const speed = map.movementSpeedTilesPerSecond * timeDelta * (map.maxZoom - game.camera.zoom)
   const delta = vec3.create()
   if (game.controlState.current.mapForwards) {
     vec3.add(delta, delta, [0, speed, 0])
@@ -38,8 +38,8 @@ export function applyControlState(game: Game, timeDelta: number) {
   vec3.add(game.camera.lookAt, game.camera.lookAt, delta)
   vec3.add(game.camera.position, game.camera.position, delta)
   game.camera.zoom += game.controlState.current.mouseZoom * 0.01
-  if (game.camera.zoom < 0.1) game.camera.zoom = 0.1
-  else if (game.camera.zoom > 10.0) game.camera.zoom = 10.0
+  if (game.camera.zoom < map.minZoom) game.camera.zoom = map.minZoom
+  else if (game.camera.zoom > map.maxZoom) game.camera.zoom = map.maxZoom
 
   game.controlState.current.mouseZoom = 0
   game.controlState.previous = { ...game.controlState.current }

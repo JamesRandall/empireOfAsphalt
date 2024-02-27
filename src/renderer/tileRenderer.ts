@@ -33,9 +33,6 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
   const programInfo = initShaderProgram(gl, resources)!
 
   return function (projectionMatrix: mat4, game: Game) {
-    const tile = game.terrain.model
-    if (!tile) return
-
     gl.useProgram(programInfo.program)
 
     const modelViewMatrix = mat4.create()
@@ -45,8 +42,6 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
     mat4.invert(normalMatrix, modelViewMatrix)
     mat4.transpose(normalMatrix, normalMatrix)
 
-    setCommonAttributes(gl, tile, programInfo)
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tile.indices)
     setViewUniformLocations(gl, programInfo, {
       projectionMatrix,
       modelViewMatrix,
@@ -54,9 +49,15 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       lightWorldPosition: game.light.position,
     })
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * game.camera.zoom * 1.5)
-    const vertexCount = tile.vertexCount
-    const type = gl.UNSIGNED_SHORT
-    const offset = 0
-    gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+
+    game.landscape.chunks.forEach((chunk) => {
+      setCommonAttributes(gl, chunk.model, programInfo)
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.model.indices)
+
+      const vertexCount = chunk.model.vertexCount
+      const type = gl.UNSIGNED_SHORT
+      const offset = 0
+      gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+    })
   }
 }
