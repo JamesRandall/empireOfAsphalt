@@ -3,7 +3,8 @@ import { sizes } from "../constants"
 import { RenderingModel } from "./models"
 
 // Index buffers have a max index of 64k as they are unsigned shorts - our large landscapes are bigger than that
-// so we chunk them up
+// so we chunk them up - doing ths will probably help us with terrain levelling performance in any case as we'll
+// have less geometry to update
 export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
   const positions: number[] = []
   const indices: number[] = []
