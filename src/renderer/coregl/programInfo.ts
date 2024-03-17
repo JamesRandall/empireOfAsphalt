@@ -61,6 +61,8 @@ export function setViewUniformLocations(
   programInfo: {
     uniformLocations: {
       projectionMatrix?: WebGLUniformLocation
+      worldMatrix?: WebGLUniformLocation
+      viewMatrix?: WebGLUniformLocation
       modelViewMatrix?: WebGLUniformLocation
       normalMatrix?: WebGLUniformLocation
       lightWorldPosition?: WebGLUniformLocation
@@ -73,6 +75,8 @@ export function setViewUniformLocations(
   },
   uniforms: {
     projectionMatrix?: mat4
+    worldMatrix?: mat4
+    viewMatrix?: mat4
     modelViewMatrix?: mat4
     normalMatrix?: mat4
     lightWorldPosition?: vec3
@@ -86,6 +90,12 @@ export function setViewUniformLocations(
 ) {
   if (uniforms.projectionMatrix !== undefined && programInfo.uniformLocations.projectionMatrix !== undefined) {
     gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, uniforms.projectionMatrix)
+  }
+  if (uniforms.viewMatrix !== undefined && programInfo.uniformLocations.viewMatrix !== undefined) {
+    gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, uniforms.viewMatrix)
+  }
+  if (uniforms.worldMatrix !== undefined && programInfo.uniformLocations.worldMatrix !== undefined) {
+    gl.uniformMatrix4fv(programInfo.uniformLocations.worldMatrix, false, uniforms.worldMatrix)
   }
   if (uniforms.modelViewMatrix !== undefined && programInfo.uniformLocations.modelViewMatrix !== undefined) {
     gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, uniforms.modelViewMatrix)

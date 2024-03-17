@@ -158,7 +158,7 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     let upDirection = vec3.fromValues(0, 1, 0)
 
     let viewMatrix = mat4.create()
-    mat4.lookAt(viewMatrix, cameraPosition, lookAtTarget, upDirection)
+    //mat4.lookAt(viewMatrix, cameraPosition, lookAtTarget, upDirection)
 
     //const lookAt = vec3.fromValues(0, 0, 0)
     //const cameraMatrix = mat4.lookAt(mat4.create(), lookAt, [0, 0, 0], [0, 1, 0])
@@ -170,7 +170,7 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     // Now select the frame buffer
     bindBufferAndSetViewport(gl, frameBuffer, width, height)
     setupGl(gl)
-    sceneRenderer(viewProjectionMatrix, game, timeDelta)
+    sceneRenderer(projectionMatrix, game, timeDelta)
 
     // finally target the output buffer and render our texture applying a whole screen post processing effect if
     // required

@@ -1,5 +1,11 @@
 import { map } from "../constants"
 
+const seedrandom = require("seedrandom")
+const rnd = seedrandom("hello.")
+export function random() {
+  return rnd()
+}
+
 // we're generating the height map using the diamond square algorithm
 // note that sizes must be 2^n + 1
 // https://en.wikipedia.org/wiki/Diamond-square_algorithm
@@ -62,7 +68,7 @@ function recursivelyFill(rows: number[][], fromX: number, toX: number, fromY: nu
 }
 
 function randomHeight() {
-  return Math.floor(Math.random() * map.maxHeight)
+  return Math.floor(random() * map.maxHeight)
 }
 
 function diamondStep(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {
@@ -103,7 +109,7 @@ function diamondStep(rows: number[][], fromX: number, toX: number, fromY: number
 
   const maximumHeight = lowestNeighbour + cost
   const minimumHeight = highestNeighbour - cost
-  const newValue = Math.floor(Math.random() * (maximumHeight - minimumHeight) + minimumHeight)
+  const newValue = Math.floor(random() * (maximumHeight - minimumHeight) + minimumHeight)
 
   rows[centerY][centerX] = Math.min(map.maxHeight, Math.max(0, newValue))
 }
@@ -118,7 +124,7 @@ function squareStep(rows: number[][], fromX: number, toX: number, fromY: number,
     const highestNeighbour = Math.max(v1, v2, v3)
     const maximumHeight = Math.min(map.maxHeight, lowestNeighbour + distance) // maximum is 1 unit per tile increase from lowest neighbour
     const minimumHeight = Math.max(0, highestNeighbour - distance) // minimum is 1 unit per tile down from hieghest newighbour
-    return Math.round(Math.random() * (maximumHeight - minimumHeight) + minimumHeight)
+    return Math.round(random() * (maximumHeight - minimumHeight) + minimumHeight)
   }
 
   const centerValue = rows[centerY][centerX]

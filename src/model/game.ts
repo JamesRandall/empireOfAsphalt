@@ -4,10 +4,10 @@ import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
 
 export enum RotationEnum {
-  North,
-  South,
-  East,
-  West,
+  North = 0,
+  East = 1,
+  South = 2,
+  West = 3,
 }
 
 type HeightMap = number[][]
@@ -36,8 +36,8 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       previous: getDefaultControlState(),
     },
     camera: {
-      position: vec3.fromValues(1, 32, 1),
-      lookAt: vec3.fromValues(0, 31, 0),
+      position: vec3.fromValues(0, 0, 0),
+      lookAt: vec3.fromValues(0, 0, 0),
       rotation: RotationEnum.North,
       zoom: 2,
     },

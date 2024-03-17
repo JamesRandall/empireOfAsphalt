@@ -14,7 +14,6 @@ uniform mat4 uProjectionMatrix;
 out lowp vec4 vColor;
 out highp vec3 vNormal;
 out highp vec2 vTextureCoord;
-//out highp vec3 v_surfaceToLight;
 
 void main(void) {
     vNormal = mat3(uModelViewMatrix) * aVertexNormal;
@@ -22,3 +21,4 @@ void main(void) {
     vTextureCoord = aTextureCoord;
     vColor = aVertexColor;
 }
+

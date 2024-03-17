@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "delaunator": "^5.0.0",
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "seedrandom": "^3.0.5"
   }
 }
