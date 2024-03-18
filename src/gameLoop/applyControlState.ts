@@ -11,12 +11,9 @@ export function applyControlState(game: Game, timeDelta: number) {
     vec3.add(delta, delta, [0, speed, 0])
   }
   if (game.controlState.current.mapLeft) {
-    //const left = vec3.fromValues(-speed, 0, 0)
-    //const left = vec3.rotateY(vec3.create(), vec3.fromValues(-speed, 0, 0), [0, 0, 0], glMatrix.toRadian(-45))
-    vec3.add(delta, delta, [-speed, 0, 0])
-  } else if (game.controlState.current.mapRight) {
-    const right = vec3.rotateY(vec3.create(), vec3.fromValues(speed, 0, 0), [0, 0, 0], glMatrix.toRadian(-45))
     vec3.add(delta, delta, [speed, 0, 0])
+  } else if (game.controlState.current.mapRight) {
+    vec3.add(delta, delta, [-speed, 0, 0])
   }
 
   if (game.controlState.current.mapRotateAnticlockwise && !game.controlState.previous.mapRotateAnticlockwise) {

@@ -153,19 +153,6 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     const maxDepth = game.landscape.size * sizes.tile * Math.max(2, game.camera.zoom)
     mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -maxDepth, maxDepth)
 
-    let cameraPosition = game.camera.position
-    let lookAtTarget = game.camera.lookAt
-    let upDirection = vec3.fromValues(0, 1, 0)
-
-    let viewMatrix = mat4.create()
-    //mat4.lookAt(viewMatrix, cameraPosition, lookAtTarget, upDirection)
-
-    //const lookAt = vec3.fromValues(0, 0, 0)
-    //const cameraMatrix = mat4.lookAt(mat4.create(), lookAt, [0, 0, 0], [0, 1, 0])
-    //const cameraMatrix = mat4.translate(mat4.create(), mat4.create(), [0, 0, 0])
-    //const viewMatrix = mat4.invert(mat4.create(), cameraMatrix)
-    const viewProjectionMatrix = mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
-
     time += timeDelta
     // Now select the frame buffer
     bindBufferAndSetViewport(gl, frameBuffer, width, height)

@@ -52,7 +52,7 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
     gl.useProgram(programInfo.program)
 
     const angleY = glMatrix.toRadian(45 + rotationFromGame(game))
-    const angleX = glMatrix.toRadian(45) //35.264)
+    const angleX = glMatrix.toRadian(35.264)
     const lightPosition = vec3.rotateY(vec3.create(), game.light.position, [0, 0, 0], angleY)
     vec3.rotateX(lightPosition, lightPosition, [0, 0, 0], angleX)
 
