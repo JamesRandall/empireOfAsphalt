@@ -3,13 +3,6 @@ import { vec3 } from "gl-matrix"
 import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
 
-export enum RotationEnum {
-  North = 0,
-  East = 1,
-  South = 2,
-  West = 3,
-}
-
 type HeightMap = number[][]
 
 export interface Game {
@@ -17,10 +10,10 @@ export interface Game {
     current: ControlState
     previous: ControlState
   }
-  camera: {
+  view: {
     position: vec3
-    lookAt: vec3
-    rotation: RotationEnum
+    rotation: number
+    targetRotation: number | null
     zoom: number
   }
   light: {
@@ -35,10 +28,10 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       current: getDefaultControlState(),
       previous: getDefaultControlState(),
     },
-    camera: {
+    view: {
       position: vec3.fromValues(0, 0, 0),
-      lookAt: vec3.fromValues(0, 0, 0),
-      rotation: RotationEnum.North,
+      rotation: 45,
+      targetRotation: null,
       zoom: 2,
     },
     light: {

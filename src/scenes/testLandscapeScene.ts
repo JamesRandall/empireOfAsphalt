@@ -1,9 +1,9 @@
 import { Resources } from "../resources/resources"
 import { createRootRenderer, RenderEffect } from "../renderer/rootRenderer"
 import { createTileRenderer } from "../renderer/tileRenderer"
-import { createGameWithLandscape } from "../model/game"
+import { createGameWithLandscape, Game } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
-import { vec3 } from "gl-matrix"
+import { glMatrix, mat4, vec3, vec4 } from "gl-matrix"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
@@ -16,7 +16,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   const game = createGameWithLandscape(landscape)
 
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
-  game.camera.zoom = 1.5
+  game.view.zoom = 1.5
   bindKeys(game.controlState.current)
   bindMouse(game.controlState.current)
 
@@ -41,9 +41,36 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       then = now
 
       applyControlState(game, deltaTime)
+      applyRotation(game, deltaTime)
       rootRenderer.render(game, deltaTime, RenderEffect.None)
 
       return null
     },
+  }
+}
+
+function applyRotation(game: Game, deltaTime: number) {
+  const rotationSpeedDegreesPerSecond = 180
+
+  if (game.view.targetRotation !== null) {
+    let toApply = rotationSpeedDegreesPerSecond * deltaTime
+    if (game.view.targetRotation > game.view.rotation) {
+      if (game.view.rotation + toApply >= game.view.targetRotation) {
+        toApply = game.view.targetRotation - game.view.rotation
+        game.view.targetRotation = null
+      }
+      game.view.rotation += toApply
+      vec3.rotateZ(game.view.position, game.view.position, [0, 0, 0], glMatrix.toRadian(toApply))
+    } else if (game.view.targetRotation < game.view.rotation) {
+      let toApply = rotationSpeedDegreesPerSecond * deltaTime
+      if (game.view.rotation - toApply <= game.view.targetRotation) {
+        toApply = game.view.rotation - game.view.targetRotation
+        game.view.targetRotation = null
+      }
+      game.view.rotation -= toApply
+      vec3.rotateZ(game.view.position, game.view.position, [0, 0, 0], glMatrix.toRadian(-toApply))
+    } else {
+      game.view.targetRotation = null
+    }
   }
 }
