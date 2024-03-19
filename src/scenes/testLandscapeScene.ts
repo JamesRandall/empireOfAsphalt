@@ -16,7 +16,6 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   const game = createGameWithLandscape(landscape)
 
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
-  game.view.zoom = 1.5
   bindKeys(game.controlState.current)
   bindMouse(game.controlState.current)
 

@@ -40,7 +40,7 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
 
     // apply zoom
     let worldMatrix = mat4.create()
-    mat4.scale(worldMatrix, worldMatrix, [game.view.zoom, game.view.zoom, game.view.zoom])
+    //mat4.scale(worldMatrix, worldMatrix, [game.view.zoom, game.view.zoom, game.view.zoom])
 
     const normalMatrix = mat4.create()
     mat4.invert(normalMatrix, worldMatrix)
@@ -52,7 +52,7 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       normalMatrix,
       lightWorldPosition: lightPosition,
     })
-    gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * game.view.zoom * 1.5)
+    gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
 
     game.landscape.chunks.forEach((chunk) => {
       setCommonAttributes(gl, chunk.model, programInfo)

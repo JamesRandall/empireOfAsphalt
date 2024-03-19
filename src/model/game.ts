@@ -1,5 +1,5 @@
 import { ControlState, getDefaultControlState } from "../controls/controlState"
-import { vec3 } from "gl-matrix"
+import { glMatrix, vec3 } from "gl-matrix"
 import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
 
@@ -23,14 +23,14 @@ export interface Game {
   landscape: Landscape
 }
 
-let distance = 32 // Distance from the scene center, adjust based on your scene size
-let angle = 35.264 // Tilt angle in degrees
-let radians = angle * (Math.PI / 180) // Convert angle to radians
+const distance = 32 // Distance from the scene center, adjust based on your scene size
+const isometricAngle = 35.264 // Tilt angle in degrees
+const radians = glMatrix.toRadian(isometricAngle) // * (Math.PI / 180) // Convert angle to radians
 
 // Calculate camera position
-let eyeX = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
-let eyeY = 32 * Math.sin(radians)
-let eyeZ = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
+const eyeX = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
+const eyeY = 32 * Math.sin(radians)
+const eyeZ = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
 
 export function createGameWithLandscape(landscape: Landscape): Game {
   return {
