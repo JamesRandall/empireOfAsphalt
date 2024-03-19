@@ -12,6 +12,7 @@ export interface Game {
   }
   view: {
     position: vec3
+    lookAt: vec3
     rotation: number
     targetRotation: number | null
     zoom: number
@@ -22,6 +23,15 @@ export interface Game {
   landscape: Landscape
 }
 
+let distance = 32 // Distance from the scene center, adjust based on your scene size
+let angle = 35.264 // Tilt angle in degrees
+let radians = angle * (Math.PI / 180) // Convert angle to radians
+
+// Calculate camera position
+let eyeX = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
+let eyeY = 32 * Math.sin(radians)
+let eyeZ = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
+
 export function createGameWithLandscape(landscape: Landscape): Game {
   return {
     controlState: {
@@ -29,8 +39,9 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       previous: getDefaultControlState(),
     },
     view: {
-      position: vec3.fromValues(0, 0, 0),
-      rotation: 45,
+      position: vec3.fromValues(eyeX, eyeY, eyeZ), // vec3.fromValues(0, 0, 0),
+      lookAt: vec3.fromValues(0, 0, 0),
+      rotation: 0,
       targetRotation: null,
       zoom: 2,
     },

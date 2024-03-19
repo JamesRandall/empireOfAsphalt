@@ -6,26 +6,30 @@ export function applyControlState(game: Game, timeDelta: number) {
   const speed = map.movementSpeedTilesPerSecond * timeDelta * (map.maxZoom - game.view.zoom)
   const delta = vec3.create()
   if (game.controlState.current.mapForwards) {
-    vec3.add(delta, delta, [0, -speed, 0])
+    vec3.add(delta, delta, [-speed, 0, -speed])
   } else if (game.controlState.current.mapBackwards) {
-    vec3.add(delta, delta, [0, speed, 0])
+    vec3.add(delta, delta, [speed, 0, speed])
   }
   if (game.controlState.current.mapLeft) {
-    vec3.add(delta, delta, [speed, 0, 0])
+    vec3.add(delta, delta, [-speed, 0, speed])
   } else if (game.controlState.current.mapRight) {
-    vec3.add(delta, delta, [-speed, 0, 0])
+    vec3.add(delta, delta, [speed, 0, -speed])
   }
 
   if (game.view.targetRotation === null) {
     if (game.controlState.current.mapRotateAnticlockwise && !game.controlState.previous.mapRotateAnticlockwise) {
-      game.view.targetRotation = game.view.rotation + 90
+      game.view.targetRotation = game.view.rotation - 90
     }
     if (game.controlState.current.mapRotateClockwise && !game.controlState.previous.mapRotateClockwise) {
-      game.view.targetRotation = game.view.rotation - 90
+      game.view.targetRotation = game.view.rotation + 90
     }
   }
 
+  // translate our movement delta into so it is relative to the direction the camera is facing
+  vec3.rotateY(delta, delta, [0, 0, 0], glMatrix.toRadian(game.view.rotation))
   vec3.add(game.view.position, game.view.position, delta)
+  vec3.add(game.view.lookAt, game.view.lookAt, delta)
+
   game.view.zoom += game.controlState.current.mouseZoom * 0.01
   if (game.view.zoom < map.minZoom) game.view.zoom = map.minZoom
   else if (game.view.zoom > map.maxZoom) game.view.zoom = map.maxZoom

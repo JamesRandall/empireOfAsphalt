@@ -49,6 +49,18 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   }
 }
 
+function rotateCameraAroundY(game: Game, toApply: number) {
+  const centerToEye = vec3.create()
+  vec3.subtract(centerToEye, game.view.position, game.view.lookAt)
+  let rotationMatrix = mat4.create()
+  mat4.rotateY(rotationMatrix, rotationMatrix, glMatrix.toRadian(toApply))
+  let rotatedCenterToEye = vec3.create()
+  vec3.transformMat4(rotatedCenterToEye, centerToEye, rotationMatrix)
+  let newEye = vec3.create()
+  vec3.add(newEye, game.view.lookAt, rotatedCenterToEye)
+  game.view.position = newEye
+}
+
 function applyRotation(game: Game, deltaTime: number) {
   const rotationSpeedDegreesPerSecond = 180
 
@@ -60,7 +72,7 @@ function applyRotation(game: Game, deltaTime: number) {
         game.view.targetRotation = null
       }
       game.view.rotation += toApply
-      vec3.rotateZ(game.view.position, game.view.position, [0, 0, 0], glMatrix.toRadian(toApply))
+      rotateCameraAroundY(game, toApply)
     } else if (game.view.targetRotation < game.view.rotation) {
       let toApply = rotationSpeedDegreesPerSecond * deltaTime
       if (game.view.rotation - toApply <= game.view.targetRotation) {
@@ -68,7 +80,7 @@ function applyRotation(game: Game, deltaTime: number) {
         game.view.targetRotation = null
       }
       game.view.rotation -= toApply
-      vec3.rotateZ(game.view.position, game.view.position, [0, 0, 0], glMatrix.toRadian(-toApply))
+      rotateCameraAroundY(game, -toApply)
     } else {
       game.view.targetRotation = null
     }

@@ -4,7 +4,7 @@ import { Game } from "../model/game"
 import { Resources } from "../resources/resources"
 import { compileShaderProgram2, ShaderSource } from "./coregl/shader"
 import { createSquareModel } from "../resources/models"
-import { mat4, quat, vec2, vec3 } from "gl-matrix"
+import { glMatrix, mat4, quat, vec2, vec3 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
 import { sizes } from "../constants"
 
@@ -152,12 +152,15 @@ export function createRootRenderer(gl: WebGL2RenderingContext, resources: Resour
     const projectionMatrix = mat4.create()
     const maxDepth = game.landscape.size * sizes.tile * Math.max(2, game.view.zoom)
     mat4.ortho(projectionMatrix, -width / 2, width / 2, -height / 2, height / 2, -maxDepth, maxDepth)
+    const viewMatrix = mat4.create()
+    mat4.lookAt(viewMatrix, game.view.position, game.view.lookAt, [0, 1, 0])
+    const projectionViewMatrix = mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
 
     time += timeDelta
     // Now select the frame buffer
     bindBufferAndSetViewport(gl, frameBuffer, width, height)
     setupGl(gl)
-    sceneRenderer(projectionMatrix, game, timeDelta)
+    sceneRenderer(projectionViewMatrix, game, timeDelta)
 
     // finally target the output buffer and render our texture applying a whole screen post processing effect if
     // required
