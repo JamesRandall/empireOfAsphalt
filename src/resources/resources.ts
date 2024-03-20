@@ -19,6 +19,7 @@ export interface Resources {
     vcr: ShaderSource
     motionBlur: ShaderSource
     directional: ShaderSource
+    objectPicking: ShaderSource
   }
   soundEffects: SoundEffects
 }
@@ -43,6 +44,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "vcr",
     "motionblur",
     "directional",
+    "objectPicking",
   ]
   const loadedShaders = await Promise.all(shaderNames.map((sn) => loadShaderSource(sn)))
   const namedShaders = new Map<string, ShaderSource>(shaderNames.map((sn, index) => [sn, loadedShaders[index]]))
@@ -67,6 +69,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       vcr: namedShaders.get("vcr")!,
       motionBlur: namedShaders.get("motionblur")!,
       directional: namedShaders.get("directional")!,
+      objectPicking: namedShaders.get("objectPicking")!,
     },
     soundEffects: await createSoundEffects(),
   }

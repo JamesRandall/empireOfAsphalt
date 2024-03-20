@@ -5,6 +5,7 @@ import { sizes } from "../constants"
 export interface RenderingModel {
   position: WebGLBuffer
   color: WebGLBuffer
+  objectIdColor: WebGLBuffer | null
   indices: WebGLBuffer
   //outlineIndices?: WebGLBuffer
   //outlineColor?: WebGLBuffer
@@ -182,6 +183,7 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
   return {
     position: positionBuffer,
     color: colorBuffer,
+    objectIdColor: null,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,

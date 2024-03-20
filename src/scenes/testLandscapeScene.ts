@@ -7,10 +7,13 @@ import { glMatrix, mat4, vec3, vec4 } from "gl-matrix"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
-import { applyControlState } from "../gameLoop/applyControlState"
+import { applyControlState, cycleControlState } from "../gameLoop/applyControlState"
+import { createObjectPickerRenderer } from "../renderer/objectPickerRenderer"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
-  let rootRenderer = createRootRenderer(gl, resources, createTileRenderer(gl, resources))
+  let tileRenderer = createTileRenderer(gl, resources)
+  let rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
+  let objectPickerRenderer = createObjectPickerRenderer(gl, resources, tileRenderer.renderObjectPicker)
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
@@ -25,7 +28,9 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   return {
     resize: () => {
       rootRenderer.dispose()
-      rootRenderer = createRootRenderer(gl, resources, createTileRenderer(gl, resources))
+      tileRenderer.dispose()
+      tileRenderer = createTileRenderer(gl, resources)
+      rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
     },
     update: (now: number) => {
       if (isFirst) {
@@ -42,6 +47,13 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       applyControlState(game, deltaTime)
       applyRotation(game, deltaTime)
       rootRenderer.render(game, deltaTime, RenderEffect.None)
+      objectPickerRenderer.render(game, deltaTime)
+      if (game.controlState.current.mouseButtons.left) {
+        // && !game.controlState.previous.mouseButtons.left) {
+        game.selectedObjectId = objectPickerRenderer.getObjectId(game.controlState.current.mousePosition)
+        console.log(game.selectedObjectId)
+      }
+      cycleControlState(game)
 
       return null
     },

@@ -1,4 +1,6 @@
 import { mat4 } from "gl-matrix"
+import { Game } from "../../model/game"
+import { sizes } from "../../constants"
 
 export function setupGl(gl: WebGL2RenderingContext) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0)
@@ -55,4 +57,23 @@ export function createProjectionMatrix(width: number, height: number, zFar: numb
   // as the destination to receive the result.
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar)
   return projectionMatrix
+}
+
+export function createProjectionViewMatrix(game: Game, width: number, height: number) {
+  const projectionMatrix = mat4.create()
+  const maxDepth = game.landscape.size * sizes.tile * Math.max(2, game.view.zoom)
+  const zoom = 1 / game.view.zoom
+  mat4.ortho(
+    projectionMatrix,
+    (-width / 2) * zoom,
+    (width / 2) * zoom,
+    (-height / 2) * zoom,
+    (height / 2) * zoom,
+    -maxDepth,
+    maxDepth,
+  )
+  const viewMatrix = mat4.create()
+  mat4.lookAt(viewMatrix, game.view.position, game.view.lookAt, [0, 1, 0])
+  const projectionViewMatrix = mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
+  return projectionViewMatrix
 }

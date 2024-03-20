@@ -21,6 +21,7 @@ export interface Game {
     position: vec3
   }
   landscape: Landscape
+  selectedObjectId: number | null
 }
 
 const distance = 32 // Distance from the scene center, adjust based on your scene size
@@ -49,5 +50,6 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       position: vec3.fromValues(0, 300, 0),
     },
     landscape: landscape,
+    selectedObjectId: null,
   }
 }

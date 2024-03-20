@@ -2,6 +2,7 @@ import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
 import { Landscape } from "../model/Landscape"
+import { objectIdToVec4 } from "../utilities"
 
 // Index buffers have a max index of 64k as they are unsigned shorts - our large landscapes are bigger than that
 // so we chunk them up - doing ths will probably help us with terrain levelling performance in any case as we'll
@@ -24,7 +25,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       const chunk = {
         fromX: x,
         fromY: y,
-        model: createLandscapeChunk(gl, heights, x, y, toX, toY),
+        model: createLandscapeChunk(gl, heights, x, y, toX, toY, heightMapSize),
       }
       landscape.chunks.push(chunk)
     }
@@ -39,6 +40,7 @@ function createLandscapeChunk(
   fromY: number,
   toX: number,
   toY: number,
+  heightMapSize: number,
 ) {
   const positions: number[] = []
   const indices: number[] = []
@@ -46,6 +48,7 @@ function createLandscapeChunk(
   const normals: number[] = []
   const textureCoords: number[] = []
   const colors: number[] = []
+  const objectIdColors: number[] = []
 
   const half = sizes.tile / 2
   const faceIndices = [0, 1, 2, 3, 4, 5] //[3, 0, 1, 3, 1, 2]
@@ -65,6 +68,8 @@ function createLandscapeChunk(
 
     const top = -sizes.tile * y - topExtent
     for (let x = fromX; x <= toX; x++) {
+      const objectId = y * heightMapSize + x
+      const objectIdColor = objectIdToVec4(objectId)
       const left = sizes.tile * x - leftExtent
       const indexOffset = positions.length / 3
       const cellHeights = [rowTopHeights[x], rowTopHeights[x + 1], rowBottomHeights[x + 1], rowBottomHeights[x]]
@@ -169,6 +174,11 @@ function createLandscapeChunk(
         colors.push(color[1])
         colors.push(color[2])
         colors.push(color[3])
+
+        objectIdColors.push(objectIdColor[0])
+        objectIdColors.push(objectIdColor[1])
+        objectIdColors.push(objectIdColor[2])
+        objectIdColors.push(objectIdColor[3])
       }
     }
   }
@@ -186,6 +196,9 @@ function createLandscapeChunk(
   const colorBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
+  const objectIdColorBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, objectIdColorBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectIdColors), gl.STATIC_DRAW)
   const textureCoordBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
@@ -193,6 +206,7 @@ function createLandscapeChunk(
   return {
     position: positionBuffer,
     color: colorBuffer,
+    objectIdColor: objectIdColorBuffer,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,

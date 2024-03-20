@@ -33,7 +33,12 @@ export function applyControlState(game: Game, timeDelta: number) {
   game.view.zoom += game.controlState.current.mouseZoom * 0.01
   if (game.view.zoom < map.minZoom) game.view.zoom = map.minZoom
   else if (game.view.zoom > map.maxZoom) game.view.zoom = map.maxZoom
+}
 
+export function cycleControlState(game: Game) {
   game.controlState.current.mouseZoom = 0
-  game.controlState.previous = { ...game.controlState.current }
+  game.controlState.previous = {
+    ...game.controlState.current,
+    mousePosition: { ...game.controlState.current.mousePosition },
+  }
 }
