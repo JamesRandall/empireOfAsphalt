@@ -50,6 +50,7 @@ function createLandscapeChunk(
   const half = sizes.tile / 2
   const faceIndices = [0, 1, 2, 3, 4, 5] //[3, 0, 1, 3, 1, 2]
   const grass = vec4.fromValues(0, 0.8, 0, 1)
+  const dirt = vec4.fromValues(152.0 / 255.0, 132.0 / 255.0, 68.0 / 255.0, 1.0)
   const water = vec4.fromValues(0, 0, 1, 1)
   const desert = vec4.fromValues(1, 1, 0, 1)
   const fire = vec4.fromValues(1, 0, 0, 1)
@@ -161,7 +162,9 @@ function createLandscapeChunk(
       }
 
       for (let v = 0; v < 6; v++) {
-        let color = x === 127 && y === 84 ? fire : grass
+        // useful for finding saddles
+        // let color = x === 127 && y === 84 ? fire : grass
+        const color = dirt
         colors.push(color[0])
         colors.push(color[1])
         colors.push(color[2])

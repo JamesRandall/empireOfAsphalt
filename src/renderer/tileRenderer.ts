@@ -26,6 +26,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix")!,
       normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix")!,
       lightWorldPosition: gl.getUniformLocation(shaderProgram, "uLightWorldPosition")!,
+      lineColorPosition: gl.getUniformLocation(shaderProgram, "uLineColor")!,
       zoomedTileSize: gl.getUniformLocation(shaderProgram, "uZoomedTileSize"),
     },
   }
@@ -53,6 +54,7 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       lightWorldPosition: lightPosition,
     })
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
+    gl.uniform4fv(programInfo.uniformLocations.lineColorPosition, [120.0 / 255.0, 92.0 / 255.0, 40.0 / 255.0, 1.0])
 
     game.landscape.chunks.forEach((chunk) => {
       setCommonAttributes(gl, chunk.model, programInfo)

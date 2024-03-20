@@ -1,10 +1,12 @@
 import { map } from "../constants"
 
 const seedrandom = require("seedrandom")
-const rnd = seedrandom("hello.")
+const rnd = seedrandom() // seedrandom("hello.")
 export function random() {
   return rnd()
 }
+
+const flatter = false
 
 // we're generating the height map using the diamond square algorithm
 // note that sizes must be 2^n + 1
@@ -18,19 +20,41 @@ export function generateHeightMap(size: number) {
     throw Error("Map sizes must be a power of two: 16, 32, 64, etc.")
   }
   size++
-  const rows = getLevelTerrain(size)
+  let rows = getLevelTerrain(size)
+  //rows = generateHills(rows, 0, size, 0, size) // whole map
+
+  rows = generateHills(rows, 0, Math.ceil(size / 4), 0, Math.ceil(size / 4))
+  rows = generateHills(
+    rows,
+    Math.ceil(size / 8),
+    Math.ceil(size / 4) + Math.ceil(size / 8),
+    Math.ceil(size / 8),
+    Math.ceil(size / 4) + Math.ceil(size / 8),
+  )
+
+  for (let i = 0; i < map.smoothingIterations; i++) {
+    rows = smooth(rows)
+  }
+
+  return rows.map((row) => row.map((h) => h * map.unitRenderHeight))
+}
+
+function generateHills(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {
+  const randomStartingHeight = () => 0 // getHeight(0, map.maxHeight)
+
+  //rows[0][0] = randomHeight()
+  //rows[0][size - 1] = randomHeight()
+  //rows[size - 1][0] = randomHeight()
+  //rows[size - 1][size - 1] = randomHeight()
 
   // set the corners
-  rows[0][0] = randomHeight()
-  rows[0][size - 1] = randomHeight()
-  rows[size - 1][0] = randomHeight()
-  rows[size - 1][size - 1] = randomHeight()
+  if (rows[fromX][fromY] === 0) rows[fromX][fromY] = randomStartingHeight()
+  if (rows[fromX][toY - 1] === 0) rows[fromX][toY - 1] = randomStartingHeight()
+  if (rows[toX - 1][fromY] === 0) rows[toX - 1][fromY] = randomStartingHeight()
+  if (rows[toX - 1][toY - 1] === 0) rows[toX - 1][toY - 1] = randomStartingHeight()
+  recursivelyFill(rows, fromX, toX - 1, fromY, toY - 1)
 
-  recursivelyFill(rows, 0, size - 1, 0, size - 1)
-
-  const newRows = smooth(smooth(smooth(rows)))
-
-  return newRows.map((row) => row.map((h) => h * map.unitRenderHeight))
+  return rows
 }
 
 function smooth(heightMap: number[][]) {
@@ -46,7 +70,10 @@ function smooth(heightMap: number[][]) {
           sum += heightMap[x + offsetX][y + offsetY]
         }
       }
-      smoothedMap[x][y] = Math.round(sum / 9) // Average of the current cell and its neighbors
+      // Average of the current cell and its neighbors
+      // floor will leave more flat areas
+      // round will tend towards more up and down
+      smoothedMap[x][y] = Math.floor(sum / 9)
     }
   }
   return smoothedMap
@@ -67,8 +94,10 @@ function recursivelyFill(rows: number[][], fromX: number, toX: number, fromY: nu
   }
 }
 
-function randomHeight() {
-  return Math.floor(random() * map.maxHeight)
+function getHeight(minimumHeight: number, maximumHeight: number) {
+  return flatter
+    ? Math.round((random() / 2) * (maximumHeight - minimumHeight) + minimumHeight)
+    : Math.round(random() * (maximumHeight - minimumHeight) + minimumHeight)
 }
 
 function diamondStep(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {
@@ -109,7 +138,7 @@ function diamondStep(rows: number[][], fromX: number, toX: number, fromY: number
 
   const maximumHeight = lowestNeighbour + cost
   const minimumHeight = highestNeighbour - cost
-  const newValue = Math.floor(random() * (maximumHeight - minimumHeight) + minimumHeight)
+  const newValue = getHeight(minimumHeight, maximumHeight)
 
   rows[centerY][centerX] = Math.min(map.maxHeight, Math.max(0, newValue))
 }
@@ -124,7 +153,7 @@ function squareStep(rows: number[][], fromX: number, toX: number, fromY: number,
     const highestNeighbour = Math.max(v1, v2, v3)
     const maximumHeight = Math.min(map.maxHeight, lowestNeighbour + distance) // maximum is 1 unit per tile increase from lowest neighbour
     const minimumHeight = Math.max(0, highestNeighbour - distance) // minimum is 1 unit per tile down from hieghest newighbour
-    return Math.round(random() * (maximumHeight - minimumHeight) + minimumHeight)
+    return getHeight(minimumHeight, maximumHeight)
   }
 
   const centerValue = rows[centerY][centerX]
