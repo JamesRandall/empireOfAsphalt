@@ -49,9 +49,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       rootRenderer.render(game, deltaTime, RenderEffect.None)
       objectPickerRenderer.render(game, deltaTime)
       if (game.controlState.current.mouseButtons.left) {
-        // && !game.controlState.previous.mouseButtons.left) {
-        game.selectedObjectId = objectPickerRenderer.getObjectId(game.controlState.current.mousePosition)
-        console.log(game.selectedObjectId)
+        game.selectedObjectId = objectPickerRenderer.getObjectId()
       }
       cycleControlState(game)
 

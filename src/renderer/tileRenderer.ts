@@ -4,6 +4,7 @@ import { setCommonAttributes, setViewUniformLocations } from "./coregl/programIn
 import { Resources } from "../resources/resources"
 import { Game } from "../model/game"
 import { sizes } from "../constants"
+import { objectIdToVec4 } from "../utilities"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.directional)
@@ -17,6 +18,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
       vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
       vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+      objectIdColor: gl.getAttribLocation(shaderProgram, "aTileId"),
       textureCoords: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
     },
     uniformLocations: {
@@ -28,6 +30,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       lightWorldPosition: gl.getUniformLocation(shaderProgram, "uLightWorldPosition")!,
       lineColorPosition: gl.getUniformLocation(shaderProgram, "uLineColor")!,
       zoomedTileSize: gl.getUniformLocation(shaderProgram, "uZoomedTileSize"),
+      uSelectedTileId: gl.getUniformLocation(shaderProgram, "uSelectedTileId"),
     },
   }
 }
@@ -71,6 +74,8 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       normalMatrix,
       lightWorldPosition: lightPosition,
     })
+    const selectedObjectId = objectIdToVec4(game.selectedObjectId ?? -1)
+    gl.uniform4fv(programInfo.uniformLocations.uSelectedTileId, selectedObjectId)
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
     gl.uniform4fv(programInfo.uniformLocations.lineColorPosition, [120.0 / 255.0, 92.0 / 255.0, 40.0 / 255.0, 1.0])
 

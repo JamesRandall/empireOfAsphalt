@@ -70,6 +70,7 @@ export function createObjectPickerRenderer(
   let depthBuffer = createDepthBuffer(gl)!
   let frameBuffer = createFrameBuffer(gl, targetTexture, depthBuffer)
   setFramebufferAttachmentSizes(gl, targetTexture, depthBuffer, gl.canvas.width, gl.canvas.height)
+  let selectedObjectId = -1
 
   const dispose = () => {
     gl.deleteTexture(targetTexture)
@@ -79,12 +80,19 @@ export function createObjectPickerRenderer(
 
   const render = (game: Game, timeDelta: number) => {
     const projectionViewMatrix = createProjectionViewMatrix(game, width, height)
-    sceneRenderer(projectionViewMatrix, game, timeDelta)
-  }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+    gl.viewport(0, 0, width, height)
 
-  const getObjectId = (mouse: { x: number; y: number }) => {
-    const pixelX = mouse.x
-    const pixelY = height - mouse.y - 1
+    gl.enable(gl.CULL_FACE)
+    gl.enable(gl.DEPTH_TEST)
+    gl.disable(gl.BLEND)
+
+    // Clear the canvas AND the depth buffer.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    sceneRenderer(projectionViewMatrix, game, timeDelta)
+
+    const pixelX = game.controlState.current.mousePosition.x
+    const pixelY = height - game.controlState.current.mousePosition.y - 1
     const data = new Uint8Array(4)
     gl.readPixels(
       pixelX, // x
@@ -94,9 +102,12 @@ export function createObjectPickerRenderer(
       gl.RGBA, // format
       gl.UNSIGNED_BYTE, // type
       data,
-    ) // typed array to hold result
-    const id = objectIdFromArray(data)
-    return id
+    )
+    selectedObjectId = objectIdFromArray(data)
+  }
+
+  const getObjectId = () => {
+    return selectedObjectId
   }
   return { dispose, render, getObjectId }
 }
