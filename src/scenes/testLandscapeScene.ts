@@ -9,6 +9,8 @@ import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
 import { applyControlState, cycleControlState } from "../gameLoop/applyControlState"
 import { createObjectPickerRenderer } from "../renderer/objectPickerRenderer"
+import { testGui } from "./testGui"
+import { createRuntime } from "../gui/runtime"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createTileRenderer(gl, resources)
@@ -17,6 +19,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
+  const gui = createRuntime(gl, resources, gl.canvas.width, gl.canvas.height, () => testGui(game))
 
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
   bindKeys(game.controlState.current)
@@ -47,7 +50,10 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       applyControlState(game, deltaTime)
       applyRotation(game, deltaTime)
       rootRenderer.render(game, deltaTime, RenderEffect.None)
+      gui.render()
+
       objectPickerRenderer.render(game, deltaTime)
+
       if (game.controlState.current.mouseButtons.left) {
         game.selectedObjectId = objectPickerRenderer.getObjectId()
       }

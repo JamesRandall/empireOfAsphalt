@@ -7,7 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "outDir": "build"
+    "outDir": "build",
+    "jsxFactory": "createGuiElement",
+    "jsx": "react"
   },
   "exclude": ["node_modules", "**/*.test.ts"]
 }
