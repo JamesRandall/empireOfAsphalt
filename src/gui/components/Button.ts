@@ -1,7 +1,7 @@
-import { Primitives } from "../../renderer/primitives/primitives"
-import { GuiElement, GuiRenderContext, InteractiveElement } from "../base"
+import { GuiElement, GuiRenderContext } from "../base"
 import { constants } from "../constants"
 import { Attributes } from "../builder"
+import { InteractiveElement, MouseButton } from "./InteractiveElement"
 
 export class Button extends InteractiveElement {
   constructor(props: Attributes | undefined, children: GuiElement[]) {

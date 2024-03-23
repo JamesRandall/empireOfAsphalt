@@ -7,16 +7,16 @@ export function testGui(state: Game): GuiElement {
 
   return (
     <hlayout horizontalAlignment="middle">
-      <button padding={8} onClick={() => null} width={bs} height={bs}>
+      <button padding={8} onClick={(b) => console.log(1)} width={bs} height={bs}>
         <image name="pause" sizeToFitParent="widthAndHeight" />
       </button>
-      <button padding={8} onClick={() => null} width={bs} height={bs}>
+      <button padding={8} onClick={(b) => console.log(2)} width={bs} height={bs}>
         <image name="singlespeed" sizeToFitParent="widthAndHeight" />
       </button>
       <button padding={8} onClick={() => null} width={bs} height={bs}>
         <image name="doublespeed" sizeToFitParent="widthAndHeight" />
       </button>
-      <rect width={4} height={bs} fill={0x00000099} />
+      <rect width={4} height={bs} fill={0xaa000033} />
       <button padding={8} onClick={() => null} width={bs} height={bs}>
         <image name="bulldozer" sizeToFitParent="widthAndHeight" />
       </button>

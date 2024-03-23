@@ -24,11 +24,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
 
 function createVertexBuffer(gl: WebGL2RenderingContext) {
   const vertexBuffer = gl.createBuffer()
-  let vertices = [
-    0, 0, 1, 0, 1, 1,
-
-    1, 1, 0, 1, 0, 0,
-  ].map((p) => p)
+  let vertices = [0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1].map((p) => p)
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW)

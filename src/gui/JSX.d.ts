@@ -12,7 +12,9 @@ declare namespace JSX {
   }
 
   interface ButtonProps extends GuiElementProps {
-    onClick: () => void
+    onMouseDown?: (button: MouseButton, position: { x: number; y: number }) => void
+    onMouseUp?: (button: MouseButton, position: { x: number; y: number }) => void
+    onClick?: (button: MouseButton) => void
   }
 
   interface ImageProps extends GuiElementProps {

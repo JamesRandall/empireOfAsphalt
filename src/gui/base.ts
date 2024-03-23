@@ -113,16 +113,3 @@ export abstract class GuiElement {
     this.children.forEach((c) => c.layout({ ...context, frame: this.innerFrame, parent: this }))
   }
 }
-
-export abstract class InteractiveElement extends GuiElement {
-  public get isInteractive() {
-    return true
-  }
-
-  public renderObjectPicker(context: GuiRenderContext) {
-    if (this.objectId !== null) {
-      context.primitives.rect(this.position, this.size, objectIdToVec4(this.objectId))
-    }
-    super.renderObjectPicker(context)
-  }
-}

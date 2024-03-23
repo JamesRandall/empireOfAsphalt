@@ -1,8 +1,12 @@
-import { CreateGuiElementFunc } from "./builder"
 import { createPrimitiveRenderer } from "../renderer/primitives/primitives"
 import { Resources } from "../resources/resources"
-import { GuiElement, GuiInput, InteractiveElement } from "./base"
+import { GuiElement, GuiInput } from "./base"
 import { Texture } from "../resources/texture"
+import { InteractiveElement, MouseButton } from "./components/InteractiveElement"
+
+interface Interactions {
+  leftMouseDown: { timer: number; initialObjectId: number } | null
+}
 
 export function createRuntime(
   gl: WebGL2RenderingContext,
@@ -20,13 +24,17 @@ export function createRuntime(
   const recursivelySetObjectIds = (element: GuiElement) => {
     if (element.isInteractive) {
       element.objectId = nextObjectId
-      objectIdMap.set(nextObjectId, element)
+      objectIdMap.set(nextObjectId, element as InteractiveElement)
       nextObjectId++
     }
     element.children.forEach((child) => recursivelySetObjectIds(child))
   }
   recursivelySetObjectIds(root)
   const lastObjectId = nextObjectId - 1
+
+  let interactions: Interactions = {
+    leftMouseDown: null,
+  }
 
   const dispose = () => {}
   const render = () => {
@@ -45,10 +53,29 @@ export function createRuntime(
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {
     if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return
-    console.log(selectedObjectId)
+    if (controlState.mouseButtons.left) {
+      if (interactions.leftMouseDown === null) {
+        interactions.leftMouseDown = { timer: 0, initialObjectId: selectedObjectId }
+        const selectedElement = objectIdMap.get(selectedObjectId)
+        selectedElement?.onMouseDown(MouseButton.Left, controlState.mousePosition)
+      }
+    } else {
+      if (interactions.leftMouseDown !== null) {
+        const selectedElement = objectIdMap.get(selectedObjectId)
+        selectedElement?.onMouseUp(MouseButton.Left, controlState.mousePosition, interactions.leftMouseDown.timer)
+        if (selectedObjectId === interactions.leftMouseDown.initialObjectId) {
+          selectedElement?.onClick(MouseButton.Left)
+        }
+        interactions.leftMouseDown = null
+      }
+    }
   }
 
-  const update = (timeDelta: number) => {}
+  const update = (timeDelta: number) => {
+    if (interactions.leftMouseDown !== null) {
+      interactions.leftMouseDown.timer += timeDelta
+    }
+  }
 
   return { render, renderObjectPicker, dispose, update, applyControlState }
 }
