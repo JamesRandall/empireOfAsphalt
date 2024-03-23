@@ -1,4 +1,4 @@
-import { GuiInput } from "../gui/builder"
+import { GuiInput } from "../gui/base"
 
 export interface ControlState extends GuiInput {
   mapForwards: boolean

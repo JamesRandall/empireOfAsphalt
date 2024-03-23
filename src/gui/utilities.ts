@@ -1,5 +1,6 @@
 import { vec4 } from "gl-matrix"
-import { Attributes } from "./base"
+
+import { Attributes } from "./builder"
 
 export function vec4FromNumber(value: number) {
   return vec4.fromValues(

@@ -1,22 +1,35 @@
 import { Primitives } from "../renderer/primitives/primitives"
+import { Texture } from "../resources/texture"
+import { Attributes } from "./builder"
+import { vec2 } from "gl-matrix"
+import { attributeOrDefault } from "./utilities"
+import { sizeToFit } from "../utilities"
 
-export type GuiElementType = "button"
+export enum HorizontalAlignment {
+  Left,
+  Middle,
+  Right,
+}
 
-export type PropsKey =
-  | "text"
-  | "onMouseDown"
-  | "onMouseUp"
-  | "onClick"
-  | "left"
-  | "top"
-  | "width"
-  | "height"
-  | "fill"
-  | "name"
-  | "stroke"
+export enum SizeToFit {
+  None,
+  Width,
+  Height,
+  WidthAndHeight,
+}
 
-export interface Attributes {
-  [key: string]: any
+export interface GuiRenderContext {
+  gl: WebGL2RenderingContext
+  primitives: Primitives
+  textureProvider: (name: string) => Texture
+}
+
+export interface GuiLayoutContext {
+  gl: WebGL2RenderingContext
+  primitives: Primitives
+  textureProvider: (name: string) => Texture
+  frame: GuiRect
+  parent?: GuiElement
 }
 
 export interface GuiRect {
@@ -34,12 +47,15 @@ export interface GuiInput {
 export abstract class GuiElement {
   children: GuiElement[]
 
-  calculatedPosition: { left: number; top: number; width: number; height: number }
+  outerFrame: { left: number; top: number; width: number; height: number }
+  innerFrame: { left: number; top: number; width: number; height: number }
 
   left?: number
   top?: number
   width?: number
   height?: number
+  padding?: number
+  sizeToFitParent: SizeToFit
 
   constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
@@ -48,22 +64,41 @@ export abstract class GuiElement {
       this.top = attributes["top"]
       this.width = attributes["width"]
       this.height = attributes["height"]
+      this.padding = attributes["padding"]
     }
-    this.calculatedPosition = { left: -1, top: -1, width: -1, height: -1 }
+    this.sizeToFitParent = sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
+    this.outerFrame = { left: -1, top: -1, width: -1, height: -1 }
+    this.innerFrame = { ...this.outerFrame }
   }
 
-  public render(gl: WebGL2RenderingContext, primitives: Primitives) {
-    this.children.forEach((c) => c.render(gl, primitives))
+  public get position() {
+    return vec2.fromValues(this.outerFrame.left, this.outerFrame.top)
   }
 
-  public layout(frame: GuiRect) {
-    this.children.forEach((c) => c.layout(frame))
+  public get size() {
+    return vec2.fromValues(this.outerFrame.width, this.outerFrame.height)
+  }
 
-    this.calculatedPosition = {
-      left: this.left ?? -1,
-      top: this.top ?? -1,
-      width: this.width ?? -1,
-      height: this.height ?? -1,
+  public render(context: GuiRenderContext) {
+    this.children.forEach((c) => c.render(context))
+  }
+
+  public layout(context: GuiLayoutContext) {
+    const frame = context.frame
+    this.outerFrame = {
+      left: frame.left + (this.left ?? 0),
+      top: frame.top + (this.top ?? 0),
+      width: (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width ? context.frame.width : this.width ?? -1,
+      height: (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height ? context.frame.height : this.height ?? -1,
     }
+    const padding = this.padding ?? 0
+    this.innerFrame = {
+      left: this.outerFrame.left + padding,
+      top: this.outerFrame.top + padding,
+      width: this.outerFrame.width - padding * 2,
+      height: this.outerFrame.height - padding * 2,
+    }
+
+    this.children.forEach((c) => c.layout({ ...context, frame: this.innerFrame, parent: this }))
   }
 }

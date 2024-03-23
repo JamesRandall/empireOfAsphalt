@@ -1,13 +1,27 @@
 import { Button } from "./components/Button"
-import { Primitives } from "../renderer/primitives/primitives"
-import { Attributes, GuiElement, GuiElementType } from "./base"
+import { GuiElement } from "./base"
 import { HLayout } from "./components/HLayout"
 import { Fragment } from "./components/Fragment"
 import { Rect } from "./components/Rect"
+import { Image } from "./components/Image"
 
-//export const jsx = (tag: any, props: any) => {
-//  return null
-//}
+export type GuiElementType = "button"
+export type PropsKey =
+  | "text"
+  | "onMouseDown"
+  | "onMouseUp"
+  | "onClick"
+  | "left"
+  | "top"
+  | "width"
+  | "height"
+  | "fill"
+  | "name"
+  | "stroke"
+
+export interface Attributes {
+  [key: string]: any
+}
 
 export type CreateGuiElementFunc<P> = (
   type: GuiElementType,
@@ -26,6 +40,8 @@ export function createGuiElement<P = {}>(
     return new HLayout(props ?? undefined, children)
   } else if (type === "rect") {
     return new Rect(props ?? undefined, children)
+  } else if (type === "image") {
+    return new Image(props ?? undefined, children)
   }
   return new Fragment(props ?? undefined, children)
 }

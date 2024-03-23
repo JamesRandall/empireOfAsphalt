@@ -1,29 +1,30 @@
 import { createGuiElement } from "../gui/builder"
 import { Game } from "../model/game"
 import { GuiElement } from "../gui/base"
+
 export function testGui(state: Game): GuiElement {
-  const bs = 64
+  const bs = 48
 
   return (
-    <hlayout left={50} top={0}>
+    <hlayout horizontalAlignment="middle">
       <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="pause" />
+        <image name="pause" sizeToFitParent="widthAndHeight" />
       </button>
       <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="singlespeed" />
+        <image name="singlespeed" sizeToFitParent="widthAndHeight" />
       </button>
       <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="doublespeed" />
+        <image name="doublespeed" sizeToFitParent="widthAndHeight" />
       </button>
-      <rect width={4} height={bs} fill={0x00000066} />
+      <rect width={4} height={bs} fill={0x00000099} />
       <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="bulldozer" />
-      </button>
-      <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="zones" />
+        <image name="bulldozer" sizeToFitParent="widthAndHeight" />
       </button>
       <button padding={8} onClick={() => null} width={bs} height={bs}>
-        <texture name="roads" />
+        <image name="zones" sizeToFitParent="widthAndHeight" />
+      </button>
+      <button padding={8} onClick={() => null} width={bs} height={bs}>
+        <image name="road" sizeToFitParent="widthAndHeight" />
       </button>
     </hlayout>
   )

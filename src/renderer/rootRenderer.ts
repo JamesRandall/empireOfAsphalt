@@ -12,6 +12,7 @@ import { createSquareModel } from "../resources/models"
 import { glMatrix, mat4, quat, vec2, vec3 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
 import { sizes } from "../constants"
+import { Texture } from "../resources/texture"
 
 export enum RenderEffect {
   None,
@@ -73,7 +74,7 @@ function createRenderer(
   width: number,
   height: number,
   source: ShaderSource,
-  noise: WebGLTexture,
+  noise: Texture,
 ) {
   const programInfo = initShaderProgram(gl, source)!
   const square = createSquareModel(gl, [1.0, 0.0, 0.0, 1.0], null, true)
@@ -104,7 +105,7 @@ function createRenderer(
         time,
       },
       texture,
-      noise,
+      noise.handle,
     )
     gl.uniform2fv(programInfo.uniformLocations.resolution, resolution)
 

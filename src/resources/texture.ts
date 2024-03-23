@@ -1,8 +1,10 @@
-export function loadTexture(
-  gl: WebGL2RenderingContext,
-  url: string,
-  smoothScaling: boolean = false,
-): Promise<WebGLTexture> {
+export interface Texture {
+  handle: WebGLTexture
+  width: number
+  height: number
+}
+
+export function loadTexture(gl: WebGL2RenderingContext, url: string, smoothScaling: boolean = false): Promise<Texture> {
   return new Promise((resolve) => {
     const texture = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -45,7 +47,7 @@ export function loadTexture(
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
         }
       }
-      resolve(texture!)
+      resolve({ handle: texture!, width: image.width, height: image.height })
     }
     image.src = url
   })
