@@ -3,7 +3,8 @@ import { Texture } from "../resources/texture"
 import { Attributes } from "./builder"
 import { vec2 } from "gl-matrix"
 import { attributeOrDefault } from "./utilities"
-import { sizeToFit } from "../utilities"
+import { objectIdToVec4, sizeToFit } from "../utilities"
+import { constants } from "./constants"
 
 export enum HorizontalAlignment {
   Left,
@@ -56,6 +57,7 @@ export abstract class GuiElement {
   height?: number
   padding?: number
   sizeToFitParent: SizeToFit
+  objectId: number | null
 
   constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
@@ -69,6 +71,7 @@ export abstract class GuiElement {
     this.sizeToFitParent = sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
     this.outerFrame = { left: -1, top: -1, width: -1, height: -1 }
     this.innerFrame = { ...this.outerFrame }
+    this.objectId = null
   }
 
   public get position() {
@@ -79,8 +82,16 @@ export abstract class GuiElement {
     return vec2.fromValues(this.outerFrame.width, this.outerFrame.height)
   }
 
+  public get isInteractive() {
+    return false
+  }
+
   public render(context: GuiRenderContext) {
     this.children.forEach((c) => c.render(context))
+  }
+
+  public renderObjectPicker(context: GuiRenderContext) {
+    this.children.forEach((c) => c.renderObjectPicker(context))
   }
 
   public layout(context: GuiLayoutContext) {
@@ -100,5 +111,18 @@ export abstract class GuiElement {
     }
 
     this.children.forEach((c) => c.layout({ ...context, frame: this.innerFrame, parent: this }))
+  }
+}
+
+export abstract class InteractiveElement extends GuiElement {
+  public get isInteractive() {
+    return true
+  }
+
+  public renderObjectPicker(context: GuiRenderContext) {
+    if (this.objectId !== null) {
+      context.primitives.rect(this.position, this.size, objectIdToVec4(this.objectId))
+    }
+    super.renderObjectPicker(context)
   }
 }

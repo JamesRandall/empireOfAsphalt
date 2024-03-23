@@ -15,7 +15,10 @@ import { createRuntime } from "../gui/runtime"
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createTileRenderer(gl, resources)
   let rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
-  let objectPickerRenderer = createObjectPickerRenderer(gl, resources, tileRenderer.renderObjectPicker)
+  let objectPickerRenderer = createObjectPickerRenderer(gl, resources, (projectionMatrix, game) => {
+    tileRenderer.renderObjectPicker(projectionMatrix, game)
+    gui.renderObjectPicker()
+  })
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
@@ -26,6 +29,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
     gl.canvas.height,
     () => testGui(game),
     (name) => resources.guiTextures[name],
+    game.landscape.size * game.landscape.size + 1, // start the gui object IDs after the landscape picker number range
   )
 
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
@@ -43,7 +47,6 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       gui.dispose()
       tileRenderer = createTileRenderer(gl, resources)
       rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
-      objectPickerRenderer = createObjectPickerRenderer(gl, resources, tileRenderer.renderObjectPicker)
       gui = createRuntime(
         gl,
         resources,
@@ -51,7 +54,12 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
         gl.canvas.height,
         () => testGui(game),
         (name) => resources.guiTextures[name],
+        game.landscape.size * game.landscape.size + 1, // start the gui object IDs after the landscape picker number range
       )
+      objectPickerRenderer = createObjectPickerRenderer(gl, resources, (projectionMatrix, game) => {
+        tileRenderer.renderObjectPicker(projectionMatrix, game)
+        gui.renderObjectPicker()
+      })
     },
     update: (now: number) => {
       if (isFirst) {
@@ -66,6 +74,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       then = now
 
       applyControlState(game, deltaTime)
+      gui.applyControlState(game.controlState.current, deltaTime, objectPickerRenderer.getObjectId())
       applyRotation(game, deltaTime)
       rootRenderer.render(game, deltaTime, RenderEffect.None)
       gui.render()

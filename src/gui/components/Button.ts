@@ -1,9 +1,9 @@
 import { Primitives } from "../../renderer/primitives/primitives"
-import { GuiElement, GuiRenderContext } from "../base"
+import { GuiElement, GuiRenderContext, InteractiveElement } from "../base"
 import { constants } from "../constants"
 import { Attributes } from "../builder"
 
-export class Button extends GuiElement {
+export class Button extends InteractiveElement {
   constructor(props: Attributes | undefined, children: GuiElement[]) {
     super(props, children)
   }
