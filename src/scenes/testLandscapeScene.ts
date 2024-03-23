@@ -19,7 +19,7 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
-  const gui = createRuntime(gl, resources, gl.canvas.width, gl.canvas.height, () => testGui(game))
+  let gui = createRuntime(gl, resources, gl.canvas.width, gl.canvas.height, () => testGui(game))
 
   game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
   bindKeys(game.controlState.current)
@@ -32,8 +32,12 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
     resize: () => {
       rootRenderer.dispose()
       tileRenderer.dispose()
+      objectPickerRenderer.dispose()
+      gui.dispose()
       tileRenderer = createTileRenderer(gl, resources)
       rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
+      objectPickerRenderer = createObjectPickerRenderer(gl, resources, tileRenderer.renderObjectPicker)
+      gui = createRuntime(gl, resources, gl.canvas.width, gl.canvas.height, () => testGui(game))
     },
     update: (now: number) => {
       if (isFirst) {

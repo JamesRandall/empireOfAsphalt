@@ -2,7 +2,18 @@ import { Primitives } from "../renderer/primitives/primitives"
 
 export type GuiElementType = "button"
 
-export type PropsKey = "text" | "onMouseDown" | "onMouseUp" | "onClick" | "left" | "top" | "width" | "height"
+export type PropsKey =
+  | "text"
+  | "onMouseDown"
+  | "onMouseUp"
+  | "onClick"
+  | "left"
+  | "top"
+  | "width"
+  | "height"
+  | "fill"
+  | "name"
+  | "stroke"
 
 export interface Attributes {
   [key: string]: any
@@ -30,7 +41,7 @@ export abstract class GuiElement {
   width?: number
   height?: number
 
-  protected constructor(attributes: Attributes | undefined, children: GuiElement[]) {
+  constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
     if (attributes !== undefined) {
       this.left = attributes["left"]
