@@ -68,7 +68,7 @@ export abstract class GuiElement {
       this.height = attributes["height"]
       this.padding = attributes["padding"]
     }
-    this.sizeToFitParent = sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
+    this.sizeToFitParent = attributeOrDefault(attributes, "sizeToFitParent", SizeToFit.None) //sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
     this.outerFrame = { left: -1, top: -1, width: -1, height: -1 }
     this.innerFrame = { ...this.outerFrame }
     this.objectId = null

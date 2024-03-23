@@ -1,14 +1,13 @@
 import { GuiElement, GuiLayoutContext, HorizontalAlignment } from "../base"
 import { Attributes } from "../builder"
 import { attributeOrDefault } from "../utilities"
-import { horizontalAlignment } from "../../utilities"
 
 export class HLayout extends GuiElement {
   horizontalAlignment: HorizontalAlignment
 
   constructor(props: Attributes | undefined, children: GuiElement[]) {
     super(props, children)
-    this.horizontalAlignment = horizontalAlignment(attributeOrDefault(props, "horizontalAlignment", "left"))
+    this.horizontalAlignment = attributeOrDefault(props, "horizontalAlignment", HorizontalAlignment.Left)
   }
 
   public layout(context: GuiLayoutContext) {

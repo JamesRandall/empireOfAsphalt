@@ -4,6 +4,7 @@ import { HLayout } from "./components/HLayout"
 import { Fragment } from "./components/Fragment"
 import { Rect } from "./components/Rect"
 import { Image } from "./components/Image"
+import { Container } from "./components/Container"
 
 export type GuiElementType = "button"
 export type PropsKey =
@@ -42,6 +43,8 @@ export function createGuiElement<P = {}>(
     return new Rect(props ?? undefined, children)
   } else if (type === "image") {
     return new Image(props ?? undefined, children)
+  } else if (type === "container") {
+    return new Container(props ?? undefined, children)
   }
   return new Fragment(props ?? undefined, children)
 }

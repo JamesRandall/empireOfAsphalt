@@ -5,10 +5,10 @@ declare namespace JSX {
     width?: number
     height?: number
     padding?: number
-    sizeToFitParent?: "none" | "width" | "height" | "widthAndHeight" // struggling to get enums to work from the jsx types
+    sizeToFitParent?: SizeToFit
   }
   interface HLayoutProps extends GuiElementProps {
-    horizontalAlignment?: "left" | "middle" | "right" // struggling to get enums to work from the jsx types
+    horizontalAlignment?: HorizontalAlignment
   }
 
   interface ButtonProps extends GuiElementProps {
@@ -28,12 +28,13 @@ declare namespace JSX {
 
   interface RectProps extends ShapeProps {}
 
+  interface ContainerProps extends GuiElementProps {}
+
   interface IntrinsicElements {
-    // Define your custom element. Replace `my-element` with your element's tag name
-    // and define the props it accepts.
-    hlayout: HLayoutProps // Use a more specific type for the props instead of `any` if possible.
+    hlayout: HLayoutProps
     button: ButtonProps
     image: ImageProps
     rect: RectProps
+    container: ContainerProps
   }
 }
