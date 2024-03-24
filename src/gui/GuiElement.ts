@@ -127,9 +127,14 @@ export abstract class GuiElement {
     this.outerFrame = new Frame(
       this.left ?? 0,
       this.top ?? 0,
-      (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width ? context.frame.width : this.width ?? -1,
-      (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height ? context.frame.height : this.height ?? -1,
+      (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width
+        ? context.frame.width - (this.left ?? 0)
+        : this.width ?? -1,
+      (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height
+        ? context.frame.height - (this.top ?? 0)
+        : this.height ?? -1,
     )
+
     this.layoutChildren(context)
   }
 
