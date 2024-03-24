@@ -4,6 +4,7 @@ import { Attributes } from "./builder"
 import { vec2 } from "gl-matrix"
 import { attributeOrDefault } from "./utilities"
 import { Frame } from "./Frame"
+import { MutableProperty } from "./properties/MutableProperty"
 
 export enum HorizontalAlignment {
   Left,
@@ -52,27 +53,102 @@ export abstract class GuiElement {
   outerFrame: Frame
   innerFrame: Frame
 
-  left?: number
-  top?: number
-  width?: number
-  height?: number
-  padding?: number
+  private _left?: MutableProperty
+  private _top?: MutableProperty
+  private _width?: MutableProperty
+  private _height?: MutableProperty
+  private _padding?: MutableProperty
   sizeToFitParent: SizeToFit
   objectId: number | null
 
   constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
     if (attributes !== undefined) {
-      this.left = attributes["left"]
-      this.top = attributes["top"]
-      this.width = attributes["width"]
-      this.height = attributes["height"]
-      this.padding = attributes["padding"]
+      const left = attributes["left"]
+      if (left !== undefined) {
+        this._left = new MutableProperty(left)
+      }
+      const top = attributes["top"]
+      if (top !== undefined) {
+        this._top = new MutableProperty(top)
+      }
+      const width = attributes["width"]
+      if (width !== undefined) {
+        this._width = new MutableProperty(width)
+      }
+      const height = attributes["height"]
+      if (height !== undefined) {
+        this._height = new MutableProperty(height)
+      }
+      const padding = attributes["padding"]
+      if (height !== undefined) {
+        this._padding = new MutableProperty(padding)
+      }
     }
     this.sizeToFitParent = attributeOrDefault(attributes, "sizeToFitParent", SizeToFit.None) //sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
     this.outerFrame = new Frame(-1, -1, -1, -1)
     this.innerFrame = this.outerFrame.copy()
     this.objectId = null
+  }
+
+  public get left(): MutableProperty | undefined {
+    return this._left
+  }
+
+  public set left(newValue: MutableProperty | number) {
+    if (typeof newValue === "number") {
+      this._left = new MutableProperty(newValue)
+    } else {
+      this._left = newValue as MutableProperty
+    }
+  }
+
+  public get top(): MutableProperty | undefined {
+    return this._top
+  }
+
+  public set top(newValue: MutableProperty | number) {
+    if (typeof newValue === "number") {
+      this._top = new MutableProperty(newValue)
+    } else {
+      this._top = newValue as MutableProperty
+    }
+  }
+
+  public get width(): MutableProperty | undefined {
+    return this._width
+  }
+
+  public set width(newValue: MutableProperty | number) {
+    if (typeof newValue === "number") {
+      this._width = new MutableProperty(newValue)
+    } else {
+      this._width = newValue as MutableProperty
+    }
+  }
+
+  public get height(): MutableProperty | undefined {
+    return this._height
+  }
+
+  public set height(newValue: MutableProperty | number) {
+    if (typeof newValue === "number") {
+      this._height = new MutableProperty(newValue)
+    } else {
+      this._height = newValue as MutableProperty
+    }
+  }
+
+  public get padding(): MutableProperty | undefined {
+    return this._padding
+  }
+
+  public set padding(newValue: MutableProperty | number) {
+    if (typeof newValue === "number") {
+      this._padding = new MutableProperty(newValue)
+    } else {
+      this._padding = newValue as MutableProperty
+    }
   }
 
   public get position() {
@@ -105,7 +181,7 @@ export abstract class GuiElement {
     const thisContext = { ...context, frame: resolvedFrame }
     this.renderControl(thisContext)
 
-    const padding = this.padding ?? 0
+    const padding = this.padding?.value ?? 0
     const innerFrame = new Frame(
       context.frame.left + this.outerFrame.left + padding,
       context.frame.top + this.outerFrame.top + padding,
@@ -123,23 +199,22 @@ export abstract class GuiElement {
   }
 
   public layout(context: GuiLayoutContext) {
-    const frame = context.frame
     this.outerFrame = new Frame(
-      this.left ?? 0,
-      this.top ?? 0,
+      this.left?.value ?? 0,
+      this.top?.value ?? 0,
       (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width
-        ? context.frame.width - (this.left ?? 0)
-        : this.width ?? -1,
+        ? context.frame.width - (this.left?.value ?? 0)
+        : this.width?.value ?? -1,
       (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height
-        ? context.frame.height - (this.top ?? 0)
-        : this.height ?? -1,
+        ? context.frame.height - (this.top?.value ?? 0)
+        : this.height?.value ?? -1,
     )
 
     this.layoutChildren(context)
   }
 
   protected layoutChildren(context: GuiLayoutContext) {
-    const padding = this.padding ?? 0
+    const padding = this.padding?.value ?? 0
     const innerFrame = new Frame(0, 0, this.outerFrame.width - padding * 2, this.outerFrame.height - padding * 2)
     this.children.forEach((c) => c.layout({ ...context, frame: innerFrame, parent: this }))
   }

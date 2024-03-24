@@ -1,6 +1,7 @@
 import { GuiElement, GuiLayoutContext, HorizontalAlignment } from "../GuiElement"
 import { Attributes } from "../builder"
 import { attributeOrDefault } from "../utilities"
+import { MutableProperty } from "../properties/MutableProperty"
 
 export class HLayout extends GuiElement {
   horizontalAlignment: HorizontalAlignment
@@ -21,7 +22,12 @@ export class HLayout extends GuiElement {
           ? context.frame.width - contentWidth
           : (context.frame.width - contentWidth) / 2) + context.frame.left
     this.children.reduce((x, child) => {
-      child.left = x
+      if (child.left !== undefined) {
+        child.left.value = x
+      } else {
+        child.left = new MutableProperty(x)
+      }
+
       return x + child.outerFrame.width
     }, left)
     //this.layoutChildren({ ...context, frame: this.innerFrame, parent: this })
