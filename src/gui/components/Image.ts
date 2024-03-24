@@ -20,12 +20,12 @@ export class Image extends GuiElement {
     }
   }
 
-  render(context: GuiRenderContext) {
-    super.render(context)
+  renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
     if (this.name.length === 0) return
     const texture = context.textureProvider(this.name)
     if (texture === undefined) return
 
-    context.primitives.texturedRect(this.position, this.size, texture)
+    context.primitives.texturedRect([context.frame.left, context.frame.top], this.size, texture)
   }
 }

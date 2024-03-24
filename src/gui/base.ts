@@ -3,8 +3,7 @@ import { Texture } from "../resources/texture"
 import { Attributes } from "./builder"
 import { vec2 } from "gl-matrix"
 import { attributeOrDefault } from "./utilities"
-import { objectIdToVec4, sizeToFit } from "../utilities"
-import { constants } from "./constants"
+import { Frame } from "./Frame"
 
 export enum HorizontalAlignment {
   Left,
@@ -23,13 +22,15 @@ export interface GuiRenderContext {
   gl: WebGL2RenderingContext
   primitives: Primitives
   textureProvider: (name: string) => Texture
+  frame: Frame
+  parent?: GuiElement
 }
 
 export interface GuiLayoutContext {
   gl: WebGL2RenderingContext
   primitives: Primitives
   textureProvider: (name: string) => Texture
-  frame: GuiRect
+  frame: Frame
   parent?: GuiElement
 }
 
@@ -48,8 +49,8 @@ export interface GuiInput {
 export abstract class GuiElement {
   children: GuiElement[]
 
-  outerFrame: { left: number; top: number; width: number; height: number }
-  innerFrame: { left: number; top: number; width: number; height: number }
+  outerFrame: Frame
+  innerFrame: Frame
 
   left?: number
   top?: number
@@ -69,8 +70,8 @@ export abstract class GuiElement {
       this.padding = attributes["padding"]
     }
     this.sizeToFitParent = attributeOrDefault(attributes, "sizeToFitParent", SizeToFit.None) //sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
-    this.outerFrame = { left: -1, top: -1, width: -1, height: -1 }
-    this.innerFrame = { ...this.outerFrame }
+    this.outerFrame = new Frame(-1, -1, -1, -1)
+    this.innerFrame = this.outerFrame.copy()
     this.objectId = null
   }
 
@@ -95,8 +96,27 @@ export abstract class GuiElement {
   }
 
   public render(context: GuiRenderContext) {
-    this.children.forEach((c) => c.render(context))
+    const resolvedFrame = new Frame(
+      context.frame.left + this.outerFrame.left,
+      context.frame.top + this.outerFrame.top,
+      this.outerFrame.width,
+      this.outerFrame.height,
+    )
+    const thisContext = { ...context, frame: resolvedFrame }
+    this.renderControl(thisContext)
+
+    const padding = this.padding ?? 0
+    const innerFrame = new Frame(
+      context.frame.left + this.outerFrame.left + padding,
+      context.frame.top + this.outerFrame.top + padding,
+      this.outerFrame.width - padding * 2,
+      this.outerFrame.height - padding * 2,
+    )
+    const childFrame = { ...context, frame: innerFrame }
+    this.children.forEach((c) => c.render(childFrame))
   }
+
+  public renderControl(context: GuiRenderContext) {}
 
   public renderObjectPicker(context: GuiRenderContext) {
     this.children.forEach((c) => c.renderObjectPicker(context))
@@ -104,23 +124,18 @@ export abstract class GuiElement {
 
   public layout(context: GuiLayoutContext) {
     const frame = context.frame
-    this.outerFrame = {
-      left: frame.left + (this.left ?? 0),
-      top: frame.top + (this.top ?? 0),
-      width: (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width ? context.frame.width : this.width ?? -1,
-      height: (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height ? context.frame.height : this.height ?? -1,
-    }
-    const padding = this.padding ?? 0
-    this.innerFrame = {
-      left: this.outerFrame.left + padding,
-      top: this.outerFrame.top + padding,
-      width: this.outerFrame.width - padding * 2,
-      height: this.outerFrame.height - padding * 2,
-    }
+    this.outerFrame = new Frame(
+      this.left ?? 0,
+      this.top ?? 0,
+      (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width ? context.frame.width : this.width ?? -1,
+      (this.sizeToFitParent & SizeToFit.Height) === SizeToFit.Height ? context.frame.height : this.height ?? -1,
+    )
     this.layoutChildren(context)
   }
 
   protected layoutChildren(context: GuiLayoutContext) {
-    this.children.forEach((c) => c.layout({ ...context, frame: { ...this.innerFrame }, parent: this }))
+    const padding = this.padding ?? 0
+    const innerFrame = new Frame(0, 0, this.outerFrame.width - padding * 2, this.outerFrame.height - padding * 2)
+    this.children.forEach((c) => c.layout({ ...context, frame: innerFrame, parent: this }))
   }
 }

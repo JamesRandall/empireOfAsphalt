@@ -4,8 +4,8 @@ import { vec4FromNumber } from "../../utilities"
 import { Shape } from "./Shape"
 
 export class Rect extends Shape {
-  render(context: GuiRenderContext) {
-    super.render(context)
+  renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
     context.primitives.rect(
       [this.outerFrame.left, this.outerFrame.top],
       [this.outerFrame.width, this.outerFrame.height],

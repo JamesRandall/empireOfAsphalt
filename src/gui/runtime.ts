@@ -44,11 +44,21 @@ export function createRuntime(
       textureProvider: getTexture,
       frame: { left: 0, top: 0, width: width, height: height },
     })
-    root.render({ gl, primitives, textureProvider: getTexture })
+    root.render({
+      gl,
+      primitives,
+      textureProvider: getTexture,
+      frame: { left: 0, top: 0, width: width, height: height },
+    })
   }
 
   const renderObjectPicker = () => {
-    root.renderObjectPicker({ gl, primitives, textureProvider: getTexture })
+    root.renderObjectPicker({
+      gl,
+      primitives,
+      textureProvider: getTexture,
+      frame: { left: 0, top: 0, width: width, height: height },
+    })
   }
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {

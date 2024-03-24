@@ -16,13 +16,12 @@ export class RaisedBevel extends GuiElement {
     this.darkChrome = vec4FromNumber(attributeOrDefault(props, "darkChrome", constants.darkChrome))
   }
 
-  render(context: GuiRenderContext) {
+  renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
     const p = context.primitives
-    p.rect(this.position, [this.size[0], 2], this.lightChrome)
-    p.rect(this.position, [2, this.size[1]], this.lightChrome)
-    p.rect([this.topRight[0] - 2, this.topRight[1]], [2, this.size[1]], this.darkChrome)
-    p.rect([this.bottomLeft[0], this.bottomLeft[1] - 2], [this.size[0], 2], this.darkChrome)
-
-    super.render(context)
+    p.rect(context.frame.topLeft, [this.size[0], 2], this.lightChrome)
+    p.rect(context.frame.topLeft, [2, this.size[1]], this.lightChrome)
+    p.rect([context.frame.topRight[0] - 2, context.frame.topRight[1]], [2, this.size[1]], this.darkChrome)
+    p.rect([context.frame.bottomLeft[0], context.frame.bottomLeft[1] - 2], [this.size[0], 2], this.darkChrome)
   }
 }

@@ -65,7 +65,8 @@ export class Window extends GuiElement {
     this.darkChrome = vec4FromNumber(attributeOrDefault(props, "darkChrome", constants.darkGreen))
   }
 
-  render(context: GuiRenderContext) {
+  renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
     const p = context.primitives
     p.rect(this.position, this.size, this.midChrome)
     p.text.draw(
@@ -78,8 +79,6 @@ export class Window extends GuiElement {
       [this.outerFrame.left + constants.window.closeButtonWidth + 8, this.outerFrame.top + 8],
       [1, 1, 1, 1],
     )
-
-    super.render(context)
   }
 
   layout(context: GuiLayoutContext) {

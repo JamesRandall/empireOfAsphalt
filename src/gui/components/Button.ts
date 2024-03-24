@@ -17,15 +17,14 @@ export class Button extends InteractiveElement {
     this.darkChrome = vec4FromNumber(attributeOrDefault(props, "darkChrome", constants.darkChrome))
   }
 
-  public render(context: GuiRenderContext) {
-    const { left, top, width, height } = this.outerFrame
+  public renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
+    const { left, top, width, height } = context.frame
     const cw = constants.chromeStrokeWidth
     context.primitives.rect([left, top], [width, height], this.midChrome)
     context.primitives.rect([left, top], [width, cw], this.lightChrome)
     context.primitives.rect([left, top], [cw, height], this.lightChrome)
     context.primitives.rect([left + width - cw, top], [cw, height], this.darkChrome)
     context.primitives.rect([left, top + height - cw], [width, cw], this.darkChrome)
-
-    super.render(context)
   }
 }

@@ -16,29 +16,21 @@ export class Bevel extends GuiElement {
     this.darkChrome = vec4FromNumber(attributeOrDefault(props, "darkChrome", constants.darkChrome))
   }
 
-  render(context: GuiRenderContext) {
+  renderControl(context: GuiRenderContext) {
+    super.renderControl(context)
     const p = context.primitives
     const cw = constants.chromeStrokeWidth
-    p.rect(this.position, [this.size[0], cw], this.lightChrome)
-    p.rect(this.position, [cw, this.size[1]], this.lightChrome)
-    p.rect([this.topRight[0] - cw, this.topRight[1]], [cw, this.size[1]], this.darkChrome)
-    p.rect([this.bottomLeft[0], this.bottomLeft[1] - cw], [this.size[0], cw], this.darkChrome)
+    const f = context.frame
+    p.rect(f.topLeft, [this.size[0], cw], this.lightChrome)
+    p.rect(f.topLeft, [cw, this.size[1]], this.lightChrome)
+    p.rect([f.topRight[0] - cw, f.topRight[1]], [cw, this.size[1]], this.darkChrome)
+    p.rect([f.bottomLeft[0], f.bottomLeft[1] - cw], [this.size[0], cw], this.darkChrome)
 
-    p.rect([this.position[0] + cw, this.position[1] + cw], [cw, this.size[1] - cw * 2], this.darkChrome)
-    p.rect([this.position[0] + cw, this.position[1] + cw], [this.size[0] - cw, cw], this.darkChrome)
+    p.rect([f.topLeft[0] + cw, f.topLeft[1] + cw], [cw, this.size[1] - cw * 2], this.darkChrome)
+    p.rect([f.topLeft[0] + cw, f.topLeft[1] + cw], [this.size[0] - cw, cw], this.darkChrome)
 
-    p.rect(
-      [this.position[0] + cw * 2, this.position[1] + this.size[1] - cw * 2],
-      [this.size[0] - cw * 3, cw],
-      this.lightChrome,
-    )
-    p.rect(
-      [this.position[0] + this.size[0] - cw * 2, this.position[1] + cw * 2],
-      [cw, this.size[1] - cw * 3],
-      this.lightChrome,
-    )
-
-    super.render(context)
+    p.rect([f.topLeft[0] + cw * 2, f.topLeft[1] + this.size[1] - cw * 2], [this.size[0] - cw * 3, cw], this.lightChrome)
+    p.rect([f.topLeft[0] + this.size[0] - cw * 2, f.topLeft[1] + cw * 2], [cw, this.size[1] - cw * 3], this.lightChrome)
   }
 
   layout(context: GuiLayoutContext) {

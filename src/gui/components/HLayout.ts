@@ -12,6 +12,7 @@ export class HLayout extends GuiElement {
 
   public layout(context: GuiLayoutContext) {
     super.layout(context)
+
     const contentWidth = this.children.reduce((w, child) => w + child.outerFrame.width, 0)
     const left =
       (this.horizontalAlignment === HorizontalAlignment.Left
@@ -23,6 +24,6 @@ export class HLayout extends GuiElement {
       child.left = x
       return x + child.outerFrame.width
     }, left)
-    this.layoutChildren({ ...context, frame: this.innerFrame, parent: this })
+    //this.layoutChildren({ ...context, frame: this.innerFrame, parent: this })
   }
 }
