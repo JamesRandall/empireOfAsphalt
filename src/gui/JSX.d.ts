@@ -2,11 +2,11 @@
 
 declare namespace JSX {
   interface GuiElementProps {
-    left?: number
-    top?: number
-    width?: number
-    height?: number
-    padding?: number
+    left?: number | MutableProperty
+    top?: number | MutableProperty
+    width?: number | MutableProperty
+    height?: number | MutableProperty
+    padding?: number | MutableProperty
     sizeToFitParent?: SizeToFit
   }
   interface HLayoutProps extends GuiElementProps {

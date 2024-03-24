@@ -19,9 +19,14 @@ export function Layout(): PropertyDecorator {
         },
         set: function (newValue: MutableProperty) {
           if (target[backingFieldSymbol] !== undefined) {
-            this[backingFieldSymbol]!.value = newValue.value
+            const prop = this[backingFieldSymbol]!
+            if (prop.value != newValue.value) {
+              prop.value = newValue.value
+              this._layoutRequired = true
+            }
           } else {
             this[backingFieldSymbol] = newValue
+            this._layoutRequired = true
           }
         },
         enumerable: false,

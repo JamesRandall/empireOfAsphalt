@@ -48,6 +48,12 @@ export interface GuiInput {
   mouseButtons: { left: boolean; right: boolean }
 }
 
+function mutablePropertyFromProp(value: MutableProperty | number) {
+  if (typeof value === "number") {
+    return new MutableProperty(value)
+  } else return value
+}
+
 export abstract class GuiElement {
   children: GuiElement[]
 
@@ -67,16 +73,18 @@ export abstract class GuiElement {
   sizeToFitParent: SizeToFit
   objectId: number | null
 
+  private _layoutRequired = true
+
   constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
     if (attributes !== undefined) {
       const left = attributes["left"]
       if (left !== undefined) {
-        this.left = new MutableProperty(left)
+        this.left = mutablePropertyFromProp(left)
       }
       const top = attributes["top"]
       if (top !== undefined) {
-        this.top = new MutableProperty(top)
+        this.top = mutablePropertyFromProp(top)
       }
       const width = attributes["width"]
       if (width !== undefined) {
@@ -117,7 +125,11 @@ export abstract class GuiElement {
     return false
   }
 
-  public render(context: GuiRenderContext) {
+  private renderFlow(
+    context: GuiRenderContext,
+    control: (context: GuiRenderContext) => void,
+    children: (child: GuiElement, context: GuiRenderContext) => void,
+  ) {
     const resolvedFrame = new Frame(
       context.frame.left + this.outerFrame.left,
       context.frame.top + this.outerFrame.top,
@@ -125,7 +137,7 @@ export abstract class GuiElement {
       this.outerFrame.height,
     )
     const thisContext = { ...context, frame: resolvedFrame }
-    this.renderControl(thisContext)
+    control(thisContext)
 
     const padding = this.padding?.value ?? 0
     const innerFrame = new Frame(
@@ -135,16 +147,31 @@ export abstract class GuiElement {
       this.outerFrame.height - padding * 2,
     )
     const childFrame = { ...context, frame: innerFrame }
-    this.children.forEach((c) => c.render(childFrame))
+    this.children.forEach((c) => children(c, childFrame))
+  }
+
+  public render(context: GuiRenderContext) {
+    this.renderFlow(
+      context,
+      (ctx) => this.renderControl(ctx),
+      (ctrl, ctx) => ctrl.render(ctx),
+    )
   }
 
   public renderControl(context: GuiRenderContext) {}
 
   public renderObjectPicker(context: GuiRenderContext) {
-    this.children.forEach((c) => c.renderObjectPicker(context))
+    this.renderFlow(
+      context,
+      (ctx) => this.renderObjectPickerControl(ctx),
+      (ctrl, ctx) => ctrl.renderObjectPicker(ctx),
+    )
   }
 
+  public renderObjectPickerControl(context: GuiRenderContext) {}
+
   public layout(context: GuiLayoutContext) {
+    //if (!this._layoutRequired) return
     this.outerFrame = new Frame(
       this.left?.value ?? 0,
       this.top?.value ?? 0,
@@ -157,6 +184,8 @@ export abstract class GuiElement {
     )
 
     this.layoutChildren(context)
+
+    //this._layoutRequired = false
   }
 
   protected layoutChildren(context: GuiLayoutContext) {

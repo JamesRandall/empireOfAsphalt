@@ -33,4 +33,8 @@ export class Frame implements GuiRect {
   public get bottomRight() {
     return vec2.fromValues(this.left + this.width, this.top + this.height)
   }
+
+  public get size() {
+    return vec2.fromValues(this.width, this.height)
+  }
 }

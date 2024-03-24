@@ -2,8 +2,15 @@ import { ControlState, getDefaultControlState } from "../controls/controlState"
 import { glMatrix, vec3 } from "gl-matrix"
 import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
+import { MutableProperty } from "../gui/properties/MutableProperty"
 
 type HeightMap = number[][]
+
+export interface WindowState {
+  isVisible: boolean
+  left: MutableProperty
+  top: MutableProperty
+}
 
 export interface Game {
   controlState: {
@@ -22,6 +29,11 @@ export interface Game {
   }
   landscape: Landscape
   selectedObjectId: number | null
+  gui: {
+    windows: {
+      zoning: WindowState
+    }
+  }
 }
 
 const distance = 32 // Distance from the scene center, adjust based on your scene size
@@ -51,5 +63,10 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     },
     landscape: landscape,
     selectedObjectId: null,
+    gui: {
+      windows: {
+        zoning: { isVisible: true, left: MutableProperty.with(500), top: MutableProperty.with(50) },
+      },
+    },
   }
 }

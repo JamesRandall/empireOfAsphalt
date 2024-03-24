@@ -31,11 +31,14 @@ export function testGui(state: Game): GuiElement {
       </hlayout>
       <window
         title="Zoning"
-        left={500}
-        top={50}
+        left={state.gui.windows.zoning.left}
+        top={state.gui.windows.zoning.top}
         width={bs * 6}
         height={bs + constants.window.titleBarHeight}
         padding={0}
+        lightChrome={constants.lightGreen}
+        midChrome={constants.midGreen}
+        darkChrome={constants.darkGreen}
       >
         <hlayout horizontalAlignment={HorizontalAlignment.Left} sizeToFitParent={SizeToFit.Width}>
           <button
