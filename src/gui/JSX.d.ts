@@ -11,7 +11,13 @@ declare namespace JSX {
     horizontalAlignment?: HorizontalAlignment
   }
 
-  interface ButtonProps extends GuiElementProps {
+  interface ChromeProps {
+    lightChrome?: number
+    midChrome?: number
+    darkChrome?: number
+  }
+
+  interface ButtonProps extends GuiElementProps, ChromeProps {
     onMouseDown?: (button: MouseButton, position: { x: number; y: number }) => void
     onMouseUp?: (button: MouseButton, position: { x: number; y: number }) => void
     onClick?: (button: MouseButton) => void
@@ -30,11 +36,18 @@ declare namespace JSX {
 
   interface ContainerProps extends GuiElementProps {}
 
+  interface WindowProps extends GuiElementProps, ChromeProps {
+    title: string
+  }
+
   interface IntrinsicElements {
     hlayout: HLayoutProps
     button: ButtonProps
     image: ImageProps
     rect: RectProps
     container: ContainerProps
+    window: WindowProps
+    raisedbevel: ChromeProps
+    bevel: ChromeProps
   }
 }

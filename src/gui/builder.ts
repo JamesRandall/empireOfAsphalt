@@ -2,9 +2,11 @@ import { Button } from "./components/Button"
 import { GuiElement } from "./base"
 import { HLayout } from "./components/HLayout"
 import { Fragment } from "./components/Fragment"
-import { Rect } from "./components/Rect"
+import { Rect } from "./components/Shapes/Rect"
 import { Image } from "./components/Image"
 import { Container } from "./components/Container"
+import { Window } from "./components/WIndow"
+import { RaisedBevel } from "./components/Shapes/RaisedBevel"
 
 export type GuiElementType = "button"
 export type PropsKey =
@@ -45,6 +47,12 @@ export function createGuiElement<P = {}>(
     return new Image(props ?? undefined, children)
   } else if (type === "container") {
     return new Container(props ?? undefined, children)
+  } else if (type === "window") {
+    return new Window(props ?? undefined, children)
+  } else if (type === "raisedbevel") {
+    return new RaisedBevel(props ?? undefined, children)
+  } else if (type === "bevel") {
+    return new RaisedBevel(props ?? undefined, children)
   }
   return new Fragment(props ?? undefined, children)
 }

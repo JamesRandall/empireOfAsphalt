@@ -78,6 +78,14 @@ export abstract class GuiElement {
     return vec2.fromValues(this.outerFrame.left, this.outerFrame.top)
   }
 
+  public get topRight() {
+    return vec2.fromValues(this.outerFrame.left + this.outerFrame.width, this.outerFrame.top)
+  }
+
+  public get bottomLeft() {
+    return vec2.fromValues(this.outerFrame.left, this.outerFrame.top + this.outerFrame.height)
+  }
+
   public get size() {
     return vec2.fromValues(this.outerFrame.width, this.outerFrame.height)
   }
@@ -109,7 +117,10 @@ export abstract class GuiElement {
       width: this.outerFrame.width - padding * 2,
       height: this.outerFrame.height - padding * 2,
     }
+    this.layoutChildren(context)
+  }
 
-    this.children.forEach((c) => c.layout({ ...context, frame: this.innerFrame, parent: this }))
+  protected layoutChildren(context: GuiLayoutContext) {
+    this.children.forEach((c) => c.layout({ ...context, frame: { ...this.innerFrame }, parent: this }))
   }
 }

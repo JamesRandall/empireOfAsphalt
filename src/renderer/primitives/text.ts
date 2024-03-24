@@ -7,6 +7,7 @@ import { createSquareModelWithLoadedTexture } from "../../resources/models"
 import { mat4, quat, vec2, vec3, vec4 } from "gl-matrix"
 import { setCommonAttributes, setCommonAttributes2D, setViewUniformLocations } from "../coregl/programInfo"
 import { Resources } from "../../resources/resources"
+import { Texture } from "../../resources/texture"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.text)
@@ -33,7 +34,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
 
 function getFontSize(width: number, height: number, characterWidth?: number) {
   if (characterWidth === undefined) {
-    const characterHeight = height / 23.0
+    const characterHeight = height / 16.0
     //characterWidth = width / 40.0
     return [characterHeight / 1.2, characterHeight]
   }
@@ -47,18 +48,18 @@ export function createTextRenderer(
   flippedY: boolean,
   resources: Resources,
   optionalCharacterWidth?: number,
-  font?: WebGLTexture,
+  font?: Texture,
 ) {
   const programInfo = initShaderProgram(gl, resources)!
   const square = createSquareModelWithLoadedTexture(
     gl,
-    font !== undefined ? font : resources.textures.font,
+    font !== undefined ? font : resources.textures.font.handle,
     flippedY,
     true,
   )
   const projectionMatrix = mat4.create()
   mat4.ortho(projectionMatrix, 0, width, height, 0, -1.0, 1.0)
-  const [characterWidth, characterHeight] = getFontSize(width, height, optionalCharacterWidth)
+  const [characterWidth, characterHeight] = [12, 16] // getFontSize(width, height, optionalCharacterWidth)
   const spacing = 1.0
   const yMultiplier = flippedY ? -1 : 1
 
@@ -70,20 +71,13 @@ export function createTextRenderer(
   const measure = (text: string) => {
     return { width: (characterWidth! + spacing) * text.length, height: characterHeight }
   }
-  const draw = (
-    text: string,
-    position: vec2,
-    useCharacterSpace: boolean = true,
-    color: vec4 = vec4.fromValues(1.0, 1.0, 1.0, 1.0),
-  ) => {
+  const draw = (text: string, position: vec2, color: vec4 = vec4.fromValues(1.0, 1.0, 1.0, 1.0)) => {
     gl.useProgram(programInfo.program)
 
     // Set the shader uniforms
     gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix)
 
-    let displayPosition = useCharacterSpace
-      ? vec3.fromValues(position[0] * (characterWidth! + spacing), position[1] * characterHeight, 1.0)
-      : vec3.fromValues(position[0], position[1], 0.0)
+    let displayPosition = vec3.fromValues(position[0], position[1], 0.0)
     drawCharacters(text, displayPosition, characterWidth!, characterHeight, color, spacing)
   }
 
@@ -142,7 +136,7 @@ export function createTextRenderer(
 
   const center = (text: string, row: number, color: vec4 = vec4.fromValues(1.0, 1.0, 1.0, 1.0)) => {
     const sz = measure(text)
-    draw(text, [width / 2 - sz.width / 2, row * characterHeight], false)
+    draw(text, [width / 2 - sz.width / 2, row * characterHeight])
   }
 
   return {

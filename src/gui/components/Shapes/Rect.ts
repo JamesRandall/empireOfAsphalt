@@ -1,6 +1,6 @@
-import { GuiElement, GuiRenderContext } from "../base"
-import { Primitives } from "../../renderer/primitives/primitives"
-import { vec4FromNumber } from "../utilities"
+import { GuiElement, GuiRenderContext } from "../../base"
+import { Primitives } from "../../../renderer/primitives/primitives"
+import { vec4FromNumber } from "../../utilities"
 import { Shape } from "./Shape"
 
 export class Rect extends Shape {

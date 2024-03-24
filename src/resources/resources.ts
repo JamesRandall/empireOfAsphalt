@@ -49,7 +49,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "directional",
     "objectPicking",
   ]
-  const guiTextureNames = ["road", "bulldozer", "pause", "singlespeed", "doublespeed", "zones"]
+  const guiTextureNames = ["road", "bulldozer", "pause", "singlespeed", "doublespeed", "zones", "xmark"]
   const loadedShaders = await Promise.all(shaderNames.map((sn) => loadShaderSource(sn)))
   const namedShaders = new Map<string, ShaderSource>(shaderNames.map((sn, index) => [sn, loadedShaders[index]]))
 

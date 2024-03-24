@@ -4,13 +4,14 @@ import { createTextRenderer } from "./text"
 import { vec2, vec4 } from "gl-matrix"
 import { Resources } from "../../resources/resources"
 import { createTexturedRectRenderer } from "./texturedRectangle"
+import { Texture } from "../../resources/texture"
 
 export interface Primitives {
   rect: (position: vec2, size: vec2, color: vec4) => void
-  texturedRect: (position: vec2, size: vec2, texture: WebGLTexture) => void
+  texturedRect: (position: vec2, size: vec2, texture: Texture) => void
   circle: (position: vec2, radius: number, color: vec4) => void
   text: {
-    draw: (text: string, position: vec2, useCharacterSpace?: boolean, color?: vec4) => void
+    draw: (text: string, position: vec2, color?: vec4) => void
     measure: (text: string) => { width: number; height: number }
     convertToCharacterCoordinates: (position: vec2) => vec2
     convertToPosition: (characterPosition: vec2) => vec2

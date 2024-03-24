@@ -23,5 +23,6 @@ export class HLayout extends GuiElement {
       child.left = x
       return x + child.outerFrame.width
     }, left)
+    this.layoutChildren({ ...context, frame: this.innerFrame, parent: this })
   }
 }
