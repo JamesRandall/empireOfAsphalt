@@ -1,5 +1,5 @@
 import { Button } from "./components/Button"
-import { GuiElement } from "./base"
+import { GuiElement } from "./GuiElement"
 import { HLayout } from "./components/HLayout"
 import { Fragment } from "./components/Fragment"
 import { Rect } from "./components/Shapes/Rect"

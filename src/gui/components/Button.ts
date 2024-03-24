@@ -1,4 +1,4 @@
-import { GuiElement, GuiRenderContext } from "../base"
+import { GuiElement, GuiRenderContext } from "../GuiElement"
 import { constants } from "../constants"
 import { Attributes } from "../builder"
 import { InteractiveElement, MouseButton } from "./InteractiveElement"

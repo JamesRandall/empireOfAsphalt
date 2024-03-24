@@ -1,21 +1,22 @@
-import { GuiElement, GuiLayoutContext, GuiRenderContext, SizeToFit } from "../base"
+import { GuiElement, GuiLayoutContext, GuiRenderContext, SizeToFit } from "../GuiElement"
 import { vec4 } from "gl-matrix"
 import { Attributes } from "../builder"
 import { attributeOrDefault, vec4FromNumber } from "../utilities"
 import { Button } from "./Button"
 import { RaisedBevel } from "./Shapes/RaisedBevel"
-import { Bevel } from "./Shapes/Bevel"
 import { Image } from "./Image"
 import { constants } from "../constants"
 import { Container } from "./Container"
+import { WindowTitleBar } from "./WindowTitleBar"
 
 export class Window extends GuiElement {
   lightChrome: vec4
   midChrome: vec4
   darkChrome: vec4
-  titleBarBevel: Bevel
+  //titleBarBevel: Bevel
   title: string
   container: Container
+  titleBar
 
   constructor(props: Attributes | undefined, children: GuiElement[]) {
     super(props, [])
@@ -44,20 +45,27 @@ export class Window extends GuiElement {
     raisedBevel.top = 0
     raisedBevel.sizeToFitParent = SizeToFit.WidthAndHeight
 
-    this.titleBarBevel = new Bevel(undefined, [])
+    this.titleBar = new WindowTitleBar(undefined, [])
+    this.titleBar.left = constants.window.closeButtonWidth
+    this.titleBar.top = 0
+    this.titleBar.height = constants.window.titleBarHeight
+    this.titleBar.sizeToFitParent = SizeToFit.Width
+
+    /*this.titleBarBevel = new Bevel(undefined, [])
     this.titleBarBevel.midChrome = vec4FromNumber(constants.midGreen)
     this.titleBarBevel.lightChrome = vec4FromNumber(constants.lightGreen)
     this.titleBarBevel.darkChrome = vec4FromNumber(constants.darkGreen)
     this.titleBarBevel.left = constants.window.closeButtonWidth
     this.titleBarBevel.top = 0
-    this.titleBarBevel.height = constants.window.titleBarHeight
+    this.titleBarBevel.height = constants.window.titleBarHeight*/
 
     this.container = new Container(undefined, children)
     this.container.sizeToFitParent = SizeToFit.None
 
     this.children.push(raisedBevel)
     this.children.push(closeButton)
-    this.children.push(this.titleBarBevel)
+    //this.children.push(this.titleBarBevel)
+    this.children.push(this.titleBar)
     this.children.push(this.container)
 
     this.lightChrome = vec4FromNumber(attributeOrDefault(props, "lightChrome", constants.lightGreen))
@@ -83,8 +91,8 @@ export class Window extends GuiElement {
 
   layout(context: GuiLayoutContext) {
     super.layout(context)
-    this.titleBarBevel.width = this.size[0] - constants.window.closeButtonWidth
-    this.titleBarBevel.layout({ ...context, frame: this.innerFrame })
+    this.titleBar.width = this.size[0] - constants.window.closeButtonWidth
+    //this.titleBarBevel.layout({ ...context, frame: this.innerFrame })
     this.container.left = this.padding ?? constants.chromeStrokeWidth
     this.container.width = this.outerFrame.width - (this.padding ?? constants.chromeStrokeWidth) * 2
     this.container.top = constants.window.titleBarHeight

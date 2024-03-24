@@ -1,4 +1,4 @@
-import { GuiElement, GuiRenderContext } from "../../base"
+import { GuiElement, GuiRenderContext } from "../../GuiElement"
 import { vec4 } from "gl-matrix"
 import { Attributes } from "../../builder"
 import { attributeOrDefault, vec4FromNumber } from "../../utilities"

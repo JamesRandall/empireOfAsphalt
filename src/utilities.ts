@@ -1,5 +1,5 @@
 import { vec4 } from "gl-matrix"
-import { HorizontalAlignment, SizeToFit } from "./gui/base"
+import { HorizontalAlignment, SizeToFit } from "./gui/GuiElement"
 
 export function objectIdToVec4(objectId: number) {
   return vec4.fromValues(

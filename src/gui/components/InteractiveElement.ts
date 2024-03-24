@@ -1,5 +1,5 @@
 import { objectIdToVec4 } from "../../utilities"
-import { GuiElement, GuiRenderContext } from "../base"
+import { GuiElement, GuiRenderContext } from "../GuiElement"
 import { Attributes } from "../builder"
 import { attributeOrDefault } from "../utilities"
 

@@ -1,6 +1,6 @@
 import { createPrimitiveRenderer } from "../renderer/primitives/primitives"
 import { Resources } from "../resources/resources"
-import { GuiElement, GuiInput } from "./base"
+import { GuiElement, GuiInput } from "./GuiElement"
 import { Texture } from "../resources/texture"
 import { InteractiveElement, MouseButton } from "./components/InteractiveElement"
 

@@ -1,4 +1,4 @@
-import { GuiElement, GuiLayoutContext, HorizontalAlignment } from "../base"
+import { GuiElement, GuiLayoutContext, HorizontalAlignment } from "../GuiElement"
 import { Attributes } from "../builder"
 import { attributeOrDefault } from "../utilities"
 

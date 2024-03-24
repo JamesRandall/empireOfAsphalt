@@ -1,4 +1,4 @@
-import { GuiElement, GuiRenderContext } from "../../base"
+import { GuiElement, GuiRenderContext } from "../../GuiElement"
 import { Primitives } from "../../../renderer/primitives/primitives"
 import { vec4FromNumber } from "../../utilities"
 import { Shape } from "./Shape"

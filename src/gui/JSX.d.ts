@@ -1,3 +1,5 @@
+// Make sure there are no imports at the top of this
+
 declare namespace JSX {
   interface GuiElementProps {
     left?: number
@@ -38,6 +40,7 @@ declare namespace JSX {
 
   interface WindowProps extends GuiElementProps, ChromeProps {
     title: string
+    onClose?: () => void
   }
 
   interface IntrinsicElements {

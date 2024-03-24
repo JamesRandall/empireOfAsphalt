@@ -1,6 +1,6 @@
 import { createGuiElement } from "../gui/builder"
 import { Game } from "../model/game"
-import { GuiElement, HorizontalAlignment, SizeToFit } from "../gui/base"
+import { GuiElement, HorizontalAlignment, SizeToFit } from "../gui/GuiElement"
 import { constants } from "../gui/constants"
 
 export function testGui(state: Game): GuiElement {

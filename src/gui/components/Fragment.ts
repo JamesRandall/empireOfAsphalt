@@ -1,3 +1,3 @@
-import { GuiElement } from "../base"
+import { GuiElement } from "../GuiElement"
 
 export class Fragment extends GuiElement {}

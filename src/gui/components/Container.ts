@@ -1,4 +1,4 @@
-import { GuiElement, SizeToFit } from "../base"
+import { GuiElement, SizeToFit } from "../GuiElement"
 import { Attributes } from "../builder"
 
 export class Container extends GuiElement {

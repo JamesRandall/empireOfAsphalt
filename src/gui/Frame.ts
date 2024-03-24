@@ -1,4 +1,4 @@
-import { GuiRect } from "./base"
+import { GuiRect } from "./GuiElement"
 import { vec2 } from "gl-matrix"
 
 export class Frame implements GuiRect {

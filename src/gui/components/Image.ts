@@ -1,4 +1,4 @@
-import { GuiElement, GuiLayoutContext, GuiRect, GuiRenderContext } from "../base"
+import { GuiElement, GuiLayoutContext, GuiRect, GuiRenderContext } from "../GuiElement"
 import { Attributes } from "../builder"
 import { attributeOrDefault } from "../utilities"
 
