@@ -49,7 +49,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="lightresidential" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="lightResidentialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={8}
@@ -59,7 +59,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="denseresidential" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="denseResidentialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={8}
@@ -69,7 +69,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="lightcommercial" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="lightCommercialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={8}
@@ -79,7 +79,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="densecommercial" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="denseCommercialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={8}
@@ -89,7 +89,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="lightindustrial" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="lightIndustrialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={8}
@@ -99,7 +99,7 @@ export function testGui(state: Game): GuiElement {
             midChrome={constants.midGreen}
             darkChrome={constants.darkGreen}
           >
-            <image name="denseindustrial" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="denseIndustrialZone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
         </hlayout>
       </window>
