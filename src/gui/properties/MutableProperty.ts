@@ -16,4 +16,8 @@ export class MutableProperty {
       if (this.onChange) this.onChange(newValue)
     }
   }
+
+  public static with(newValue: number) {
+    return new MutableProperty(newValue)
+  }
 }

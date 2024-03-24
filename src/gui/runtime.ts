@@ -3,6 +3,7 @@ import { Resources } from "../resources/resources"
 import { GuiElement, GuiInput } from "./GuiElement"
 import { Texture } from "../resources/texture"
 import { InteractiveElement, MouseButton } from "./components/InteractiveElement"
+import { Frame } from "./Frame"
 
 interface Interactions {
   leftMouseDown: { timer: number; initialObjectId: number } | null
@@ -42,13 +43,13 @@ export function createRuntime(
       gl,
       primitives,
       textureProvider: getTexture,
-      frame: { left: 0, top: 0, width: width, height: height },
+      frame: new Frame(0, 0, width, height),
     })
     root.render({
       gl,
       primitives,
       textureProvider: getTexture,
-      frame: { left: 0, top: 0, width: width, height: height },
+      frame: new Frame(0, 0, width, height),
     })
   }
 
@@ -57,7 +58,7 @@ export function createRuntime(
       gl,
       primitives,
       textureProvider: getTexture,
-      frame: { left: 0, top: 0, width: width, height: height },
+      frame: new Frame(0, 0, width, height),
     })
   }
 

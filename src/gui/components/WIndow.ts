@@ -8,6 +8,7 @@ import { Image } from "./Image"
 import { constants } from "../constants"
 import { Container } from "./Container"
 import { WindowTitleBar } from "./WindowTitleBar"
+import { MutableProperty } from "../properties/MutableProperty"
 
 export class Window extends GuiElement {
   lightChrome: vec4
@@ -30,25 +31,25 @@ export class Window extends GuiElement {
     closeButton.midChrome = vec4FromNumber(constants.midGreen)
     closeButton.lightChrome = vec4FromNumber(constants.lightGreen)
     closeButton.darkChrome = vec4FromNumber(constants.darkGreen)
-    closeButton.left = 0
-    closeButton.top = 0
-    closeButton.width = constants.window.closeButtonWidth
-    closeButton.height = constants.window.titleBarHeight
-    closeButton.padding = 6
+    closeButton.left = MutableProperty.with(0)
+    closeButton.top = MutableProperty.with(0)
+    closeButton.width = MutableProperty.with(constants.window.closeButtonWidth)
+    closeButton.height = MutableProperty.with(constants.window.titleBarHeight)
+    closeButton.padding = MutableProperty.with(6)
     closeButton.children.push(closeButtonImage)
 
     const raisedBevel = new RaisedBevel(undefined, [])
     raisedBevel.midChrome = vec4FromNumber(constants.midGreen)
     raisedBevel.lightChrome = vec4FromNumber(constants.lightGreen)
     raisedBevel.darkChrome = vec4FromNumber(constants.darkGreen)
-    raisedBevel.left = 0
-    raisedBevel.top = 0
+    raisedBevel.left = MutableProperty.with(0)
+    raisedBevel.top = MutableProperty.with(0)
     raisedBevel.sizeToFitParent = SizeToFit.WidthAndHeight
 
     this.titleBar = new WindowTitleBar(undefined, [])
-    this.titleBar.left = constants.window.closeButtonWidth
-    this.titleBar.top = 0
-    this.titleBar.height = constants.window.titleBarHeight
+    this.titleBar.left = MutableProperty.with(constants.window.closeButtonWidth)
+    this.titleBar.top = MutableProperty.with(0)
+    this.titleBar.height = MutableProperty.with(constants.window.titleBarHeight)
     this.titleBar.sizeToFitParent = SizeToFit.Width
 
     /*this.titleBarBevel = new Bevel(undefined, [])
@@ -60,7 +61,7 @@ export class Window extends GuiElement {
     this.titleBarBevel.height = constants.window.titleBarHeight*/
 
     this.container = new Container(undefined, children)
-    this.container.sizeToFitParent = SizeToFit.None
+    //this.container.sizeToFitParent = SizeToFit.None
 
     this.children.push(raisedBevel)
     this.children.push(closeButton)
@@ -91,12 +92,16 @@ export class Window extends GuiElement {
 
   layout(context: GuiLayoutContext) {
     super.layout(context)
-    this.titleBar.width = this.size[0] - constants.window.closeButtonWidth
+    this.titleBar.width = MutableProperty.with(this.size[0] - constants.window.closeButtonWidth)
     //this.titleBarBevel.layout({ ...context, frame: this.innerFrame })
-    this.container.left = this.padding ?? constants.chromeStrokeWidth
-    this.container.width = this.outerFrame.width - (this.padding ?? constants.chromeStrokeWidth) * 2
-    this.container.top = constants.window.titleBarHeight
-    this.container.height = this.outerFrame.height - constants.window.titleBarHeight - constants.chromeStrokeWidth
+    this.container.left = MutableProperty.with(this.padding?.value ?? constants.chromeStrokeWidth)
+    this.container.width = MutableProperty.with(
+      this.outerFrame.width - (this.padding?.value ?? constants.chromeStrokeWidth) * 2,
+    )
+    this.container.top = MutableProperty.with(constants.window.titleBarHeight)
+    this.container.height = MutableProperty.with(
+      this.outerFrame.height - constants.window.titleBarHeight - constants.chromeStrokeWidth,
+    )
     this.layoutChildren(context)
   }
 }
