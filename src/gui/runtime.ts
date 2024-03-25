@@ -58,6 +58,8 @@ export function createRuntime(
   }
 
   const renderObjectPicker = () => {
+    // we always want the GUI to be more pickable than whats underneath so we disable the depth test
+    gl.disable(gl.DEPTH_TEST)
     root.renderObjectPicker({
       gl,
       primitives,
@@ -67,6 +69,7 @@ export function createRuntime(
   }
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {
+    console.log(selectedObjectId)
     if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return
     const selectedElement = mouseCapturedObject ?? objectIdMap.get(selectedObjectId)
     if (selectedElement === undefined) return
