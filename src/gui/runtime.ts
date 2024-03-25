@@ -69,7 +69,6 @@ export function createRuntime(
   }
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {
-    console.log(selectedObjectId)
     if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return
     const selectedElement = mouseCapturedObject ?? objectIdMap.get(selectedObjectId)
     if (selectedElement === undefined) return

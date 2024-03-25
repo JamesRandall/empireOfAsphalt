@@ -1,7 +1,7 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
-import { Landscape } from "../model/Landscape"
+import { Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
 import { objectIdToVec4 } from "../utilities"
 
 // Index buffers have a max index of 64k as they are unsigned shorts - our large landscapes are bigger than that
@@ -13,10 +13,17 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   let heightMapSize = heights.length
   const landscape: Landscape = {
     heights: heights,
-    terrainType: [],
+    tileInfo: [],
     chunkSize: chunkSize,
     chunks: [],
     size: heightMapSize,
+  }
+  for (let y = 0; y < heightMapSize - 1; y++) {
+    const row: TileInfo[] = []
+    for (let x = 0; x < heightMapSize - 1; x++) {
+      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None })
+    }
+    landscape.tileInfo.push(row)
   }
   for (let y = 0; y < heightMapSize - 1; y += chunkSize) {
     for (let x = 0; x < heightMapSize - 1; x += chunkSize) {
@@ -25,7 +32,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       const chunk = {
         fromX: x,
         fromY: y,
-        model: createLandscapeChunk(gl, heights, x, y, toX, toY, heightMapSize),
+        model: createLandscapeChunk(gl, heights, landscape.tileInfo, x, y, toX, toY, heightMapSize),
       }
       landscape.chunks.push(chunk)
     }
@@ -36,6 +43,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
 function createLandscapeChunk(
   gl: WebGL2RenderingContext,
   heights: number[][],
+  tileInfo: TileInfo[][],
   fromX: number,
   fromY: number,
   toX: number,
@@ -48,6 +56,7 @@ function createLandscapeChunk(
   const normals: number[] = []
   const textureCoords: number[] = []
   const colors: number[] = []
+  const tileInfos: number[] = []
   const objectIdColors: number[] = []
 
   const half = sizes.tile / 2
@@ -65,6 +74,7 @@ function createLandscapeChunk(
     let rowTopHeights = heights[y]
     let rowBottomHeights = heights[y + 1]
     if (rowBottomHeights === undefined) debugger
+    let rowZones = tileInfo[y]
 
     const top = -sizes.tile * y - topExtent
     for (let x = fromX; x <= toX; x++) {
@@ -79,6 +89,9 @@ function createLandscapeChunk(
         vec3.fromValues(half + left, rowBottomHeights[x + 1], -half + top), //br
         vec3.fromValues(-half + left, rowBottomHeights[x], -half + top), // bl
       ]
+      const tileInfo = rowZones[x]
+      // I can imagine us eventually having enough info that we have to bit twiddle it in
+      const vectorTileInfo = vec4.fromValues(tileInfo.terrain, tileInfo.zone, 0.0, 0.0)
 
       const vertexTextureCoords = [
         [0.0, 1.0],
@@ -179,6 +192,11 @@ function createLandscapeChunk(
         objectIdColors.push(objectIdColor[1])
         objectIdColors.push(objectIdColor[2])
         objectIdColors.push(objectIdColor[3])
+
+        tileInfos.push(vectorTileInfo[0])
+        tileInfos.push(vectorTileInfo[1])
+        tileInfos.push(vectorTileInfo[2])
+        tileInfos.push(vectorTileInfo[3])
       }
     }
   }
@@ -192,10 +210,12 @@ function createLandscapeChunk(
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
-
   const colorBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW)
+  const tileInfoBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, tileInfoBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tileInfos), gl.STATIC_DRAW)
   const objectIdColorBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, objectIdColorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectIdColors), gl.STATIC_DRAW)
@@ -207,6 +227,7 @@ function createLandscapeChunk(
     position: positionBuffer,
     color: colorBuffer,
     objectIdColor: objectIdColorBuffer,
+    objectInfo: tileInfoBuffer,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,

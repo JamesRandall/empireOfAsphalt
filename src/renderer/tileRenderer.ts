@@ -19,6 +19,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
       vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
       objectIdColor: gl.getAttribLocation(shaderProgram, "aTileId"),
+      objectInfo: gl.getAttribLocation(shaderProgram, "aObjectInfo"),
       textureCoords: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
     },
     uniformLocations: {

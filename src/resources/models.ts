@@ -6,6 +6,7 @@ export interface RenderingModel {
   position: WebGLBuffer
   color: WebGLBuffer
   objectIdColor: WebGLBuffer | null
+  objectInfo: WebGLBuffer | null
   indices: WebGLBuffer
   //outlineIndices?: WebGLBuffer
   //outlineColor?: WebGLBuffer
@@ -184,6 +185,7 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
     position: positionBuffer,
     color: colorBuffer,
     objectIdColor: null,
+    objectInfo: null,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,
@@ -308,6 +310,8 @@ export function createSquareModelWithLoadedTexture(
   return {
     position: positionBuffer,
     color: colorBuffer,
+    objectIdColor: null,
+    objectInfo: null,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,
