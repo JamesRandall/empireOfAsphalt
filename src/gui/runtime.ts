@@ -22,6 +22,10 @@ export function createRuntime(
   const root = createRoot()
   let nextObjectId = startingObjectId
   let objectIdMap = new Map<number, InteractiveElement>()
+  let mouseCapturedObject: InteractiveElement | null = null
+  const capture = (element: InteractiveElement) => (mouseCapturedObject = element)
+  const endCapture = () => (mouseCapturedObject = null)
+
   const recursivelySetObjectIds = (element: GuiElement) => {
     if (element.isInteractive) {
       element.objectId = nextObjectId
@@ -64,24 +68,27 @@ export function createRuntime(
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {
     if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return
-    const selectedElement = objectIdMap.get(selectedObjectId)
+    const selectedElement = mouseCapturedObject ?? objectIdMap.get(selectedObjectId)
     if (selectedElement === undefined) return
     if (controlState.mouseButtons.left) {
       if (interactions.leftMouseDown === null) {
         interactions.leftMouseDown = { timer: 0, initialObjectId: selectedObjectId }
-        selectedElement.onMouseDown(MouseButton.Left, controlState.mousePosition)
+        selectedElement.handleMouseDown(MouseButton.Left, controlState.mousePosition, { capture, endCapture })
       }
     } else {
       if (interactions.leftMouseDown !== null) {
-        selectedElement.onMouseUp(MouseButton.Left, controlState.mousePosition, interactions.leftMouseDown.timer)
+        selectedElement.handleMouseUp(MouseButton.Left, controlState.mousePosition, interactions.leftMouseDown.timer, {
+          capture,
+          endCapture,
+        })
         if (selectedObjectId === interactions.leftMouseDown.initialObjectId) {
-          selectedElement.onClick(MouseButton.Left)
+          selectedElement.handleClick(MouseButton.Left)
         }
         interactions.leftMouseDown = null
       }
     }
     // TODO: we only want to route this if in bounds
-    selectedElement.onMouseMove(controlState.mousePosition)
+    selectedElement.handleMouseMove(controlState.mousePosition, { capture, endCapture })
   }
 
   const update = (timeDelta: number) => {

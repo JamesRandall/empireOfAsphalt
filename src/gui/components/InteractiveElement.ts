@@ -8,10 +8,27 @@ export enum MouseButton {
   Right,
 }
 
+export interface MouseCapture {
+  capture: (element: InteractiveElement) => void
+  endCapture: () => void
+}
+
+export interface MousePositionEvent {
+  position: { x: number; y: number }
+}
+
+export interface MouseDownEvent extends MousePositionEvent {
+  button: MouseButton
+}
+
+export interface MouseUpEvent extends MouseDownEvent {
+  timePressed: number
+}
+
 export abstract class InteractiveElement extends GuiElement {
-  onMouseDown: (button: MouseButton, position: { x: number; y: number }) => void
-  onMouseUp: (button: MouseButton, position: { x: number; y: number }, timePressed: number) => void
-  onMouseMove: (position: { x: number; y: number }) => void
+  onMouseDown: (ev: MouseDownEvent & MouseCapture) => void
+  onMouseUp: (ev: MouseUpEvent & MouseCapture) => void
+  onMouseMove: (ev: MousePositionEvent & MouseCapture) => void
   onClick: (button: MouseButton) => void
 
   constructor(props: Attributes | undefined, children: GuiElement[]) {
@@ -31,5 +48,41 @@ export abstract class InteractiveElement extends GuiElement {
       context.primitives.rect(context.frame.topLeft, context.frame.size, objectIdToVec4(this.objectId))
     }
     super.renderObjectPickerControl(context)
+  }
+
+  public handleMouseDown(button: MouseButton, position: { x: number; y: number }, capture: MouseCapture) {
+    const ev = {
+      button,
+      position,
+      ...capture,
+    }
+    this.onMouseDown(ev)
+  }
+
+  public handleMouseUp(
+    button: MouseButton,
+    position: { x: number; y: number },
+    timePressed: number,
+    capture: MouseCapture,
+  ) {
+    const ev = {
+      button,
+      position,
+      timePressed,
+      ...capture,
+    }
+    this.onMouseUp(ev)
+  }
+
+  public handleMouseMove(position: { x: number; y: number }, capture: MouseCapture) {
+    const ev = {
+      position,
+      ...capture,
+    }
+    this.onMouseMove(ev)
+  }
+
+  public handleClick(button: MouseButton) {
+    this.onClick(button)
   }
 }

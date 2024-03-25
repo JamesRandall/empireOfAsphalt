@@ -4,7 +4,7 @@ import { Attributes } from "./builder"
 import { vec2 } from "gl-matrix"
 import { attributeOrDefault } from "./utilities"
 import { Frame } from "./Frame"
-import { MutableProperty } from "./properties/MutableProperty"
+import { MutableProperty, mutablePropertyFromBoolProp, mutablePropertyFromProp } from "./properties/MutableProperty"
 import { Layout } from "./properties/LayoutDecorator"
 
 export enum HorizontalAlignment {
@@ -48,12 +48,6 @@ export interface GuiInput {
   mouseButtons: { left: boolean; right: boolean }
 }
 
-function mutablePropertyFromProp(value: MutableProperty | number) {
-  if (typeof value === "number") {
-    return new MutableProperty(value)
-  } else return value
-}
-
 export abstract class GuiElement {
   children: GuiElement[]
 
@@ -61,15 +55,17 @@ export abstract class GuiElement {
   innerFrame: Frame
 
   @Layout()
-  left?: MutableProperty
+  left?: MutableProperty<number>
   @Layout()
-  top?: MutableProperty
+  top?: MutableProperty<number>
   @Layout()
-  width?: MutableProperty
+  width?: MutableProperty<number>
   @Layout()
-  height?: MutableProperty
+  height?: MutableProperty<number>
   @Layout()
-  padding?: MutableProperty
+  padding?: MutableProperty<number>
+  @Layout()
+  isVisible: MutableProperty<boolean>
   sizeToFitParent: SizeToFit
   objectId: number | null
 
@@ -77,6 +73,7 @@ export abstract class GuiElement {
 
   constructor(attributes: Attributes | undefined, children: GuiElement[]) {
     this.children = children
+    let isVisible: MutableProperty<boolean> | undefined = undefined
     if (attributes !== undefined) {
       const left = attributes["left"]
       if (left !== undefined) {
@@ -95,10 +92,15 @@ export abstract class GuiElement {
         this.height = new MutableProperty(height)
       }
       const padding = attributes["padding"]
-      if (height !== undefined) {
+      if (padding !== undefined) {
         this.padding = new MutableProperty(padding)
       }
+      const isVisibleAttr = attributes["isVisible"]
+      if (isVisibleAttr !== undefined) {
+        isVisible = mutablePropertyFromBoolProp(isVisibleAttr)
+      }
     }
+    this.isVisible = isVisible ?? MutableProperty.with(true)
     this.sizeToFitParent = attributeOrDefault(attributes, "sizeToFitParent", SizeToFit.None) //sizeToFit(attributeOrDefault(attributes, "sizeToFitParent", "none"))
     this.outerFrame = new Frame(-1, -1, -1, -1)
     this.innerFrame = this.outerFrame.copy()
@@ -141,16 +143,17 @@ export abstract class GuiElement {
 
     const padding = this.padding?.value ?? 0
     const innerFrame = new Frame(
-      context.frame.left + this.outerFrame.left + padding,
-      context.frame.top + this.outerFrame.top + padding,
-      this.outerFrame.width - padding * 2,
-      this.outerFrame.height - padding * 2,
+      context.frame.left + this.outerFrame.left,
+      context.frame.top + this.outerFrame.top,
+      this.outerFrame.width,
+      this.outerFrame.height,
     )
     const childFrame = { ...context, frame: innerFrame }
     this.children.forEach((c) => children(c, childFrame))
   }
 
   public render(context: GuiRenderContext) {
+    if (!this.isVisible.value) return
     this.renderFlow(
       context,
       (ctx) => this.renderControl(ctx),
@@ -161,6 +164,7 @@ export abstract class GuiElement {
   public renderControl(context: GuiRenderContext) {}
 
   public renderObjectPicker(context: GuiRenderContext) {
+    if (!this.isVisible.value) return
     this.renderFlow(
       context,
       (ctx) => this.renderObjectPickerControl(ctx),
@@ -173,8 +177,8 @@ export abstract class GuiElement {
   public layout(context: GuiLayoutContext) {
     //if (!this._layoutRequired) return
     this.outerFrame = new Frame(
-      this.left?.value ?? 0,
-      this.top?.value ?? 0,
+      (this.left?.value ?? 0) + context.frame.left,
+      (this.top?.value ?? 0) + context.frame.top,
       (this.sizeToFitParent & SizeToFit.Width) === SizeToFit.Width
         ? context.frame.width - (this.left?.value ?? 0)
         : this.width?.value ?? -1,
@@ -188,9 +192,13 @@ export abstract class GuiElement {
     //this._layoutRequired = false
   }
 
-  protected layoutChildren(context: GuiLayoutContext) {
+  protected calculateInnerFrame() {
     const padding = this.padding?.value ?? 0
-    const innerFrame = new Frame(0, 0, this.outerFrame.width - padding * 2, this.outerFrame.height - padding * 2)
+    return new Frame(padding, padding, this.outerFrame.width - padding * 2, this.outerFrame.height - padding * 2)
+  }
+
+  protected layoutChildren(context: GuiLayoutContext) {
+    const innerFrame = this.calculateInnerFrame()
     this.children.forEach((c) => c.layout({ ...context, frame: innerFrame, parent: this }))
   }
 }

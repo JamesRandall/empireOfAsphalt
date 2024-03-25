@@ -21,13 +21,15 @@ export class WindowTitleBar extends InteractiveElement {
     titleBarBevel.lightChrome = vec4FromNumber(constants.lightGreen)
     titleBarBevel.darkChrome = vec4FromNumber(constants.darkGreen)
     titleBarBevel.sizeToFitParent = SizeToFit.WidthAndHeight
-    this.onMouseDown = (_, position: { x: number; y: number }) => {
+    this.onMouseDown = (ev) => {
       this._isDragActive = true
-      this._lastPosition = position
+      this._lastPosition = ev.position
+      ev.capture(this)
     }
-    this.onMouseMove = this.dragWindow
-    this.onMouseUp = () => {
+    this.onMouseMove = (ev) => this.dragWindow(ev.position)
+    this.onMouseUp = (ev) => {
       this._isDragActive = false
+      ev.endCapture()
     }
     this.children.push(titleBarBevel)
   }

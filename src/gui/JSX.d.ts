@@ -1,13 +1,20 @@
 // Make sure there are no imports at the top of this
 
 declare namespace JSX {
+  type MouseButton = import("./components/InteractiveElement").MouseButton
+  type MouseCapture = import("./components/InteractiveElement").MouseCapture
+  type MousePositionEvent = import("./components/InteractiveElement").MousePositionEvent
+  type MouseDownEvent = import("./components/InteractiveElement").MouseDownEvent
+  type MouseUpEvent = import("./components/InteractiveElement").MouseUpEvent
+
   interface GuiElementProps {
-    left?: number | MutableProperty
-    top?: number | MutableProperty
-    width?: number | MutableProperty
-    height?: number | MutableProperty
-    padding?: number | MutableProperty
+    left?: number | MutableProperty<number>
+    top?: number | MutableProperty<number>
+    width?: number | MutableProperty<number>
+    height?: number | MutableProperty<number>
+    padding?: number | MutableProperty<number>
     sizeToFitParent?: SizeToFit
+    isVisible?: boolean | MutableProperty<boolean>
   }
   interface HLayoutProps extends GuiElementProps {
     horizontalAlignment?: HorizontalAlignment
@@ -20,9 +27,10 @@ declare namespace JSX {
   }
 
   interface ButtonProps extends GuiElementProps, ChromeProps {
-    onMouseDown?: (button: MouseButton, position: { x: number; y: number }) => void
-    onMouseUp?: (button: MouseButton, position: { x: number; y: number }) => void
+    onMouseDown?: (ev: MouseDownEvent & MouseCapture) => void
+    onMouseUp?: (ev: MouseUpEvent & MouseCapture) => void
     onClick?: (button: MouseButton) => void
+    isSelected?: boolean | MutableProperty<boolean>
   }
 
   interface ImageProps extends GuiElementProps {

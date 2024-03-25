@@ -38,6 +38,7 @@ export class Window extends GuiElement {
     closeButton.width = MutableProperty.with(constants.window.closeButtonWidth)
     closeButton.height = MutableProperty.with(constants.window.titleBarHeight)
     closeButton.padding = MutableProperty.with(6)
+    closeButton.onClick = () => (this.isVisible.value = !this.isVisible.value)
     closeButton.children.push(closeButtonImage)
 
     const raisedBevel = new RaisedBevel(undefined, [])

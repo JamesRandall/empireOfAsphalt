@@ -14,10 +14,10 @@ export function Layout(): PropertyDecorator {
     if (delete target[pkey]) {
       // Create new property with getter and setter
       Object.defineProperty(target, pkey, {
-        get: function (): MutableProperty | undefined {
+        get: function () {
           return this[backingFieldSymbol]
         },
-        set: function (newValue: MutableProperty) {
+        set: function (newValue) {
           if (target[backingFieldSymbol] !== undefined) {
             const prop = this[backingFieldSymbol]!
             if (prop.value != newValue.value) {

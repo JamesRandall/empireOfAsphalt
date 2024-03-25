@@ -6,10 +6,20 @@ import { MutableProperty } from "../gui/properties/MutableProperty"
 
 type HeightMap = number[][]
 
+export enum Tool {
+  None,
+  LightResidential,
+  DenseResidential,
+  LightCommercial,
+  DenseCommercial,
+  LightIndustrial,
+  DenseIndustrial,
+}
+
 export interface WindowState {
-  isVisible: boolean
-  left: MutableProperty
-  top: MutableProperty
+  isVisible: MutableProperty<boolean>
+  left: MutableProperty<number>
+  top: MutableProperty<number>
 }
 
 export interface Game {
@@ -33,6 +43,7 @@ export interface Game {
     windows: {
       zoning: WindowState
     }
+    currentTool: Tool
   }
 }
 
@@ -65,8 +76,13 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     selectedObjectId: null,
     gui: {
       windows: {
-        zoning: { isVisible: true, left: MutableProperty.with(500), top: MutableProperty.with(50) },
+        zoning: {
+          isVisible: MutableProperty.with(false),
+          left: MutableProperty.with(500),
+          top: MutableProperty.with(50),
+        },
       },
+      currentTool: Tool.None,
     },
   }
 }
