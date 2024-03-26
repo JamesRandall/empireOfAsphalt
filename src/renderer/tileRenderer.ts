@@ -4,7 +4,7 @@ import { setCommonAttributes, setViewUniformLocations } from "./coregl/programIn
 import { Resources } from "../resources/resources"
 import { Game } from "../model/game"
 import { sizes } from "../constants"
-import { objectIdToVec4 } from "../utilities"
+import { objectIdToVec4, rectFromRange } from "../utilities"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.directional)
@@ -32,6 +32,11 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       lineColorPosition: gl.getUniformLocation(shaderProgram, "uLineColor")!,
       zoomedTileSize: gl.getUniformLocation(shaderProgram, "uZoomedTileSize"),
       uSelectedTileId: gl.getUniformLocation(shaderProgram, "uSelectedTileId"),
+      uMapSize: gl.getUniformLocation(shaderProgram, "uMapSize"),
+      uRangeLeft: gl.getUniformLocation(shaderProgram, "uRangeLeft"),
+      uRangeTop: gl.getUniformLocation(shaderProgram, "uRangeTop"),
+      uRangeRight: gl.getUniformLocation(shaderProgram, "uRangeRight"),
+      uRangeBottom: gl.getUniformLocation(shaderProgram, "uRangeBottom"),
     },
   }
 }
@@ -76,6 +81,23 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       lightWorldPosition: lightPosition,
     })
     const selectedObjectId = objectIdToVec4(game.selectedObjectId ?? -1)
+    gl.uniform1i(programInfo.uniformLocations.uMapSize, game.landscape.size)
+
+    if (game.gui.selection !== null) {
+      const r = rectFromRange(game.gui.selection)
+      gl.uniform1i(programInfo.uniformLocations.uRangeLeft, r.left)
+      // noinspection JSSuspiciousNameCombination
+      gl.uniform1i(programInfo.uniformLocations.uRangeTop, r.top)
+      // noinspection JSSuspiciousNameCombination
+      gl.uniform1i(programInfo.uniformLocations.uRangeBottom, r.bottom)
+      gl.uniform1i(programInfo.uniformLocations.uRangeRight, r.right)
+    } else {
+      gl.uniform1i(programInfo.uniformLocations.uRangeLeft, -1)
+      gl.uniform1i(programInfo.uniformLocations.uRangeTop, -1)
+      gl.uniform1i(programInfo.uniformLocations.uRangeBottom, -1)
+      gl.uniform1i(programInfo.uniformLocations.uRangeRight, -1)
+    }
+
     gl.uniform4fv(programInfo.uniformLocations.uSelectedTileId, selectedObjectId)
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
     gl.uniform4fv(programInfo.uniformLocations.lineColorPosition, [120.0 / 255.0, 92.0 / 255.0, 40.0 / 255.0, 1.0])

@@ -11,6 +11,7 @@ import { applyControlState, cycleControlState } from "../gameLoop/applyControlSt
 import { createObjectPickerRenderer } from "../renderer/objectPickerRenderer"
 import { testGui } from "./testGui"
 import { createRuntime } from "../gui/runtime"
+import { getPositionFromObjectId } from "../utilities"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createTileRenderer(gl, resources)
@@ -83,6 +84,14 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
 
       if (game.controlState.current.mouseButtons.left) {
         game.selectedObjectId = objectPickerRenderer.getObjectId()
+        const p = getPositionFromObjectId(game.selectedObjectId, game.landscape.size)
+        if (game.gui.selection === null) {
+          game.gui.selection = { start: { ...p }, end: { ...p } }
+        } else {
+          game.gui.selection.end = { ...p }
+        }
+      } else {
+        game.gui.selection = null
       }
       cycleControlState(game)
 

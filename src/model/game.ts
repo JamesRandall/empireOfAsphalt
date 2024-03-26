@@ -22,6 +22,11 @@ export interface WindowState {
   top: MutableProperty<number>
 }
 
+export interface Position {
+  x: number
+  y: number
+}
+
 export interface Game {
   controlState: {
     current: ControlState
@@ -44,6 +49,10 @@ export interface Game {
       zoning: WindowState
     }
     currentTool: Tool
+    selection: {
+      start: Position
+      end: Position
+    } | null
   }
 }
 
@@ -83,6 +92,7 @@ export function createGameWithLandscape(landscape: Landscape): Game {
         },
       },
       currentTool: Tool.None,
+      selection: null,
     },
   }
 }
