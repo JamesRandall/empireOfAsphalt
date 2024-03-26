@@ -40,5 +40,6 @@ export function cycleControlState(game: Game) {
   game.controlState.previous = {
     ...game.controlState.current,
     mousePosition: { ...game.controlState.current.mousePosition },
+    mouseButtons: { ...game.controlState.current.mouseButtons },
   }
 }

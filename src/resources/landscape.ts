@@ -2,14 +2,56 @@ import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
 import { Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
-import { objectIdToVec4 } from "../utilities"
+import { objectIdToVec4, rectFromRange } from "../utilities"
+import { Range } from "../model/range"
+
+const chunkSize = 32
+
+function getChunksForRange(landscape: Landscape, range: Range) {
+  const r = rectFromRange(range)
+  return landscape.chunks.filter(
+    (c) => c.fromX <= r.right && c.fromX + chunkSize >= r.left && c.fromY <= r.bottom && c.fromY + chunkSize >= r.top,
+  )
+}
+
+function vecFromTileInfo(tileInfo: TileInfo) {
+  // I can imagine us eventually having enough info that we have to bit twiddle it in
+  return vec4.fromValues(tileInfo.terrain, tileInfo.zone, 0.0, 0.0)
+}
+
+export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: Landscape, range: Range) {
+  const chunks = getChunksForRange(landscape, range)
+  chunks.forEach((chunk) => {
+    const toX = Math.min(landscape.size - 1, chunk.fromX + chunkSize - 1)
+    const toY = Math.min(landscape.size - 1, chunk.fromY + chunkSize - 1)
+    const tileInfos: number[] = []
+    for (let y = chunk.fromY; y <= toY; y++) {
+      let row = landscape.tileInfo[y]
+      for (let x = chunk.fromX; x <= toX; x++) {
+        const tileInfo = row[x]
+        // I can imagine us eventually having enough info that we have to bit twiddle it in
+        const vectorTileInfo = vecFromTileInfo(tileInfo)
+        for (let v = 0; v < 6; v++) {
+          tileInfos.push(vectorTileInfo[0])
+          tileInfos.push(vectorTileInfo[1])
+          tileInfos.push(vectorTileInfo[2])
+          tileInfos.push(vectorTileInfo[3])
+        }
+      }
+    }
+    gl.deleteBuffer(chunk.model.objectInfo)
+    const tileInfoBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, tileInfoBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tileInfos), gl.STATIC_DRAW)
+    chunk.model.objectInfo = tileInfoBuffer
+  })
+}
 
 // Index buffers have a max index of 64k as they are unsigned shorts - our large landscapes are bigger than that
 // so we chunk them up - doing ths will probably help us with terrain levelling performance in any case as we'll
 // have less geometry to update
 
 export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
-  const chunkSize = 32
   let heightMapSize = heights.length
   const landscape: Landscape = {
     heights: heights,
@@ -91,7 +133,7 @@ function createLandscapeChunk(
       ]
       const tileInfo = rowZones[x]
       // I can imagine us eventually having enough info that we have to bit twiddle it in
-      const vectorTileInfo = vec4.fromValues(tileInfo.terrain, tileInfo.zone, 0.0, 0.0)
+      const vectorTileInfo = vecFromTileInfo(tileInfo)
 
       const vertexTextureCoords = [
         [0.0, 1.0],

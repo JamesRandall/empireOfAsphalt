@@ -11,6 +11,14 @@ export function vec4FromNumber(value: number) {
   )
 }
 
+export function numberFromVec4(value: vec4) {
+  return (
+    Math.floor(value[3] * 255.0) +
+    (Math.floor(value[2] * 255.0) << 8) +
+    (Math.floor(value[1] * 255.0) << 16) +
+    (Math.floor(value[0] * 255.0) << 24)
+  )
+}
 export function attributeOrDefault<T>(attributes: Attributes | undefined, key: string, defaultValue: T) {
   if (attributes === undefined) return defaultValue
   const attribute = attributes[key]

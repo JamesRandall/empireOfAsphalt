@@ -60,7 +60,13 @@ void main(void) {
             //lineThickness = 4.0;
         }
         else {
-            color = vColor;
+            if (vTileInfo.g == 0.0) {
+                color = vColor; // not zoned
+            }
+            else {
+                color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
+            }
+
         }
     }
     float borderSize = lineThickness/uZoomedTileSize;

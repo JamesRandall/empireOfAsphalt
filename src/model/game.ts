@@ -3,17 +3,61 @@ import { glMatrix, vec3 } from "gl-matrix"
 import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
 import { MutableProperty } from "../gui/properties/MutableProperty"
+import { Range } from "./range"
 
 type HeightMap = number[][]
 
 export enum Tool {
   None,
+  Road,
+  ClearTerrain,
+  RaiseTerrain,
+  LowerTerrain,
+  Dezone,
   LightResidential,
   DenseResidential,
   LightCommercial,
   DenseCommercial,
   LightIndustrial,
   DenseIndustrial,
+}
+
+export enum ToolSelectionMode {
+  None = 0,
+  Single,
+  Range,
+}
+
+export function applyToolClearsSelection(tool: Tool) {
+  switch (tool) {
+    case Tool.ClearTerrain:
+    case Tool.RaiseTerrain:
+    case Tool.LowerTerrain:
+      return false
+
+    default:
+      return true
+  }
+}
+
+export function toolSelectionMode(tool: Tool) {
+  switch (tool) {
+    case Tool.LightCommercial:
+    case Tool.LightIndustrial:
+    case Tool.LightResidential:
+    case Tool.DenseResidential:
+    case Tool.DenseIndustrial:
+    case Tool.DenseCommercial:
+    case Tool.Dezone:
+      return ToolSelectionMode.Range
+    case Tool.ClearTerrain:
+    case Tool.LowerTerrain:
+    case Tool.RaiseTerrain:
+    case Tool.Road:
+      return ToolSelectionMode.Single // we actually want this to be a direction locked "1 unit wide" range
+    default:
+      return ToolSelectionMode.None
+  }
 }
 
 export interface WindowState {
@@ -47,12 +91,10 @@ export interface Game {
   gui: {
     windows: {
       zoning: WindowState
+      bulldozer: WindowState
     }
     currentTool: Tool
-    selection: {
-      start: Position
-      end: Position
-    } | null
+    selection: Range | null
   }
 }
 
@@ -86,6 +128,11 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     gui: {
       windows: {
         zoning: {
+          isVisible: MutableProperty.with(false),
+          left: MutableProperty.with(500),
+          top: MutableProperty.with(50),
+        },
+        bulldozer: {
           isVisible: MutableProperty.with(false),
           left: MutableProperty.with(500),
           top: MutableProperty.with(50),

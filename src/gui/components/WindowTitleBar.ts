@@ -5,10 +5,14 @@ import { Bevel } from "./Shapes/Bevel"
 import { attributeOrDefault, vec4FromNumber } from "../utilities"
 import { constants } from "../constants"
 import { Window } from "./WIndow"
+import { vec4 } from "gl-matrix"
 
 export class WindowTitleBar extends InteractiveElement {
   title: string
   parentWindow?: Window // we need to think about if we want to actually have the full parent chain expressed
+  lightChrome: vec4
+  midChrome: vec4
+  darkChrome: vec4
 
   private _isDragActive = false
   private _lastPosition = { x: -1, y: -1 }
@@ -16,10 +20,14 @@ export class WindowTitleBar extends InteractiveElement {
   constructor(props: Attributes | undefined, children: GuiElement[]) {
     super(props, children)
     this.title = attributeOrDefault(props, "title", "")
+    this.lightChrome = vec4FromNumber(attributeOrDefault(props, "lightChrome", constants.lightChrome))
+    this.midChrome = vec4FromNumber(attributeOrDefault(props, "midChrome", constants.midChrome))
+    this.darkChrome = vec4FromNumber(attributeOrDefault(props, "darkChrome", constants.darkChrome))
+
     const titleBarBevel = new Bevel(undefined, [])
-    titleBarBevel.midChrome = vec4FromNumber(constants.midGreen)
-    titleBarBevel.lightChrome = vec4FromNumber(constants.lightGreen)
-    titleBarBevel.darkChrome = vec4FromNumber(constants.darkGreen)
+    titleBarBevel.midChrome = this.midChrome
+    titleBarBevel.lightChrome = this.lightChrome
+    titleBarBevel.darkChrome = this.darkChrome
     titleBarBevel.sizeToFitParent = SizeToFit.WidthAndHeight
     this.onMouseDown = (ev) => {
       this._isDragActive = true

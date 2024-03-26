@@ -15,9 +15,9 @@ export const constants = {
   midGreen: 0x687c4cff,
   lightGreen: 0x98b06cff,
   darkGreen: 0x3c5830ff,
-  midBlue: 0x684c7cff,
-  lightBlue: 0x986cb0ff,
-  darkBlue: 0x3c3058ff,
+  midBlue: 0x6267a3ff,
+  lightBlue: 0x6c72c7ff,
+  darkBlue: 0x575d8aff,
   chromeStrokeWidth: 2,
 
   window: {

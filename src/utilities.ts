@@ -1,6 +1,7 @@
 import { vec4 } from "gl-matrix"
 import { HorizontalAlignment, SizeToFit } from "./gui/GuiElement"
 import { Position } from "./model/game"
+import { Range } from "./model/range"
 
 export function objectIdToVec4(objectId: number) {
   return vec4.fromValues(
@@ -43,7 +44,7 @@ export function sizeToFit(value: "none" | "width" | "height" | "widthAndHeight")
   }
 }
 
-export function rectFromRange(range: { start: Position; end: Position }) {
+export function rectFromRange(range: Range) {
   return {
     left: Math.min(range.start.x, range.end.x),
     top: Math.min(range.start.y, range.end.y),

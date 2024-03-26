@@ -1,7 +1,7 @@
 import { GuiElement, GuiLayoutContext, GuiRenderContext, SizeToFit } from "../GuiElement"
 import { vec4 } from "gl-matrix"
 import { Attributes } from "../builder"
-import { attributeOrDefault, vec4FromNumber } from "../utilities"
+import { attributeOrDefault, numberFromVec4, vec4FromNumber } from "../utilities"
 import { Button } from "./Button"
 import { RaisedBevel } from "./Shapes/RaisedBevel"
 import { Image } from "./Image"
@@ -41,15 +41,26 @@ export class Window extends GuiElement {
     closeButton.onClick = () => (this.isVisible.value = !this.isVisible.value)
     closeButton.children.push(closeButtonImage)
 
-    const raisedBevel = new RaisedBevel(undefined, [])
-    raisedBevel.midChrome = this.midChrome
-    raisedBevel.lightChrome = this.lightChrome
-    raisedBevel.darkChrome = this.darkChrome
+    const raisedBevel = new RaisedBevel(
+      {
+        midChrome: numberFromVec4(this.midChrome),
+        lightChrome: numberFromVec4(this.lightChrome),
+        darkChrome: numberFromVec4(this.darkChrome),
+      },
+      [],
+    )
     raisedBevel.left = MutableProperty.with(0)
     raisedBevel.top = MutableProperty.with(0)
     raisedBevel.sizeToFitParent = SizeToFit.WidthAndHeight
 
-    this.titleBar = new WindowTitleBar(undefined, [])
+    this.titleBar = new WindowTitleBar(
+      {
+        midChrome: numberFromVec4(this.midChrome),
+        lightChrome: numberFromVec4(this.lightChrome),
+        darkChrome: numberFromVec4(this.darkChrome),
+      },
+      [],
+    )
     this.titleBar.left = MutableProperty.with(constants.window.closeButtonWidth)
     this.titleBar.top = MutableProperty.with(0)
     this.titleBar.height = MutableProperty.with(constants.window.titleBarHeight)

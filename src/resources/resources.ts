@@ -63,6 +63,10 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "denseCommercialZone",
     "lightIndustrialZone",
     "denseIndustrialZone",
+    "lowerTerrain",
+    "raiseTerrain",
+    "dezone",
+    "clearTerrain",
   ]
   const loadedShaders = await Promise.all(shaderNames.map((sn) => loadShaderSource(sn)))
   const namedShaders = new Map<string, ShaderSource>(shaderNames.map((sn, index) => [sn, loadedShaders[index]]))

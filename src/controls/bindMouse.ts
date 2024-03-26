@@ -9,10 +9,15 @@ export function bindMouse(controlState: ControlState) {
     controlState.mouseButtons.left = (ev.buttons & 1) > 0
     controlState.mouseButtons.right = (ev.buttons & 2) > 0
   }
+  const mouseUp = (ev: MouseEvent) => {
+    ev.preventDefault()
+    controlState.mouseButtons.left = (ev.buttons & 1) > 0
+    controlState.mouseButtons.right = (ev.buttons & 2) > 0
+  }
   window.addEventListener("wheel", wheel)
   window.addEventListener("mousemove", mouseMove)
   window.addEventListener("mousedown", mouseButtons)
-  window.addEventListener("mouseup", mouseButtons)
+  window.addEventListener("mouseup", mouseUp)
 
   return () => {
     window.removeEventListener("wheel", wheel)
