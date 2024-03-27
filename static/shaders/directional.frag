@@ -52,27 +52,22 @@ void main(void) {
     int tileY = getYFromObjectId(iTileId);
     vec4 lineColor = uLineColor;
 
-    if (vTileInfo.g == 1.0) {
-        color = vColor + vec4(1.0, 0.0, 0.0, 1.0);
-        lineThickness = 2.0;
+    // this colors the tile with the selection color if the tile is in the selection range
+    // and we are allowing sloped tiles to be selected or the tile is flat
+    if (tileX >= uRangeLeft && tileX <= uRangeRight && tileY >= uRangeTop && tileY <= uRangeBottom && (uAllowRangeOnSloped || vTileInfo.b == 1.0)) {
+        color = vec4(0.7,0.0,0.0,1.0);
+        //lineThickness = 4.0;
     }
     else {
-        // this colors the tile with the selection color if the tile is in the selection range
-        // and we are allowing sloped tiles to be selected or the tile is flat
-        if (tileX >= uRangeLeft && tileX <= uRangeRight && tileY >= uRangeTop && tileY <= uRangeBottom && (uAllowRangeOnSloped || vTileInfo.b == 1.0)) {
-            color = vec4(0.7,0.0,0.0,1.0);
-            //lineThickness = 4.0;
+        if (vTileInfo.g == 0.0) {
+            color = vColor; // not zoned
         }
         else {
-            if (vTileInfo.g == 0.0) {
-                color = vColor; // not zoned
-            }
-            else {
-                color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
-            }
-
+            color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
         }
+
     }
+
     float borderSize = lineThickness/uZoomedTileSize;
     if (vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) {
         outputColor = lineColor;
