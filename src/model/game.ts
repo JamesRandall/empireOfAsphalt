@@ -1,6 +1,5 @@
 import { ControlState, getDefaultControlState } from "../controls/controlState"
 import { glMatrix, vec3 } from "gl-matrix"
-import { RenderingModel } from "../resources/models"
 import { Landscape } from "./Landscape"
 import { MutableProperty } from "../gui/properties/MutableProperty"
 import { Range } from "./range"
@@ -26,38 +25,6 @@ export enum ToolSelectionMode {
   None = 0,
   Single,
   Range,
-}
-
-export function applyToolClearsSelection(tool: Tool) {
-  switch (tool) {
-    case Tool.ClearTerrain:
-    case Tool.RaiseTerrain:
-    case Tool.LowerTerrain:
-      return false
-
-    default:
-      return true
-  }
-}
-
-export function toolSelectionMode(tool: Tool) {
-  switch (tool) {
-    case Tool.LightCommercial:
-    case Tool.LightIndustrial:
-    case Tool.LightResidential:
-    case Tool.DenseResidential:
-    case Tool.DenseIndustrial:
-    case Tool.DenseCommercial:
-    case Tool.Dezone:
-      return ToolSelectionMode.Range
-    case Tool.ClearTerrain:
-    case Tool.LowerTerrain:
-    case Tool.RaiseTerrain:
-    case Tool.Road:
-      return ToolSelectionMode.Single // we actually want this to be a direction locked "1 unit wide" range
-    default:
-      return ToolSelectionMode.None
-  }
 }
 
 export interface WindowState {

@@ -26,10 +26,10 @@ export interface MouseUpEvent extends MouseDownEvent {
 }
 
 export abstract class InteractiveElement extends GuiElement {
-  onMouseDown: (ev: MouseDownEvent & MouseCapture) => void
-  onMouseUp: (ev: MouseUpEvent & MouseCapture) => void
-  onMouseMove: (ev: MousePositionEvent & MouseCapture) => void
-  onClick: (button: MouseButton) => void
+  onMouseDown: ((ev: MouseDownEvent & MouseCapture) => void) | null
+  onMouseUp: ((ev: MouseUpEvent & MouseCapture) => void) | null
+  onMouseMove: ((ev: MousePositionEvent & MouseCapture) => void) | null
+  onClick: ((button: MouseButton) => void) | null
 
   constructor(props: Attributes | undefined, children: GuiElement[]) {
     super(props, children)
@@ -51,12 +51,14 @@ export abstract class InteractiveElement extends GuiElement {
   }
 
   public handleMouseDown(button: MouseButton, position: { x: number; y: number }, capture: MouseCapture) {
+    if (this.onMouseDown === null) return false
     const ev = {
       button,
       position,
       ...capture,
     }
     this.onMouseDown(ev)
+    return true
   }
 
   public handleMouseUp(
@@ -65,6 +67,7 @@ export abstract class InteractiveElement extends GuiElement {
     timePressed: number,
     capture: MouseCapture,
   ) {
+    if (this.onMouseUp === null) return false
     const ev = {
       button,
       position,
@@ -72,17 +75,22 @@ export abstract class InteractiveElement extends GuiElement {
       ...capture,
     }
     this.onMouseUp(ev)
+    return true
   }
 
   public handleMouseMove(position: { x: number; y: number }, capture: MouseCapture) {
+    if (this.onMouseMove === null) return false
     const ev = {
       position,
       ...capture,
     }
     this.onMouseMove(ev)
+    return true
   }
 
   public handleClick(button: MouseButton) {
+    if (this.onClick === null) return false
     this.onClick(button)
+    return true
   }
 }

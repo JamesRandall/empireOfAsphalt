@@ -16,7 +16,7 @@ function getChunksForRange(landscape: Landscape, range: Range) {
 
 function vecFromTileInfo(tileInfo: TileInfo) {
   // I can imagine us eventually having enough info that we have to bit twiddle it in
-  return vec4.fromValues(tileInfo.terrain, tileInfo.zone, 0.0, 0.0)
+  return vec4.fromValues(tileInfo.terrain, tileInfo.zone, tileInfo.isFlat ? 1.0 : 0.0, 0.0)
 }
 
 export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: Landscape, range: Range) {
@@ -62,8 +62,13 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   }
   for (let y = 0; y < heightMapSize - 1; y++) {
     const row: TileInfo[] = []
+    const heightRow = heights[y]
     for (let x = 0; x < heightMapSize - 1; x++) {
-      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None })
+      const isFlat =
+        heights[y][x] == heights[y][x + 1] &&
+        heights[y][x] == heights[y + 1][x] &&
+        heights[y][x] == heights[y + 1][x + 1]
+      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None, isFlat })
     }
     landscape.tileInfo.push(row)
   }

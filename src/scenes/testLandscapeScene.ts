@@ -1,13 +1,7 @@
 import { Resources } from "../resources/resources"
 import { createRootRenderer, RenderEffect } from "../renderer/rootRenderer"
 import { createTileRenderer } from "../renderer/tileRenderer"
-import {
-  applyToolClearsSelection,
-  createGameWithLandscape,
-  Game,
-  ToolSelectionMode,
-  toolSelectionMode,
-} from "../model/game"
+import { createGameWithLandscape, Game, ToolSelectionMode } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
 import { glMatrix, mat4, vec3, vec4 } from "gl-matrix"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
@@ -18,7 +12,8 @@ import { createObjectPickerRenderer } from "../renderer/objectPickerRenderer"
 import { testGui } from "./testGui"
 import { createRuntime } from "../gui/runtime"
 import { getPositionFromObjectId } from "../utilities"
-import { applyTool } from "../gameLoop/tools/applyTool"
+import { applyTool } from "../tools/applyTool"
+import { applyToolClearsSelection, toolSelectionMode } from "../tools/utilities"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createTileRenderer(gl, resources)
@@ -82,37 +77,43 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
       then = now
 
       applyControlState(game, deltaTime)
-      gui.applyControlState(game.controlState.current, deltaTime, objectPickerRenderer.getObjectId())
+      const guiHandledInteraction = gui.applyControlState(
+        game.controlState.current,
+        deltaTime,
+        objectPickerRenderer.getObjectId(),
+      )
       applyRotation(game, deltaTime)
       rootRenderer.render(game, deltaTime, RenderEffect.None)
       gui.render()
 
       objectPickerRenderer.render(game, deltaTime)
 
-      if (game.controlState.current.mouseButtons.left) {
-        game.selectedObjectId = objectPickerRenderer.getObjectId()
-        const toolMode = toolSelectionMode(game.gui.currentTool)
-        if (toolMode !== ToolSelectionMode.None) {
-          const p = getPositionFromObjectId(game.selectedObjectId, game.landscape.size)
-          if (game.gui.selection === null) {
-            game.gui.selection = { start: { ...p }, end: { ...p } }
-          } else {
-            switch (toolMode) {
-              case ToolSelectionMode.Range:
-                game.gui.selection.end = { ...p }
-                break
-              case ToolSelectionMode.Single:
-                game.gui.selection = { start: { ...p }, end: { ...p } }
-                break
+      if (!guiHandledInteraction) {
+        if (game.controlState.current.mouseButtons.left) {
+          game.selectedObjectId = objectPickerRenderer.getObjectId()
+          const toolMode = toolSelectionMode(game.gui.currentTool)
+          if (toolMode !== ToolSelectionMode.None) {
+            const p = getPositionFromObjectId(game.selectedObjectId, game.landscape.size)
+            if (game.gui.selection === null) {
+              game.gui.selection = { start: { ...p }, end: { ...p } }
+            } else {
+              switch (toolMode) {
+                case ToolSelectionMode.Range:
+                  game.gui.selection.end = { ...p }
+                  break
+                case ToolSelectionMode.Single:
+                  game.gui.selection = { start: { ...p }, end: { ...p } }
+                  break
+              }
             }
           }
         }
-      }
 
-      if (!game.controlState.current.mouseButtons.left && game.controlState.previous.mouseButtons.left) {
-        applyTool(gl, game)
-        if (applyToolClearsSelection(game.gui.currentTool)) {
-          game.gui.selection = null
+        if (!game.controlState.current.mouseButtons.left && game.controlState.previous.mouseButtons.left) {
+          applyTool(gl, game)
+          if (applyToolClearsSelection(game.gui.currentTool)) {
+            game.gui.selection = null
+          }
         }
       }
 

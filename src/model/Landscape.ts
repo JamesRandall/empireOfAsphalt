@@ -18,6 +18,7 @@ export enum ZoneEnum {
 export interface TileInfo {
   terrain: TerrainTypeEnum
   zone: ZoneEnum
+  isFlat: boolean
 }
 
 export interface Landscape {

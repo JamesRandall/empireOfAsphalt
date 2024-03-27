@@ -10,6 +10,7 @@ in highp vec4 vTileId;
 // the components carry different information about the tile
 //  r - the terrain type (TerrainTypeEnum)
 //  g - the zone type (ZoneEnum)
+//  b - is flat, > 0 = flat, 0 == hilly
 in highp vec4 vTileInfo;
 
 uniform vec3 uLightWorldPosition;
@@ -21,6 +22,7 @@ uniform int uRangeTop;
 uniform int uRangeRight;
 uniform int uRangeBottom;
 uniform int uMapSize;
+uniform bool uAllowRangeOnSloped;
 
 out lowp vec4 outputColor;
 
@@ -55,7 +57,9 @@ void main(void) {
         lineThickness = 2.0;
     }
     else {
-        if (tileX >= uRangeLeft && tileX <= uRangeRight && tileY >= uRangeTop && tileY <= uRangeBottom) {
+        // this colors the tile with the selection color if the tile is in the selection range
+        // and we are allowing sloped tiles to be selected or the tile is flat
+        if (tileX >= uRangeLeft && tileX <= uRangeRight && tileY >= uRangeTop && tileY <= uRangeBottom && (uAllowRangeOnSloped || vTileInfo.b == 1.0)) {
             color = vec4(0.7,0.0,0.0,1.0);
             //lineThickness = 4.0;
         }

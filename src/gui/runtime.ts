@@ -69,13 +69,14 @@ export function createRuntime(
   }
 
   const applyControlState = (controlState: GuiInput, timeDelta: number, selectedObjectId: number) => {
-    if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return
+    if (selectedObjectId < startingObjectId || selectedObjectId > lastObjectId) return false
+    let handled = false
     const selectedElement = mouseCapturedObject ?? objectIdMap.get(selectedObjectId)
     if (selectedElement === undefined) return
     if (controlState.mouseButtons.left) {
       if (interactions.leftMouseDown === null) {
         interactions.leftMouseDown = { timer: 0, initialObjectId: selectedObjectId }
-        selectedElement.handleMouseDown(MouseButton.Left, controlState.mousePosition, { capture, endCapture })
+        handled = selectedElement.handleMouseDown(MouseButton.Left, controlState.mousePosition, { capture, endCapture })
       }
     } else {
       if (interactions.leftMouseDown !== null) {
@@ -84,13 +85,14 @@ export function createRuntime(
           endCapture,
         })
         if (selectedObjectId === interactions.leftMouseDown.initialObjectId) {
-          selectedElement.handleClick(MouseButton.Left)
+          handled = selectedElement.handleClick(MouseButton.Left)
         }
         interactions.leftMouseDown = null
       }
     }
     // TODO: we only want to route this if in bounds
-    selectedElement.handleMouseMove(controlState.mousePosition, { capture, endCapture })
+    handled = selectedElement.handleMouseMove(controlState.mousePosition, { capture, endCapture })
+    return handled
   }
 
   const update = (timeDelta: number) => {

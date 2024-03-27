@@ -5,6 +5,7 @@ import { Resources } from "../resources/resources"
 import { Game } from "../model/game"
 import { sizes } from "../constants"
 import { objectIdToVec4, rectFromRange } from "../utilities"
+import { toolAllowsSlopedSelection } from "../tools/utilities"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.directional)
@@ -37,6 +38,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       uRangeTop: gl.getUniformLocation(shaderProgram, "uRangeTop"),
       uRangeRight: gl.getUniformLocation(shaderProgram, "uRangeRight"),
       uRangeBottom: gl.getUniformLocation(shaderProgram, "uRangeBottom"),
+      uAllowRangeOnSloped: gl.getUniformLocation(shaderProgram, "uAllowRangeOnSloped"),
     },
   }
 }
@@ -97,6 +99,10 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
       gl.uniform1i(programInfo.uniformLocations.uRangeBottom, -1)
       gl.uniform1i(programInfo.uniformLocations.uRangeRight, -1)
     }
+    gl.uniform1i(
+      programInfo.uniformLocations.uAllowRangeOnSloped,
+      toolAllowsSlopedSelection(game.gui.currentTool) ? 1 : 0,
+    )
 
     gl.uniform4fv(programInfo.uniformLocations.uSelectedTileId, selectedObjectId)
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
