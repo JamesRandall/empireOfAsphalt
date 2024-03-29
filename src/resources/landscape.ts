@@ -16,7 +16,10 @@ function getChunksForRange(landscape: Landscape, range: Range) {
 
 function vecFromTileInfo(tileInfo: TileInfo) {
   // I can imagine us eventually having enough info that we have to bit twiddle it in
-  return vec4.fromValues(tileInfo.terrain, tileInfo.zone, tileInfo.isFlat ? 1.0 : 0.0, 0.0)
+  return [
+    vec4.fromValues(tileInfo.terrain, tileInfo.zone, tileInfo.isFlat ? 1.0 : 0.0, 0.0),
+    vec4.fromValues((tileInfo.textureIndex ?? -1.0) + 1.0, 0.0, 0.0, 0.0),
+  ]
 }
 
 export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: Landscape, range: Range) {
@@ -25,25 +28,37 @@ export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: La
     const toX = Math.min(landscape.size - 1, chunk.fromX + chunkSize - 1)
     const toY = Math.min(landscape.size - 1, chunk.fromY + chunkSize - 1)
     const tileInfos: number[] = []
+    const additionalTileInfos: number[] = []
     for (let y = chunk.fromY; y <= toY; y++) {
       let row = landscape.tileInfo[y]
       for (let x = chunk.fromX; x <= toX; x++) {
         const tileInfo = row[x]
         // I can imagine us eventually having enough info that we have to bit twiddle it in
-        const vectorTileInfo = vecFromTileInfo(tileInfo)
+        const [vectorTileInfo, vectorAdditionalTileInfo] = vecFromTileInfo(tileInfo)
         for (let v = 0; v < 6; v++) {
           tileInfos.push(vectorTileInfo[0])
           tileInfos.push(vectorTileInfo[1])
           tileInfos.push(vectorTileInfo[2])
           tileInfos.push(vectorTileInfo[3])
+          additionalTileInfos.push(vectorAdditionalTileInfo[0])
+          additionalTileInfos.push(vectorAdditionalTileInfo[1])
+          additionalTileInfos.push(vectorAdditionalTileInfo[2])
+          additionalTileInfos.push(vectorAdditionalTileInfo[3])
         }
       }
     }
     gl.deleteBuffer(chunk.model.objectInfo)
+    gl.deleteBuffer(chunk.model.additionalObjectInfo)
+
     const tileInfoBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, tileInfoBuffer)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tileInfos), gl.STATIC_DRAW)
     chunk.model.objectInfo = tileInfoBuffer
+
+    const additionalTileInfoBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, additionalTileInfoBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(additionalTileInfos), gl.STATIC_DRAW)
+    chunk.model.additionalObjectInfo = additionalTileInfoBuffer
   })
 }
 
@@ -104,6 +119,7 @@ function createLandscapeChunk(
   const textureCoords: number[] = []
   const colors: number[] = []
   const tileInfos: number[] = []
+  const additionalTileInfos: number[] = []
   const objectIdColors: number[] = []
 
   const half = sizes.tile / 2
@@ -138,7 +154,7 @@ function createLandscapeChunk(
       ]
       const tileInfo = rowZones[x]
       // I can imagine us eventually having enough info that we have to bit twiddle it in
-      const vectorTileInfo = vecFromTileInfo(tileInfo)
+      const [vectorTileInfo, vectorAdditionalTileInfo] = vecFromTileInfo(tileInfo)
 
       const vertexTextureCoords = [
         [0.0, 1.0],
@@ -244,6 +260,10 @@ function createLandscapeChunk(
         tileInfos.push(vectorTileInfo[1])
         tileInfos.push(vectorTileInfo[2])
         tileInfos.push(vectorTileInfo[3])
+        additionalTileInfos.push(vectorAdditionalTileInfo[0])
+        additionalTileInfos.push(vectorAdditionalTileInfo[1])
+        additionalTileInfos.push(vectorAdditionalTileInfo[2])
+        additionalTileInfos.push(vectorAdditionalTileInfo[3])
       }
     }
   }
@@ -263,6 +283,9 @@ function createLandscapeChunk(
   const tileInfoBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, tileInfoBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tileInfos), gl.STATIC_DRAW)
+  const additionalTileInfoBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, additionalTileInfoBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(additionalTileInfos), gl.STATIC_DRAW)
   const objectIdColorBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, objectIdColorBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectIdColors), gl.STATIC_DRAW)
@@ -275,6 +298,7 @@ function createLandscapeChunk(
     color: colorBuffer,
     objectIdColor: objectIdColorBuffer,
     objectInfo: tileInfoBuffer,
+    additionalObjectInfo: additionalTileInfoBuffer,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,

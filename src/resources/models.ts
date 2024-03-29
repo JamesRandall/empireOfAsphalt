@@ -7,6 +7,7 @@ export interface RenderingModel {
   color: WebGLBuffer
   objectIdColor: WebGLBuffer | null
   objectInfo: WebGLBuffer | null
+  additionalObjectInfo: WebGLBuffer | null
   indices: WebGLBuffer
   //outlineIndices?: WebGLBuffer
   //outlineColor?: WebGLBuffer
@@ -186,6 +187,7 @@ export async function loadModel(gl: WebGL2RenderingContext, path: string, scale:
     color: colorBuffer,
     objectIdColor: null,
     objectInfo: null,
+    additionalObjectInfo: null,
     indices: indexBuffer,
     normals: normalBuffer,
     vertexCount: indices.length,

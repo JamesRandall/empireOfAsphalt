@@ -21,6 +21,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
       objectIdColor: gl.getAttribLocation(shaderProgram, "aTileId"),
       objectInfo: gl.getAttribLocation(shaderProgram, "aObjectInfo"),
+      additionalObjectInfo: gl.getAttribLocation(shaderProgram, "aAdditionalObjectInfo"),
       textureCoords: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
     },
     uniformLocations: {
@@ -39,6 +40,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       uRangeRight: gl.getUniformLocation(shaderProgram, "uRangeRight"),
       uRangeBottom: gl.getUniformLocation(shaderProgram, "uRangeBottom"),
       uAllowRangeOnSloped: gl.getUniformLocation(shaderProgram, "uAllowRangeOnSloped"),
+      textureSampler: gl.getUniformLocation(shaderProgram, "uTextureSampler")!,
     },
   }
 }
@@ -76,12 +78,18 @@ export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resour
     mat4.invert(normalMatrix, worldMatrix)
     mat4.transpose(normalMatrix, normalMatrix)
 
-    setViewUniformLocations(gl, programInfo, {
-      projectionMatrix,
-      modelViewMatrix: worldMatrix,
-      normalMatrix,
-      lightWorldPosition: lightPosition,
-    })
+    setViewUniformLocations(
+      gl,
+      programInfo,
+      {
+        projectionMatrix,
+        modelViewMatrix: worldMatrix,
+        normalMatrix,
+        lightWorldPosition: lightPosition,
+        textureIndex: 0,
+      },
+      resources.textures.landscape.handle,
+    )
     const selectedObjectId = objectIdToVec4(game.selectedObjectId ?? -1)
     gl.uniform1i(programInfo.uniformLocations.uMapSize, game.landscape.size)
 

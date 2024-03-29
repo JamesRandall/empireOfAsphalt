@@ -12,6 +12,8 @@ in highp vec4 vTileId;
 //  g - the zone type (ZoneEnum)
 //  b - is flat, > 0 = flat, 0 == hilly
 in highp vec4 vTileInfo;
+// r - the index of the texture (we will use this to pick a slice out of a tileset texture)
+in highp vec4 vAdditionalTileInfo;
 
 uniform vec3 uLightWorldPosition;
 uniform vec4 uLineColor;
@@ -54,7 +56,6 @@ void main(void) {
     const float zoneDenseIndustrial = 6.0;
     const float zoneRoad = 7.0;
 
-    vec4 tex = texture(uTextureSampler, vTextureCoord);
     float lineThickness = 1.0;
     vec4 zoneColor = vec4(0.0,0.0,0.0,0.0);
     vec4 color;
@@ -62,6 +63,7 @@ void main(void) {
     int tileX = getXFromObjectId(iTileId);
     int tileY = getYFromObjectId(iTileId);
     vec4 lineColor = uLineColor;
+    vec4 tex = texture(uTextureSampler, vTextureCoord);
 
     // this colors the tile with the selection color if the tile is in the selection range
     // and we are allowing sloped tiles to be selected or the tile is flat
@@ -74,13 +76,22 @@ void main(void) {
             color = vColor; // not zoned
         }
         else {
-            color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
+            if (vAdditionalTileInfo.r > 0.0) {
+                if (tex.a > 0.0) {
+                    color = tex;
+                }
+                else {
+                    color = vColor;
+                }
+            }
+            else {
+                color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
+            }
         }
-
     }
 
     float borderSize = lineThickness/uZoomedTileSize;
-    if (vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) {
+    if ((vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) && (vAdditionalTileInfo.r == 0.0 || tex.a == 0.0)) {
         outputColor = lineColor;
     }
     else {

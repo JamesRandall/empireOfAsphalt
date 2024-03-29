@@ -1,6 +1,6 @@
-import { Game, Tool } from "../model/game"
+import { Game } from "../model/game"
 import { rectFromRange } from "../utilities"
-import { ZoneEnum } from "../model/Landscape"
+import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { canApplyZoneToTile, isZoningTool, zoneForTool } from "./utilities"
 
@@ -25,5 +25,23 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game) {
     }
   }
 
+  // We have to apply the road textures after we've laid the road down as they impact each other and their neighbours
+  if (newZone === ZoneEnum.Road) {
+    applyRoadTextures(gl, game, r)
+  }
+
   updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
+}
+
+function applyRoadTextures(
+  gl: WebGL2RenderingContext,
+  game: Game,
+  r: { top: number; left: number; bottom: number; right: number },
+) {
+  for (let x = r.left; x <= r.right; x++) {
+    for (let y = r.top; y <= r.bottom; y++) {
+      // only have the one texture for now
+      game.landscape.tileInfo[y][x].textureIndex = LandscapeTexture.RoadNorthSouth
+    }
+  }
 }
