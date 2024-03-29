@@ -13,7 +13,7 @@ import { testGui } from "./testGui"
 import { createRuntime } from "../gui/runtime"
 import { getPositionFromObjectId } from "../utilities"
 import { applyTool } from "../tools/applyTool"
-import { applyToolClearsSelection, toolSelectionMode } from "../tools/utilities"
+import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
 
 export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createTileRenderer(gl, resources)
@@ -99,7 +99,21 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
             } else {
               switch (toolMode) {
                 case ToolSelectionMode.Range:
-                  game.gui.selection.end = { ...p }
+                  if (toolIsAxisLocked(game.gui.currentTool)) {
+                    if (game.gui.selection.end.x !== game.gui.selection.start.x) {
+                      game.gui.selection.end.x = p.x
+                    } else if (game.gui.selection.end.y !== game.gui.selection.start.y) {
+                      game.gui.selection.end.y = p.y
+                    } else {
+                      if (p.x !== game.gui.selection.start.x && p.y !== game.gui.selection.start.y) {
+                        game.gui.selection.end.x = p.x
+                      } else {
+                        game.gui.selection.end = { ...p }
+                      }
+                    }
+                  } else {
+                    game.gui.selection.end = { ...p }
+                  }
                   break
                 case ToolSelectionMode.Single:
                   game.gui.selection = { start: { ...p }, end: { ...p } }

@@ -68,7 +68,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         heights[y][x] == heights[y][x + 1] &&
         heights[y][x] == heights[y + 1][x] &&
         heights[y][x] == heights[y + 1][x + 1]
-      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None, isFlat })
+      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None, isFlat, textureIndex: null })
     }
     landscape.tileInfo.push(row)
   }

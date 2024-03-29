@@ -23,6 +23,7 @@ uniform int uRangeRight;
 uniform int uRangeBottom;
 uniform int uMapSize;
 uniform bool uAllowRangeOnSloped;
+uniform sampler2D uTextureSampler;
 
 out lowp vec4 outputColor;
 
@@ -44,6 +45,16 @@ int getYFromObjectId(int objectId) {
 }
 
 void main(void) {
+    const float zoneNone = 0.0;
+    const float zoneLightResidential = 1.0;
+    const float zoneDenseResidential = 2.0;
+    const float zoneLightCommercial = 3.0;
+    const float zoneDenseCommercial = 4.0;
+    const float zoneLightIndustrial = 5.0;
+    const float zoneDenseIndustrial = 6.0;
+    const float zoneRoad = 7.0;
+
+    vec4 tex = texture(uTextureSampler, vTextureCoord);
     float lineThickness = 1.0;
     vec4 zoneColor = vec4(0.0,0.0,0.0,0.0);
     vec4 color;

@@ -8,6 +8,7 @@ export interface Resources {
     dirt: Texture
     font: Texture
     noise: Texture
+    landscape: Texture
   }
   guiTextures: {
     [id: string]: Texture
@@ -85,6 +86,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       dirt: textures.get("dirt")!,
       font: textures.get("font")!,
       noise: textures.get("noise")!,
+      landscape: textures.get("landscape")!,
     },
     guiTextures: guiTextureObj,
     shaderSource: {

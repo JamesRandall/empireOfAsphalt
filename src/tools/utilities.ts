@@ -1,5 +1,5 @@
 import { Tool, ToolSelectionMode } from "../model/game"
-import { ZoneEnum } from "../model/Landscape"
+import { TileInfo, ZoneEnum } from "../model/Landscape"
 
 export function applyToolClearsSelection(tool: Tool) {
   switch (tool) {
@@ -35,14 +35,41 @@ export function toolSelectionMode(tool: Tool) {
     case Tool.DenseIndustrial:
     case Tool.DenseCommercial:
     case Tool.Dezone:
+    case Tool.Road:
       return ToolSelectionMode.Range
     case Tool.ClearTerrain:
     case Tool.LowerTerrain:
     case Tool.RaiseTerrain:
-    case Tool.Road:
       return ToolSelectionMode.Single // we actually want this to be a direction locked "1 unit wide" range
     default:
       return ToolSelectionMode.None
+  }
+}
+
+export function toolIsAxisLocked(tool: Tool) {
+  switch (tool) {
+    case Tool.Road:
+      return true
+    default:
+      return false
+  }
+}
+
+export function canApplyZoneToTile(tool: Tool, tileInfo: TileInfo) {
+  switch (tool) {
+    case Tool.LightCommercial:
+    case Tool.LightIndustrial:
+    case Tool.LightResidential:
+    case Tool.DenseResidential:
+    case Tool.DenseIndustrial:
+    case Tool.DenseCommercial:
+      return tileInfo.isFlat
+    case Tool.Road:
+    case Tool.Dezone:
+      // actually we can't road every kind of slope so we need to add that here
+      return true
+    default:
+      return false
   }
 }
 
@@ -54,6 +81,7 @@ export function isZoningTool(tool: Tool) {
     case Tool.DenseResidential:
     case Tool.DenseIndustrial:
     case Tool.DenseCommercial:
+    case Tool.Road:
     case Tool.Dezone:
       return true
     default:
@@ -75,6 +103,8 @@ export function zoneForTool(tool: Tool) {
       return ZoneEnum.DenseIndustrial
     case Tool.DenseCommercial:
       return ZoneEnum.DenseCommercial
+    case Tool.Road:
+      return ZoneEnum.Road
     default:
     case Tool.Dezone:
       return ZoneEnum.None
