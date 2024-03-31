@@ -22,13 +22,18 @@ export enum LandscapeTexture {
   RoadEastWest = 1,
   RoadNorthEast = 2,
   RoadNorthWest = 3,
-  RoadNorthTEastWest = 4,
-  RoadWestTNorthSouth = 5,
+  RoadNorthToEastWest = 4,
+  RoadWestToNorthSouth = 5,
   RoadSouthEast = 6,
   RoadSouthWest = 7,
   RoadEastTNorthSouth = 8,
   RoadSouthTEastWest = 9,
   RoadCrossroads = 10,
+  RoadNorthStub = 11,
+  RoadSouthStub = 12,
+  RoadWestStub = 13,
+  RoadEastStub = 14,
+  RoadIsolate = 15,
 }
 
 export interface TileInfo {

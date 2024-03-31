@@ -75,7 +75,7 @@ void main(void) {
     const float zoneDenseIndustrial = 6.0;
     const float zoneRoad = 7.0;
     const int texturesAcross = 4;
-    const int texturesDown = 3;
+    const int texturesDown = 4;
     const int textureSize = 128;
     const float textureScaleX = 1.0 / float(texturesAcross);
     const float textureScaleY = 1.0 / float(texturesDown);
@@ -103,7 +103,7 @@ void main(void) {
         //lineThickness = 4.0;
     }
     else {
-        if (textureIndex >= 0 && tex.a > 0.0) {
+        if (textureIndex >= 0 && tex.a == 1.0) {
             color = tex;
         }
         else {
