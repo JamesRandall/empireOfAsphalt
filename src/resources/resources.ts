@@ -1,6 +1,7 @@
 import { loadTexture, Texture } from "./texture"
 import { createSoundEffects, SoundEffects } from "../audio"
 import { ShaderSource } from "../renderer/coregl/shader"
+import { loadVoxelModel, VoxelModel } from "./voxelModel"
 
 export interface Resources {
   textures: {
@@ -12,6 +13,9 @@ export interface Resources {
   }
   guiTextures: {
     [id: string]: Texture
+  }
+  buildings: {
+    house: VoxelModel
   }
   shaderSource: {
     uColor: ShaderSource
@@ -70,6 +74,10 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "clearTerrain",
   ]
   const textureNames = ["grass", "dirt", "font", "noise", "landscape"]
+  const buildingNames = ["smallHouse1"]
+
+  const loadedBuildings = await Promise.all(buildingNames.map((bn) => loadVoxelModel(gl, bn)))
+  const buildingsMap = new Map<string, VoxelModel>(loadedBuildings.map((vm, i) => [buildingNames[i], vm]))
 
   const loadedShaders = await Promise.all(shaderNames.map((sn) => loadShaderSource(sn)))
   const namedShaders = new Map<string, ShaderSource>(shaderNames.map((sn, index) => [sn, loadedShaders[index]]))
@@ -102,5 +110,8 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       objectPicking: namedShaders.get("objectPicking")!,
     },
     soundEffects: await createSoundEffects(),
+    buildings: {
+      house: buildingsMap.get("smallHouse1")!,
+    },
   }
 }

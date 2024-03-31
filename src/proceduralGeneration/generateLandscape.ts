@@ -21,9 +21,8 @@ export function generateHeightMap(size: number) {
   }
   size++
   let rows = getLevelTerrain(size)
-  rows = generateHills(rows, 0, size, 0, size) // whole map
+  //rows = generateHills(rows, 0, size, 0, size) // whole map
 
-  /*
   rows = generateHills(rows, 0, Math.ceil(size / 4), 0, Math.ceil(size / 4))
   rows = generateHills(
     rows,
@@ -31,7 +30,7 @@ export function generateHeightMap(size: number) {
     Math.ceil(size / 4) + Math.ceil(size / 8),
     Math.ceil(size / 8),
     Math.ceil(size / 4) + Math.ceil(size / 8),
-  )*/
+  )
 
   for (let i = 0; i < map.smoothingIterations; i++) {
     rows = smooth(rows)

@@ -28,9 +28,9 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game) {
   // We have to apply the road textures after we've laid the road down as they impact each other and their neighbours
   if (newZone === ZoneEnum.Road) {
     applyRoadTextures(gl, game, r)
+  } else {
+    updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }
-
-  updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
 }
 
 const northSouth = [
@@ -204,4 +204,7 @@ function applyRoadTextures(
       }
     }
   }
+
+  const range = { start: { x: r.left - 1, y: r.top - 1 }, end: { x: r.right + 1, y: r.bottom + 1 } }
+  updateRendererTileInfo(gl, game.landscape, range)
 }
