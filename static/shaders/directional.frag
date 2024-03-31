@@ -46,6 +46,25 @@ int getYFromObjectId(int objectId) {
     return objectId / uMapSize;
 }
 
+vec4 zoneColor(int zoneType, vec4 defaultColor) {
+    const int lightResidential = 1;
+    const int denseResidential = 2;
+    const int lightCommercial = 3;
+    const int denseCommercial = 4;
+    const int lightIndustrial = 5;
+    const int denseIndustrial = 6;
+
+    switch (zoneType) {
+        case lightResidential: return vec4(0.0, 0.7, 0.0, 1.0);
+        case denseResidential: return vec4(0.0, 0.7, 0.0, 1.0);
+        case lightCommercial: return vec4(0.0, 0.7, 0.0, 1.0);
+        case denseCommercial: return vec4(0.0, 0.7, 0.0, 1.0);
+        case lightIndustrial: return vec4(0.0, 0.7, 0.0, 1.0);
+        case denseIndustrial: return vec4(0.0, 0.7, 0.0, 1.0);
+    }
+    return defaultColor;
+}
+
 void main(void) {
     const float zoneNone = 0.0;
     const float zoneLightResidential = 1.0;
@@ -55,15 +74,27 @@ void main(void) {
     const float zoneLightIndustrial = 5.0;
     const float zoneDenseIndustrial = 6.0;
     const float zoneRoad = 7.0;
+    const int texturesAcross = 4;
+    const int texturesDown = 3;
+    const int textureSize = 128;
+    const float textureScaleX = 1.0 / float(texturesAcross);
+    const float textureScaleY = 1.0 / float(texturesDown);
+    int textureIndex = int(vAdditionalTileInfo.r) - 1;
+    float textureRow = float(textureIndex / texturesAcross);
+    float textureColumn = modI(float(textureIndex), float(texturesAcross));
+    float textureX = textureColumn * (1.0 / float(texturesAcross));
+    float textureY = textureRow * (1.0 / float(texturesDown));
 
     float lineThickness = 1.0;
-    vec4 zoneColor = vec4(0.0,0.0,0.0,0.0);
     vec4 color;
     int iTileId = objectIdFromVector(vTileId);
     int tileX = getXFromObjectId(iTileId);
     int tileY = getYFromObjectId(iTileId);
     vec4 lineColor = uLineColor;
-    vec4 tex = texture(uTextureSampler, vTextureCoord);
+
+    //vec2 vTextureSliceCoord = vTextureCoord * textureScale;
+    vec2 vTextureSliceCoord = vec2(textureX + vTextureCoord.x * textureScaleX, textureY + vTextureCoord.y * textureScaleY);
+    vec4 tex = texture(uTextureSampler, vTextureSliceCoord);
 
     // this colors the tile with the selection color if the tile is in the selection range
     // and we are allowing sloped tiles to be selected or the tile is flat
@@ -72,6 +103,14 @@ void main(void) {
         //lineThickness = 4.0;
     }
     else {
+        if (textureIndex >= 0 && tex.a > 0.0) {
+            color = tex;
+        }
+        else {
+            color = zoneColor(int(vTileInfo.g), vColor);
+        }
+
+        /*
         if (vTileInfo.g == 0.0) {
             color = vColor; // not zoned
         }
@@ -87,7 +126,7 @@ void main(void) {
             else {
                 color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
             }
-        }
+        }*/
     }
 
     float borderSize = lineThickness/uZoomedTileSize;

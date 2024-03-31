@@ -16,18 +16,19 @@ export enum ZoneEnum {
   Road = 7,
 }
 
+// these are in the order of the landscape.png texture set
 export enum LandscapeTexture {
   RoadNorthSouth = 0,
   RoadEastWest = 1,
   RoadNorthEast = 2,
-  RoadSouthEast = 3,
-  RoadSouthWest = 4,
-  RoadNorthWest = 5,
-  RoadCrossroads = 6,
-  RoadNorthTEastWest = 7,
-  RoadSouthTEastWest = 8,
-  RoadEastTNorthSouth = 9,
-  RoadWestTNorthSource = 10,
+  RoadNorthWest = 3,
+  RoadNorthTEastWest = 4,
+  RoadWestTNorthSouth = 5,
+  RoadSouthEast = 6,
+  RoadSouthWest = 7,
+  RoadEastTNorthSouth = 8,
+  RoadSouthTEastWest = 9,
+  RoadCrossroads = 10,
 }
 
 export interface TileInfo {
