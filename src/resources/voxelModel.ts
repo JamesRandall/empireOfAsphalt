@@ -130,14 +130,15 @@ function createRenderingModels(gl: WebGL2RenderingContext, voxels: SourceVoxel[]
   const maxVoxelsPerChunk = 1000
   let chunkCount = 0
   voxels.forEach((voxel) => {
+    const offset = positions.length / 3
     for (let pi = 0; pi < baseCubePositions.length; pi += 3) {
-      positions.push(baseCubePositions[pi] * voxel.x)
-      positions.push(baseCubePositions[pi + 1] * voxel.y)
-      positions.push(baseCubePositions[pi + 2] * voxel.z)
+      positions.push(baseCubePositions[pi] + voxel.x)
+      positions.push(baseCubePositions[pi + 1] + voxel.y)
+      positions.push(baseCubePositions[pi + 2] + voxel.z)
     }
-    indices = [...indices, ...baseCubeIndices]
     normals = [...normals, ...baseCubeNormals]
-    for (let vi = 0; vi < 6; vi++) {
+    baseCubeIndices.forEach((vertexIndex) => indices.push(vertexIndex + offset))
+    for (let vi = 0; vi < baseCubePositions.length / 3; vi++) {
       colors.push(voxel.color.r)
       colors.push(voxel.color.g)
       colors.push(voxel.color.b)

@@ -28,6 +28,7 @@ export interface Resources {
     motionBlur: ShaderSource
     directional: ShaderSource
     objectPicking: ShaderSource
+    building: ShaderSource
   }
   soundEffects: SoundEffects
 }
@@ -53,6 +54,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "motionblur",
     "directional",
     "objectPicking",
+    "building",
   ]
   const guiTextureNames = [
     "road",
@@ -108,6 +110,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       motionBlur: namedShaders.get("motionblur")!,
       directional: namedShaders.get("directional")!,
       objectPicking: namedShaders.get("objectPicking")!,
+      building: namedShaders.get("building")!,
     },
     soundEffects: await createSoundEffects(),
     buildings: {

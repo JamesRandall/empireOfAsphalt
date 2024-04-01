@@ -64,7 +64,7 @@ function initPickerShaderProgram(gl: WebGL2RenderingContext, resources: Resource
   }
 }
 
-export function createTileRenderer(gl: WebGL2RenderingContext, resources: Resources) {
+export function createLandscapeRenderer(gl: WebGL2RenderingContext, resources: Resources) {
   const programInfo = initShaderProgram(gl, resources)!
   const pickerProgramInfo = initPickerShaderProgram(gl, resources)!
 

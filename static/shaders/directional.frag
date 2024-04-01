@@ -92,7 +92,6 @@ void main(void) {
     int tileY = getYFromObjectId(iTileId);
     vec4 lineColor = uLineColor;
 
-    //vec2 vTextureSliceCoord = vTextureCoord * textureScale;
     vec2 vTextureSliceCoord = vec2(textureX + vTextureCoord.x * textureScaleX, textureY + vTextureCoord.y * textureScaleY);
     vec4 tex = texture(uTextureSampler, vTextureSliceCoord);
 
@@ -100,7 +99,6 @@ void main(void) {
     // and we are allowing sloped tiles to be selected or the tile is flat
     if (tileX >= uRangeLeft && tileX <= uRangeRight && tileY >= uRangeTop && tileY <= uRangeBottom && (uAllowRangeOnSloped || vTileInfo.b == 1.0)) {
         color = vec4(0.7,0.0,0.0,1.0);
-        //lineThickness = 4.0;
     }
     else {
         if (textureIndex >= 0 && tex.a == 1.0) {
@@ -109,24 +107,6 @@ void main(void) {
         else {
             color = zoneColor(int(vTileInfo.g), vColor);
         }
-
-        /*
-        if (vTileInfo.g == 0.0) {
-            color = vColor; // not zoned
-        }
-        else {
-            if (vAdditionalTileInfo.r > 0.0) {
-                if (tex.a > 0.0) {
-                    color = tex;
-                }
-                else {
-                    color = vColor;
-                }
-            }
-            else {
-                color = vec4(0.0, 0.7, 0.0, 1.0); // color based on zone type
-            }
-        }*/
     }
 
     float borderSize = lineThickness/uZoomedTileSize;

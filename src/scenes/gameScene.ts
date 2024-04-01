@@ -1,6 +1,6 @@
 import { Resources } from "../resources/resources"
 import { createRootRenderer, RenderEffect } from "../renderer/rootRenderer"
-import { createTileRenderer } from "../renderer/tileRenderer"
+import { createLandscapeRenderer } from "../renderer/landscapeRenderer"
 import { createGameWithLandscape, Game, ToolSelectionMode } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
 import { glMatrix, mat4, vec3, vec4 } from "gl-matrix"
@@ -14,14 +14,21 @@ import { createRuntime } from "../gui/runtime"
 import { getPositionFromObjectId } from "../utilities"
 import { applyTool } from "../tools/applyTool"
 import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
+import { createBuildingRenderer } from "../renderer/buildingRenderer"
 
-export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: Resources) {
-  let tileRenderer = createTileRenderer(gl, resources)
-  let rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
+export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
+  let tileRenderer = createLandscapeRenderer(gl, resources)
+  let buildingRenderer = createBuildingRenderer(gl, resources)
+
   let objectPickerRenderer = createObjectPickerRenderer(gl, resources, (projectionMatrix, game) => {
     tileRenderer.renderObjectPicker(projectionMatrix, game)
     gui.renderObjectPicker()
   })
+  let rootRenderer = createRootRenderer(gl, resources, (game, timeDelta) => {
+    tileRenderer.render(game, timeDelta)
+    buildingRenderer.render(game, timeDelta)
+  })
+
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
@@ -46,10 +53,15 @@ export function createTestLandscapeScene(gl: WebGL2RenderingContext, resources: 
     resize: () => {
       rootRenderer.dispose()
       tileRenderer.dispose()
+      buildingRenderer.dispose()
       objectPickerRenderer.dispose()
       gui.dispose()
-      tileRenderer = createTileRenderer(gl, resources)
-      rootRenderer = createRootRenderer(gl, resources, tileRenderer.render)
+      tileRenderer = createLandscapeRenderer(gl, resources)
+      buildingRenderer = createBuildingRenderer(gl, resources)
+      rootRenderer = createRootRenderer(gl, resources, (game, timeDelta) => {
+        tileRenderer.render(game, timeDelta)
+        buildingRenderer.render(game, timeDelta)
+      })
       gui = createRuntime(
         gl,
         resources,

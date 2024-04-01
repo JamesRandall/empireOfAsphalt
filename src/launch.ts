@@ -1,5 +1,5 @@
 import { loadResources } from "./resources/resources"
-import { createTestLandscapeScene } from "./scenes/testLandscapeScene"
+import { createGameScene } from "./scenes/gameScene"
 
 require("./extensions.ts")
 
@@ -19,7 +19,7 @@ async function mount(viewCanvas: HTMLCanvasElement) {
 
   const resources = await loadResources(gl)
   setSize()
-  let scene = createTestLandscapeScene(gl, resources)
+  let scene = createGameScene(gl, resources)
 
   let resizeDebounce: ReturnType<typeof setTimeout> | undefined = undefined
   window.addEventListener("resize", (ev) => {
