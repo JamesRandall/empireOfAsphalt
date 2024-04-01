@@ -10,3 +10,7 @@ export const map = {
   maxZoom: 15.0,
   minZoom: 0.1,
 }
+
+export const timings = {
+  buildSpeedVoxelsPerSecond: 128,
+}

@@ -1,5 +1,9 @@
 import { RenderingModel } from "./models"
 
+// index buffer max value is 65536-1 so we need to break models into chunks
+// like the landscape - 1800*36 is just under 65535
+const maxVoxelsPerChunk = 1800
+
 interface VoxelFile {
   version: string
   project: {
@@ -25,7 +29,40 @@ export interface VoxelModel {
   width: number
   height: number
   depth: number
+  voxelCount: number
+  chunkSize: number
   renderingModels: RenderingModel[]
+}
+
+function prune(voxels: SourceVoxel[], width: number, height: number, depth: number) {
+  const grid: boolean[][][] = []
+  for (let z = 0; z < depth; z++) {
+    const zSet: boolean[][] = []
+    for (let y = 0; y < height; y++) {
+      const ySet: boolean[] = []
+      for (let x = 0; x < width; x++) {
+        ySet.push(false)
+      }
+      zSet.push(ySet)
+    }
+    grid.push(zSet)
+  }
+
+  voxels.forEach((v) => {
+    grid[v.z][v.y][v.x] = true
+  })
+
+  return voxels.filter((v) => {
+    if (v.x === 0 || v.y === 0 || v.z === 0 || v.x === width - 1 || v.y === height - 1 || v.z === depth - 1) return true
+    return !(
+      grid[v.z][v.y][v.x - 1] &&
+      grid[v.z][v.y][v.x + 1] &&
+      grid[v.z][v.y - 1][v.x] &&
+      grid[v.z][v.y + 1][v.x] &&
+      grid[v.z - 1][v.y][v.x] &&
+      grid[v.z + 1][v.y][v.x]
+    )
+  })
 }
 
 function parseVoxelData(data: string): SourceVoxel[] {
@@ -127,7 +164,6 @@ function createRenderingModels(gl: WebGL2RenderingContext, voxels: SourceVoxel[]
   let colors: number[] = []
   let renderingModels: RenderingModel[] = []
 
-  const maxVoxelsPerChunk = 1000
   let chunkCount = 0
   voxels.forEach((voxel) => {
     const offset = positions.length / 3
@@ -208,14 +244,25 @@ export async function loadVoxelModel(gl: WebGL2RenderingContext, name: string): 
   const voxelFile = (await response.json()) as VoxelFile
   const voxels = parseVoxelData(voxelFile.data.voxels)
   const [width, height, depth] = voxels.reduce(
-    ([w, h, d], v) => [Math.max(w, v.x), Math.max(h, v.y), Math.max(h, v.z)],
+    ([w, h, d], v) => [Math.max(w, v.x + 1), Math.max(h, v.y + 1), Math.max(d, v.z + 1)],
     [0, 0, 0],
   )
-  const renderingModels = createRenderingModels(gl, voxels)
+  const prunedVoxels = prune(voxels, width, height, depth).sort((a, b) => {
+    if (a.y !== b.y) {
+      return a.y - b.y
+    }
+    if (a.x !== b.x) {
+      return a.x - b.x
+    }
+    return a.z - b.z
+  })
+  const renderingModels = createRenderingModels(gl, prunedVoxels)
   return {
     width: width,
     height: height,
     depth: depth,
+    voxelCount: prunedVoxels.length,
+    chunkSize: maxVoxelsPerChunk,
     renderingModels: renderingModels,
   }
 }

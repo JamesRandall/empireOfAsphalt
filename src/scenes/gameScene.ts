@@ -15,6 +15,7 @@ import { getPositionFromObjectId } from "../utilities"
 import { applyTool } from "../tools/applyTool"
 import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
 import { createBuildingRenderer } from "../renderer/buildingRenderer"
+import { gameLoop } from "../gameLoop/gameLoop"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
@@ -32,6 +33,12 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
+  /*game.buildings.push({
+    model: resources.buildings.house,
+    footprint: { width: 1, height: 1 },
+    position: { x: 128, z: 128 },
+    numberOfVoxelsToDisplay: 0, // resources.buildings.house.voxelCount / 2,
+  })*/
   let gui = createRuntime(
     gl,
     resources,
@@ -42,7 +49,10 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
     game.landscape.size * game.landscape.size + 1, // start the gui object IDs after the landscape picker number range
   )
 
-  game.light.position = vec3.fromValues(-0.5, -0.25, -0.5) // this is a direction if we use a directional light
+  // we use different light directions to get the effect we want
+  game.light.direction = vec3.fromValues(-1.0, -0.5, -0.5) // this is a direction if we use a directional light
+  game.buildingLight.direction = vec3.fromValues(-1.0, -1.5, -0.5)
+
   bindKeys(game.controlState.current)
   bindMouse(game.controlState.current)
 
@@ -88,7 +98,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
       deltaTime = now - then
       then = now
 
-      applyControlState(game, deltaTime)
+      gameLoop(game, deltaTime)
       const guiHandledInteraction = gui.applyControlState(
         game.controlState.current,
         deltaTime,
@@ -136,7 +146,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
         }
 
         if (!game.controlState.current.mouseButtons.left && game.controlState.previous.mouseButtons.left) {
-          applyTool(gl, game)
+          applyTool(gl, game, resources)
           if (applyToolClearsSelection(game.gui.currentTool)) {
             game.gui.selection = null
           }

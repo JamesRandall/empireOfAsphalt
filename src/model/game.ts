@@ -3,6 +3,7 @@ import { glMatrix, vec3 } from "gl-matrix"
 import { Landscape } from "./Landscape"
 import { MutableProperty } from "../gui/properties/MutableProperty"
 import { Range } from "./range"
+import { Building } from "./building"
 
 type HeightMap = number[][]
 
@@ -51,9 +52,13 @@ export interface Game {
     zoom: number
   }
   light: {
-    position: vec3
+    direction: vec3
+  }
+  buildingLight: {
+    direction: vec3
   }
   landscape: Landscape
+  buildings: Building[]
   selectedObjectId: number | null
   gui: {
     windows: {
@@ -85,12 +90,16 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       lookAt: vec3.fromValues(0, 0, 0),
       rotation: 0,
       targetRotation: null,
-      zoom: 2,
+      zoom: 15,
     },
     light: {
-      position: vec3.fromValues(0, 300, 0),
+      direction: vec3.fromValues(0, 300, 0),
+    },
+    buildingLight: {
+      direction: vec3.fromValues(0, 300, 0),
     },
     landscape: landscape,
+    buildings: [],
     selectedObjectId: null,
     gui: {
       windows: {

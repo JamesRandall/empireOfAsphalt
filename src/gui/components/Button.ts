@@ -1,7 +1,7 @@
 import { GuiElement, GuiRenderContext } from "../GuiElement"
 import { constants } from "../constants"
 import { Attributes } from "../builder"
-import { InteractiveElement, MouseButton } from "./InteractiveElement"
+import { InteractiveElement, MouseButton, MouseCapture } from "./InteractiveElement"
 import { vec4 } from "gl-matrix"
 import { attributeOrDefault, vec4FromNumber } from "../utilities"
 import { Layout } from "../properties/LayoutDecorator"
@@ -31,14 +31,19 @@ export class Button extends InteractiveElement {
     this.isSelected = isSelected === undefined ? MutableProperty.with(false) : isSelected
   }
 
-  public handleMouseDown(button: MouseButton, position: { x: number; y: number }) {
-    super.handleMouseDown(button, position)
+  public handleMouseDown(button: MouseButton, position: { x: number; y: number }, capture: MouseCapture) {
     this._mouseDown = true
+    return super.handleMouseDown(button, position, capture)
   }
 
-  public handleMouseUp(button: MouseButton, position: { x: number; y: number }, timePressed: number) {
-    super.handleMouseUp(button, position, timePressed)
+  public handleMouseUp(
+    button: MouseButton,
+    position: { x: number; y: number },
+    timePressed: number,
+    capture: MouseCapture,
+  ) {
     this._mouseDown = false
+    return super.handleMouseUp(button, position, timePressed, capture)
   }
 
   private get showPressed() {

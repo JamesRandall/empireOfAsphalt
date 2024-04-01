@@ -3,14 +3,15 @@ import { rectFromRange } from "../utilities"
 import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { canApplyZoneToTile, isZoningTool, zoneForTool } from "./utilities"
+import { Resources } from "../resources/resources"
 
-export function applyTool(gl: WebGL2RenderingContext, game: Game) {
+export function applyTool(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   if (isZoningTool(game.gui.currentTool) && game.gui.selection !== null) {
-    applyZoning(gl, game)
+    applyZoning(gl, game, resources)
   }
 }
 
-function applyZoning(gl: WebGL2RenderingContext, game: Game) {
+function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   const newZone = zoneForTool(game.gui.currentTool)
   const r = rectFromRange(game.gui.selection!)
 
@@ -29,6 +30,14 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game) {
   if (newZone === ZoneEnum.Road) {
     applyRoadTextures(gl, game, r)
   } else {
+    if (newZone === ZoneEnum.LightResidential) {
+      game.buildings.push({
+        model: resources.buildings.house,
+        footprint: { width: 1, height: 1 },
+        position: { x: 128, z: 128 },
+        numberOfVoxelsToDisplay: -64, // resources.buildings.house.voxelCount / 2,
+      })
+    }
     updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }
 }
@@ -155,25 +164,6 @@ function getRoadPattern(game: Game, x: number, y: number) {
     pattern[1][2] = tileInfos[y][x + 1].zone === ZoneEnum.Road ? 1 : 0
   }
   return pattern
-
-  /*
-  const rows:number[][] = []
-  for(let ty=y-1; ty <= y+1; ty++) {
-    if (ty < 0 || ty >= tileInfos.length) {
-      rows.push([0,1,0])
-    }
-    else {
-      const tir = tileInfos[ty]
-      for (let tx = x - 1; tx <= x + 1; tx++) {
-        rows.push([
-          tx < 0 ? 0 : (tir[tx].zone === ZoneEnum.Road ? 1 : 0),
-          (tir[tx].zone === ZoneEnum.Road ? 1 : 0),
-          tx >= tir.length ? 0 : ((tir[tx].zone === ZoneEnum.Road ? 1 : 0))
-        ])
-      }
-    }
-  }
-  return rows;*/
 }
 
 function getTextureForPattern(pattern: number[][]) {

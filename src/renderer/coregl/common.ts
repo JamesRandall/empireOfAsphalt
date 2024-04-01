@@ -61,7 +61,7 @@ export function createProjectionMatrix(width: number, height: number, zFar: numb
 
 export function createProjectionViewMatrix(game: Game, width: number, height: number) {
   const projectionMatrix = mat4.create()
-  const maxDepth = (game.landscape.size * sizes.tile * 1.2) / 2 // the 1.2 is just a fudge factor for the angle of the tiles
+  const maxDepth = (game.landscape.size * sizes.tile * 1.5) / 2 // the 1.2 is just a fudge factor for the angle of the tiles
   const zoom = 1 / game.view.zoom
   mat4.ortho(
     projectionMatrix,
@@ -74,6 +74,5 @@ export function createProjectionViewMatrix(game: Game, width: number, height: nu
   )
   const viewMatrix = mat4.create()
   mat4.lookAt(viewMatrix, game.view.position, game.view.lookAt, [0, 1, 0])
-  const projectionViewMatrix = mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
-  return projectionViewMatrix
+  return mat4.multiply(mat4.create(), projectionMatrix, viewMatrix)
 }

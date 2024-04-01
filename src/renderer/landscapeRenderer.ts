@@ -71,7 +71,7 @@ export function createLandscapeRenderer(gl: WebGL2RenderingContext, resources: R
   const dispose = () => {}
   const render = (projectionMatrix: mat4, game: Game) => {
     gl.useProgram(programInfo.program)
-    const lightPosition = game.light.position
+    const lightPosition = game.light.direction
 
     let worldMatrix = mat4.create()
     const normalMatrix = mat4.create()

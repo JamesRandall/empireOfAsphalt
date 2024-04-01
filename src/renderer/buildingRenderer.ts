@@ -57,31 +57,38 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
     gl.enable(gl.CULL_FACE)
     gl.cullFace(gl.BACK)
 
-    const building = resources.buildings.house
+    game.buildings.forEach((building) => {
+      gl.useProgram(programInfo.program)
+      const lightPosition = game.buildingLight.direction
 
-    gl.useProgram(programInfo.program)
-    const lightPosition = game.light.position
+      let worldMatrix = mat4.create()
+      const normalMatrix = mat4.create()
+      mat4.invert(normalMatrix, worldMatrix)
+      mat4.transpose(normalMatrix, normalMatrix)
 
-    let worldMatrix = mat4.create()
-    const normalMatrix = mat4.create()
-    mat4.invert(normalMatrix, worldMatrix)
-    mat4.transpose(normalMatrix, normalMatrix)
+      setViewUniformLocations(gl, programInfo, {
+        projectionMatrix,
+        modelViewMatrix: worldMatrix,
+        normalMatrix,
+        lightWorldPosition: lightPosition,
+      })
 
-    setViewUniformLocations(gl, programInfo, {
-      projectionMatrix,
-      modelViewMatrix: worldMatrix,
-      normalMatrix,
-      lightWorldPosition: lightPosition,
-    })
+      let voxelOffset = 0
+      building.model.renderingModels.forEach((chunk) => {
+        const numberOfVoxelsInChunk = chunk.vertexCount / 36
+        const vertexCount =
+          voxelOffset + numberOfVoxelsInChunk < building.numberOfVoxelsToDisplay
+            ? chunk.vertexCount
+            : (building.numberOfVoxelsToDisplay - voxelOffset) * 36
+        if (vertexCount <= 0) return
+        voxelOffset += numberOfVoxelsInChunk
+        setCommonAttributes(gl, chunk, programInfo)
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
 
-    building.renderingModels.forEach((chunk) => {
-      setCommonAttributes(gl, chunk, programInfo)
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
-
-      const vertexCount = chunk.vertexCount
-      const type = gl.UNSIGNED_SHORT
-      const offset = 0
-      gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+        const type = gl.UNSIGNED_SHORT
+        const offset = 0
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+      })
     })
     gl.disable(gl.CULL_FACE)
   }
