@@ -13,11 +13,18 @@ export function testGui(state: Game): GuiElement {
       dark: constants.darkGreen,
       medium: constants.midGreen,
     },
+    power: {
+      light: constants.lightOrange,
+      dark: constants.darkOrange,
+      medium: constants.midOrange,
+    },
   }
 
   const openBuildWindow = (action: () => void) => {
     state.gui.windows.zoning.isVisible.value = false
     state.gui.windows.bulldozer.isVisible.value = false
+    state.gui.windows.power.isVisible.value = false
+    state.gui.currentTool = Tool.None
     action()
   }
 
@@ -240,18 +247,18 @@ export function testGui(state: Game): GuiElement {
         width={bs * 5}
         height={bs + constants.window.titleBarHeight}
         padding={0}
-        lightChrome={colors.build.light}
-        midChrome={colors.build.medium}
-        darkChrome={colors.build.dark}
+        lightChrome={colors.power.light}
+        midChrome={colors.power.medium}
+        darkChrome={colors.power.dark}
       >
         <hlayout horizontalAlignment={HorizontalAlignment.Left} sizeToFitParent={SizeToFit.Width}>
           <button
             padding={bp}
             width={bs}
             height={bs}
-            lightChrome={colors.build.light}
-            midChrome={colors.build.medium}
-            darkChrome={colors.build.dark}
+            lightChrome={colors.power.light}
+            midChrome={colors.power.medium}
+            darkChrome={colors.power.dark}
             onClick={() => (state.gui.currentTool = Tool.PowerLine)}
             isSelected={() => state.gui.currentTool === Tool.PowerLine}
           >
@@ -261,9 +268,9 @@ export function testGui(state: Game): GuiElement {
             padding={bp}
             width={bs}
             height={bs}
-            lightChrome={colors.build.light}
-            midChrome={colors.build.medium}
-            darkChrome={colors.build.dark}
+            lightChrome={colors.power.light}
+            midChrome={colors.power.medium}
+            darkChrome={colors.power.dark}
             onClick={() => (state.gui.currentTool = Tool.CoalPowerPlant)}
             isSelected={() => state.gui.currentTool === Tool.CoalPowerPlant}
           >
@@ -273,9 +280,9 @@ export function testGui(state: Game): GuiElement {
             padding={bp}
             width={bs}
             height={bs}
-            lightChrome={colors.build.light}
-            midChrome={colors.build.medium}
-            darkChrome={colors.build.dark}
+            lightChrome={colors.power.light}
+            midChrome={colors.power.medium}
+            darkChrome={colors.power.dark}
             onClick={() => (state.gui.currentTool = Tool.NuclearPowerPlant)}
             isSelected={() => state.gui.currentTool === Tool.NuclearPowerPlant}
           >
@@ -286,9 +293,9 @@ export function testGui(state: Game): GuiElement {
             padding={bp}
             width={bs}
             height={bs}
-            lightChrome={colors.build.light}
-            midChrome={colors.build.medium}
-            darkChrome={colors.build.dark}
+            lightChrome={colors.power.light}
+            midChrome={colors.power.medium}
+            darkChrome={colors.power.dark}
             onClick={() => (state.gui.currentTool = Tool.SolarPowerPlant)}
             isSelected={() => state.gui.currentTool === Tool.SolarPowerPlant}
           >
@@ -298,9 +305,9 @@ export function testGui(state: Game): GuiElement {
             padding={bp}
             width={bs}
             height={bs}
-            lightChrome={colors.build.light}
-            midChrome={colors.build.medium}
-            darkChrome={colors.build.dark}
+            lightChrome={colors.power.light}
+            midChrome={colors.power.medium}
+            darkChrome={colors.power.dark}
             onClick={() => (state.gui.currentTool = Tool.WindTurbine)}
             isSelected={() => state.gui.currentTool === Tool.WindTurbine}
           >

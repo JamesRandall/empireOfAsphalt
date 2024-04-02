@@ -41,6 +41,11 @@ export function toolSelectionMode(tool: Tool) {
     case Tool.LowerTerrain:
     case Tool.RaiseTerrain:
       return ToolSelectionMode.Single // we actually want this to be a direction locked "1 unit wide" range
+    case Tool.CoalPowerPlant:
+    case Tool.NuclearPowerPlant:
+    case Tool.WindTurbine:
+    case Tool.SolarPowerPlant:
+      return ToolSelectionMode.Prefab
     default:
       return ToolSelectionMode.None
   }

@@ -1,13 +1,13 @@
 import { Resources } from "../resources/resources"
 import { createRootRenderer, RenderEffect } from "../renderer/rootRenderer"
 import { createLandscapeRenderer } from "../renderer/landscapeRenderer"
-import { createGameWithLandscape, Game, ToolSelectionMode } from "../model/game"
+import { createGameWithLandscape, Game, Tool, ToolSelectionMode } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
-import { glMatrix, mat4, vec3, vec4 } from "gl-matrix"
+import { glMatrix, mat4, vec3 } from "gl-matrix"
 import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
-import { applyControlState, cycleControlState } from "../gameLoop/applyControlState"
+import { cycleControlState } from "../gameLoop/applyControlState"
 import { createObjectPickerRenderer } from "../renderer/objectPickerRenderer"
 import { testGui } from "./testGui"
 import { createRuntime } from "../gui/runtime"
@@ -16,6 +16,7 @@ import { applyTool } from "../tools/applyTool"
 import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
 import { createBuildingRenderer } from "../renderer/buildingRenderer"
 import { gameLoop } from "../gameLoop/gameLoop"
+import { buildingFromTool } from "../model/building"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
@@ -35,8 +36,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
   const game = createGameWithLandscape(landscape)
 
   for (let bi = 0; bi < 1; bi++) {
-    //game.buildings.push(resources.buildings.power.coal())
-    game.buildings.push(resources.buildings.house())
+    game.buildings.push(buildingFromTool(resources, Tool.CoalPowerPlant, { x: 128, z: 128 })!)
   }
 
   let gui = createRuntime(

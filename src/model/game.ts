@@ -31,6 +31,7 @@ export enum ToolSelectionMode {
   None = 0,
   Single,
   Range,
+  Prefab,
 }
 
 export interface WindowState {
@@ -102,7 +103,7 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       lookAt: vec3.fromValues(0, 0, 0),
       rotation: 0,
       targetRotation: null,
-      zoom: 15,
+      zoom: 2,
     },
     light: {
       direction: vec3.fromValues(0, 300, 0),

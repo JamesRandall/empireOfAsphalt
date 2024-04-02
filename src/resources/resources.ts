@@ -15,10 +15,12 @@ export interface Resources {
   guiTextures: {
     [id: string]: Texture
   }
-  buildings: {
-    house: () => Building
+  voxelModels: {
+    residential: {
+      house: VoxelModel
+    }
     power: {
-      coal: () => Building
+      coal: VoxelModel
     }
   }
   shaderSource: {
@@ -124,10 +126,12 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       building: namedShaders.get("building")!,
     },
     soundEffects: await createSoundEffects(),
-    buildings: {
-      house: () => createBuilding(buildingsMap.get("smallHouse1")!),
+    voxelModels: {
+      residential: {
+        house: buildingsMap.get("smallHouse1")!,
+      },
       power: {
-        coal: () => createBuilding(buildingsMap.get("coalPower")!),
+        coal: buildingsMap.get("coalPower")!,
       },
     },
   }
