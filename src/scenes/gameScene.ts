@@ -33,12 +33,12 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
   const heightmap = generateHeightMap(256)
   const landscape = createLandscape(gl, heightmap)
   const game = createGameWithLandscape(landscape)
-  /*game.buildings.push({
-    model: resources.buildings.house,
-    footprint: { width: 1, height: 1 },
-    position: { x: 128, z: 128 },
-    numberOfVoxelsToDisplay: 0, // resources.buildings.house.voxelCount / 2,
-  })*/
+
+  for (let bi = 0; bi < 1; bi++) {
+    //game.buildings.push(resources.buildings.power.coal())
+    game.buildings.push(resources.buildings.house())
+  }
+
   let gui = createRuntime(
     gl,
     resources,

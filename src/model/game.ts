@@ -20,6 +20,11 @@ export enum Tool {
   DenseCommercial,
   LightIndustrial,
   DenseIndustrial,
+  PowerLine,
+  CoalPowerPlant,
+  NuclearPowerPlant,
+  SolarPowerPlant,
+  WindTurbine,
 }
 
 export enum ToolSelectionMode {
@@ -64,6 +69,7 @@ export interface Game {
     windows: {
       zoning: WindowState
       bulldozer: WindowState
+      power: WindowState
     }
     currentTool: Tool
     selection: Range | null
@@ -80,6 +86,12 @@ const eyeY = 32 * Math.sin(radians)
 const eyeZ = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
 
 export function createGameWithLandscape(landscape: Landscape): Game {
+  const defaultWindowState = () => ({
+    isVisible: MutableProperty.with(false),
+    left: MutableProperty.with(500),
+    top: MutableProperty.with(50),
+  })
+
   return {
     controlState: {
       current: getDefaultControlState(),
@@ -103,16 +115,9 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     selectedObjectId: null,
     gui: {
       windows: {
-        zoning: {
-          isVisible: MutableProperty.with(false),
-          left: MutableProperty.with(500),
-          top: MutableProperty.with(50),
-        },
-        bulldozer: {
-          isVisible: MutableProperty.with(false),
-          left: MutableProperty.with(500),
-          top: MutableProperty.with(50),
-        },
+        zoning: defaultWindowState(),
+        bulldozer: defaultWindowState(),
+        power: defaultWindowState(),
       },
       currentTool: Tool.None,
       selection: null,

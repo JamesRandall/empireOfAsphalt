@@ -67,6 +67,16 @@ export function testGui(state: Game): GuiElement {
         >
           <image name="road" sizeToFitParent={SizeToFit.WidthAndHeight} />
         </button>
+        <button
+          padding={bp}
+          onClick={() =>
+            openBuildWindow(() => (state.gui.windows.power.isVisible.value = !state.gui.windows.power.isVisible.value))
+          }
+          width={bs}
+          height={bs}
+        >
+          <image name="power" sizeToFitParent={SizeToFit.WidthAndHeight} />
+        </button>
       </hlayout>
       <window
         title="Zoning"
@@ -219,6 +229,82 @@ export function testGui(state: Game): GuiElement {
             isSelected={() => state.gui.currentTool === Tool.RaiseTerrain}
           >
             <image name="raiseTerrain" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+        </hlayout>
+      </window>
+      <window
+        title="Power"
+        isVisible={state.gui.windows.power.isVisible}
+        left={state.gui.windows.power.left}
+        top={state.gui.windows.power.top}
+        width={bs * 5}
+        height={bs + constants.window.titleBarHeight}
+        padding={0}
+        lightChrome={colors.build.light}
+        midChrome={colors.build.medium}
+        darkChrome={colors.build.dark}
+      >
+        <hlayout horizontalAlignment={HorizontalAlignment.Left} sizeToFitParent={SizeToFit.Width}>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.build.light}
+            midChrome={colors.build.medium}
+            darkChrome={colors.build.dark}
+            onClick={() => (state.gui.currentTool = Tool.PowerLine)}
+            isSelected={() => state.gui.currentTool === Tool.PowerLine}
+          >
+            <image name="powerLine" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.build.light}
+            midChrome={colors.build.medium}
+            darkChrome={colors.build.dark}
+            onClick={() => (state.gui.currentTool = Tool.CoalPowerPlant)}
+            isSelected={() => state.gui.currentTool === Tool.CoalPowerPlant}
+          >
+            <image name="coalPowerPlant" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.build.light}
+            midChrome={colors.build.medium}
+            darkChrome={colors.build.dark}
+            onClick={() => (state.gui.currentTool = Tool.NuclearPowerPlant)}
+            isSelected={() => state.gui.currentTool === Tool.NuclearPowerPlant}
+          >
+            <image name="nuclearPowerPlant" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.build.light}
+            midChrome={colors.build.medium}
+            darkChrome={colors.build.dark}
+            onClick={() => (state.gui.currentTool = Tool.SolarPowerPlant)}
+            isSelected={() => state.gui.currentTool === Tool.SolarPowerPlant}
+          >
+            <image name="solarPowerPlant" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.build.light}
+            midChrome={colors.build.medium}
+            darkChrome={colors.build.dark}
+            onClick={() => (state.gui.currentTool = Tool.WindTurbine)}
+            isSelected={() => state.gui.currentTool === Tool.WindTurbine}
+          >
+            <image name="windTurbine" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
         </hlayout>
       </window>

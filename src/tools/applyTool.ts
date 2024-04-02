@@ -31,12 +31,7 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
     applyRoadTextures(gl, game, r)
   } else {
     if (newZone === ZoneEnum.LightResidential) {
-      game.buildings.push({
-        model: resources.buildings.house,
-        footprint: { width: 1, height: 1 },
-        position: { x: 128, z: 128 },
-        numberOfVoxelsToDisplay: -64, // resources.buildings.house.voxelCount / 2,
-      })
+      game.buildings.push(resources.buildings.house())
     }
     updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }

@@ -55,12 +55,12 @@ vec4 zoneColor(int zoneType, vec4 defaultColor) {
     const int denseIndustrial = 6;
 
     switch (zoneType) {
-        case lightResidential: return vec4(0.0, 0.7, 0.0, 1.0);
-        case denseResidential: return vec4(0.0, 0.7, 0.0, 1.0);
-        case lightCommercial: return vec4(0.0, 0.7, 0.0, 1.0);
-        case denseCommercial: return vec4(0.0, 0.7, 0.0, 1.0);
-        case lightIndustrial: return vec4(0.0, 0.7, 0.0, 1.0);
-        case denseIndustrial: return vec4(0.0, 0.7, 0.0, 1.0);
+        case lightResidential: return vec4(128.0/255.0, 177.0/255.0, 121.0/255.0, 1.0);
+        case denseResidential: return vec4(33.0/255.0, 179.0/255.0, 13.0/255.0, 1.0);
+        case lightCommercial: return vec4(119.0/255.0, 150.0/255.0, 218.0/255.0, 1.0);
+        case denseCommercial: return vec4(36.0/255.0, 91.0/255.0, 209.0/255.0, 1.0);
+        case lightIndustrial: return vec4(230.0/255.0, 229.0/255.0, 149.0/255.0, 1.0);
+        case denseIndustrial: return vec4(216.0/255.0, 212.0/255.0, 72.0/255.0, 1.0);
     }
     return defaultColor;
 }
