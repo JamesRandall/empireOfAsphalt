@@ -1,6 +1,8 @@
 import { readFile, writeFile, readdir } from "fs/promises"
 import { extname } from "path"
 
+// index buffer max value is 65536-1 so we need to break models into chunks
+// like the landscape - 1800*36 is just under 65535
 const maxVoxelsPerChunk = 1800
 
 interface VoxelFile {
