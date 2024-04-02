@@ -222,6 +222,10 @@ async function importJsonModel(filePath: string) {
   }
 }
 
+// Eventually we'll also want to write something that builds optimised meshes from the voxels.
+// i.e. for every set of voxels that form a rectangle of a consistent colour we want to represent by
+// just two triangles. We only want individual voxels when we are constructing otherwise performance will get
+// well rough!
 ;(async () => {
   const files = await readdir("./sourceart/buildings", { withFileTypes: true })
   const jsonFiles = files
@@ -236,12 +240,4 @@ async function importJsonModel(filePath: string) {
       console.log(`Processed ${file}`)
     }),
   )
-
-  /*const model = await importJsonModel("./sourceart/buildings/coalPower.json")
-  const json = JSON.stringify(model)
-  await writeFile("./static/voxels/coalPower.json", json)
-
-  const model2 = await importJsonModel("./sourceart/buildings/smallHouse1.json")
-  const json2 = JSON.stringify(model2)
-  await writeFile("./static/voxels/smallHouse1.json", json2)*/
 })()
