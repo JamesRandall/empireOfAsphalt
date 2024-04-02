@@ -36,6 +36,7 @@ export function toolSelectionMode(tool: Tool) {
     case Tool.DenseCommercial:
     case Tool.Dezone:
     case Tool.Road:
+    case Tool.PowerLine:
       return ToolSelectionMode.Range
     case Tool.ClearTerrain:
     case Tool.LowerTerrain:
@@ -54,6 +55,7 @@ export function toolSelectionMode(tool: Tool) {
 export function toolIsAxisLocked(tool: Tool) {
   switch (tool) {
     case Tool.Road:
+    case Tool.PowerLine:
       return true
     default:
       return false
@@ -90,7 +92,7 @@ export function isZoningTool(tool: Tool) {
     case Tool.Dezone:
       return true
     default:
-      return false
+      return true
   }
 }
 
@@ -110,6 +112,8 @@ export function zoneForTool(tool: Tool) {
       return ZoneEnum.DenseCommercial
     case Tool.Road:
       return ZoneEnum.Road
+    case Tool.CoalPowerPlant:
+      return ZoneEnum.CoalPowerPlant
     default:
     case Tool.Dezone:
       return ZoneEnum.None

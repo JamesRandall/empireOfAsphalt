@@ -14,6 +14,7 @@ export enum ZoneEnum {
   LightIndustrial = 5,
   DenseIndustrial = 6,
   Road = 7,
+  CoalPowerPlant = 8,
 }
 
 // these are in the order of the landscape.png texture set

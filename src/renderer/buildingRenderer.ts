@@ -57,11 +57,16 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
     gl.enable(gl.CULL_FACE)
     gl.cullFace(gl.BACK)
 
+    gl.useProgram(programInfo.program)
+    const lightPosition = game.buildingLight.direction
     game.buildings.forEach((building) => {
-      gl.useProgram(programInfo.program)
-      const lightPosition = game.buildingLight.direction
-
       let worldMatrix = mat4.create()
+      mat4.translate(worldMatrix, worldMatrix, [
+        (building.position.x - game.landscape.size / 2) * sizes.tile - sizes.tile / 2,
+        0,
+        (game.landscape.size / 2 - building.position.z) * sizes.tile - sizes.tile / 2,
+      ])
+
       const normalMatrix = mat4.create()
       mat4.invert(normalMatrix, worldMatrix)
       mat4.transpose(normalMatrix, normalMatrix)
@@ -93,23 +98,23 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
     gl.disable(gl.CULL_FACE)
   }
   const renderObjectPicker = (projectionMatrix: mat4, game: Game) => {
-    const building = resources.buildings.house
     gl.useProgram(pickerProgramInfo.program)
+    game.buildings.forEach((building) => {
+      let worldMatrix = mat4.create()
 
-    let worldMatrix = mat4.create()
+      setViewUniformLocations(gl, pickerProgramInfo, {
+        projectionMatrix,
+        modelViewMatrix: worldMatrix,
+      })
+      building.model.renderingModels.forEach((chunk) => {
+        setCommonAttributes(gl, chunk, pickerProgramInfo)
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
 
-    setViewUniformLocations(gl, pickerProgramInfo, {
-      projectionMatrix,
-      modelViewMatrix: worldMatrix,
-    })
-    building.renderingModels.forEach((chunk) => {
-      setCommonAttributes(gl, chunk, pickerProgramInfo)
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
-
-      const vertexCount = chunk.vertexCount
-      const type = gl.UNSIGNED_SHORT
-      const offset = 0
-      gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+        const vertexCount = chunk.vertexCount
+        const type = gl.UNSIGNED_SHORT
+        const offset = 0
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+      })
     })
   }
 

@@ -16,7 +16,7 @@ import { applyTool } from "../tools/applyTool"
 import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
 import { createBuildingRenderer } from "../renderer/buildingRenderer"
 import { gameLoop } from "../gameLoop/gameLoop"
-import { buildingFromTool } from "../model/building"
+import { blueprintFromTool, buildingFromTool } from "../model/building"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
@@ -36,7 +36,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
   const game = createGameWithLandscape(landscape)
 
   for (let bi = 0; bi < 1; bi++) {
-    game.buildings.push(buildingFromTool(resources, Tool.CoalPowerPlant, { x: 128, z: 128 })!)
+    //game.buildings.push(buildingFromTool(resources, Tool.CoalPowerPlant, { x: 128, z: 128 })!)
   }
 
   let gui = createRuntime(
@@ -117,9 +117,28 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
           if (toolMode !== ToolSelectionMode.None) {
             const p = getPositionFromObjectId(game.selectedObjectId, game.landscape.size)
             if (game.gui.selection === null) {
-              game.gui.selection = { start: { ...p }, end: { ...p } }
+              switch (toolMode) {
+                case ToolSelectionMode.Prefab:
+                  const blueprint = blueprintFromTool(game.gui.currentTool)
+                  if (blueprint) {
+                    game.gui.selection = {
+                      start: { ...p },
+                      end: { x: p.x + blueprint.footprint.width - 1, y: p.y + blueprint.footprint.height - 1 },
+                    }
+                  }
+                  break
+                default:
+                  game.gui.selection = { start: { ...p }, end: { ...p } }
+              }
             } else {
               switch (toolMode) {
+                case ToolSelectionMode.Prefab:
+                  const w = game.gui.selection.end.x - game.gui.selection.start.x
+                  const h = game.gui.selection.end.y - game.gui.selection.start.y
+                  game.gui.selection.start = { ...p }
+                  game.gui.selection.end.x = p.x + w
+                  game.gui.selection.end.y = p.y + h
+                  break
                 case ToolSelectionMode.Range:
                   if (toolIsAxisLocked(game.gui.currentTool)) {
                     if (game.gui.selection.end.x !== game.gui.selection.start.x) {

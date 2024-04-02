@@ -4,7 +4,7 @@ import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { canApplyZoneToTile, isZoningTool, zoneForTool } from "./utilities"
 import { Resources } from "../resources/resources"
-import { buildingForZone } from "../model/building"
+import { blueprintFromTool, buildingForZone, createBuilding } from "../model/building"
 
 export function applyTool(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   if (isZoningTool(game.gui.currentTool) && game.gui.selection !== null) {
@@ -31,8 +31,10 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
   if (newZone === ZoneEnum.Road) {
     applyRoadTextures(gl, game, r)
   } else {
-    if (newZone === ZoneEnum.LightResidential) {
-      game.buildings.push(buildingForZone(resources, newZone, 1, { x: r.left, z: r.top }))
+    const blueprint = blueprintFromTool(game.gui.currentTool)
+    if (blueprint !== undefined) {
+      const building = createBuilding(resources, blueprint, { x: r.left, z: r.bottom })
+      game.buildings.push(building)
     }
     updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }

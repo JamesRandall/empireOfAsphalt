@@ -26,9 +26,17 @@ const buildings: [Tool, Blueprint][] = [
 ]
 const buildingsMap = new Map<Tool, Blueprint>(buildings)
 
+export function blueprintFromTool(tool: Tool) {
+  return buildingsMap.get(tool)
+}
+
 export function buildingFromTool(resources: Resources, tool: Tool, position: { x: number; z: number }) {
   const blueprint = buildingsMap.get(tool)
   if (blueprint === undefined) return null
+  return createBuilding(resources, blueprint, position)
+}
+
+export function createBuilding(resources: Resources, blueprint: Blueprint, position: { x: number; z: number }) {
   const model = blueprint.getModel(resources)
   return {
     model: model,
