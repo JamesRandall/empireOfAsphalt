@@ -1,5 +1,5 @@
 export const sizes = {
-  tile: 32,
+  tile: 16,
 }
 
 export const map = {

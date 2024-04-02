@@ -37,10 +37,10 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
       game.buildings.push(building)
     } else if (newZone === ZoneEnum.LightResidential) {
       const building = {
-        model: resources.voxelModels.misc.sphere,
+        model: resources.voxelModels.residential.house,
         footprint: { width: 1, height: 1 },
-        position: { x: r.left, z: r.bottom },
-        numberOfVoxelsToDisplay: resources.voxelModels.misc.sphere.voxelCount,
+        position: { x: r.left, z: r.top },
+        numberOfVoxelsToDisplay: 0, //resources.voxelModels.misc.sphere.voxelCount,
       }
       game.buildings.push(building)
     }

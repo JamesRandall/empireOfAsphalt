@@ -196,6 +196,10 @@ function createRenderingModels(voxels: SourceVoxel[]) {
   return chunks
 }
 
+function flip(voxels: SourceVoxel[], width: number, depth: number) {
+  return voxels.map((v) => ({ ...v, color: { ...v.color }, x: width - 1 - v.x, z: depth - 1 - v.z }))
+}
+
 async function importJsonModel(filePath: string) {
   const data = await readFile(filePath, "utf8")
   const voxelFile = JSON.parse(data) as VoxelFile
@@ -204,7 +208,9 @@ async function importJsonModel(filePath: string) {
     ([w, h, d], v) => [Math.max(w, v.x + 1), Math.max(h, v.y + 1), Math.max(d, v.z + 1)],
     [0, 0, 0],
   )
-  const prunedVoxels = prune(sourceVoxels, width, height, depth).sort((a, b) => {
+  const prunedVoxels = prune(sourceVoxels, width, height, depth)
+  const flippedVoxels = flip(prunedVoxels, width, depth)
+  const sortedVoxels = flippedVoxels.sort((a, b) => {
     if (a.y !== b.y) {
       return a.y - b.y
     }
@@ -213,7 +219,7 @@ async function importJsonModel(filePath: string) {
     }
     return a.z - b.z
   })
-  const chunks = createRenderingModels(prunedVoxels)
+  const chunks = createRenderingModels(sortedVoxels)
   return {
     width: width,
     height: height,
