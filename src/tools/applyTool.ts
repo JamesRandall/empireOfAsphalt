@@ -35,6 +35,14 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
     if (blueprint !== undefined) {
       const building = createBuilding(resources, blueprint, { x: r.left, z: r.bottom })
       game.buildings.push(building)
+    } else if (newZone === ZoneEnum.LightResidential) {
+      const building = {
+        model: resources.voxelModels.misc.sphere,
+        footprint: { width: 1, height: 1 },
+        position: { x: r.left, z: r.bottom },
+        numberOfVoxelsToDisplay: resources.voxelModels.misc.sphere.voxelCount,
+      }
+      game.buildings.push(building)
     }
     updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }

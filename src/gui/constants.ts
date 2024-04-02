@@ -21,6 +21,9 @@ export const constants = {
   midOrange: 0xd5922bff,
   lightOrange: 0xffc368ff,
   darkOrange: 0xc27500ff,
+  midRed: 0xcd2c1eff,
+  lightRed: 0xea6e5fff,
+  darkRed: 0x921c12ff,
   chromeStrokeWidth: 2,
 
   window: {

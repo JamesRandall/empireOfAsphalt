@@ -22,6 +22,9 @@ export interface Resources {
     power: {
       coal: VoxelModel
     }
+    misc: {
+      sphere: VoxelModel
+    }
   }
   shaderSource: {
     uColor: ShaderSource
@@ -89,7 +92,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "windTurbine",
   ]
   const textureNames = ["grass", "dirt", "font", "noise", "landscape"]
-  const buildingNames = ["smallHouse1", "coalPower"]
+  const buildingNames = ["smallHouse1", "coalPower", "sphere"]
 
   const loadedBuildings = await Promise.all(buildingNames.map((bn) => loadVoxelModel(gl, bn)))
   const buildingsMap = new Map<string, VoxelModel>(loadedBuildings.map((vm, i) => [buildingNames[i], vm]))
@@ -132,6 +135,9 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       },
       power: {
         coal: buildingsMap.get("coalPower")!,
+      },
+      misc: {
+        sphere: buildingsMap.get("sphere")!,
       },
     },
   }
