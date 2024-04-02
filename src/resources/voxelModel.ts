@@ -2,7 +2,7 @@ import { RenderingModel } from "./models"
 
 // index buffer max value is 65536-1 so we need to break models into chunks
 // like the landscape - 1800*36 is just under 65535
-const maxVoxelsPerChunk = 1800
+/*const maxVoxelsPerChunk = 1800
 
 interface VoxelFile {
   version: string
@@ -23,7 +23,7 @@ interface SourceVoxel {
   z: number
   color: { r: number; g: number; b: number }
   visible: boolean
-}
+}*/
 
 export interface VoxelModel {
   width: number
@@ -34,6 +34,7 @@ export interface VoxelModel {
   renderingModels: RenderingModel[]
 }
 
+/*
 function prune(voxels: SourceVoxel[], width: number, height: number, depth: number) {
   const grid: boolean[][][] = []
   for (let z = 0; z < depth; z++) {
@@ -195,6 +196,22 @@ function createRenderingModels(gl: WebGL2RenderingContext, voxels: SourceVoxel[]
     renderingModels.push(createRenderingModel(gl, positions, indices, normals, colors))
   }
   return renderingModels
+}*/
+
+interface ModelFormat {
+  width: number
+  height: number
+  depth: number
+  voxelCount: number
+  chunkSize: number
+  chunks: [
+    {
+      positions: number[]
+      indices: number[]
+      colors: number[]
+      normals: number[]
+    },
+  ]
 }
 
 function createRenderingModel(
@@ -241,28 +258,14 @@ function createRenderingModel(
 //    building is fully in place and not constructing
 export async function loadVoxelModel(gl: WebGL2RenderingContext, name: string): Promise<VoxelModel> {
   const response = await fetch(`voxels/${name}.json`)
-  const voxelFile = (await response.json()) as VoxelFile
-  const voxels = parseVoxelData(voxelFile.data.voxels)
-  const [width, height, depth] = voxels.reduce(
-    ([w, h, d], v) => [Math.max(w, v.x + 1), Math.max(h, v.y + 1), Math.max(d, v.z + 1)],
-    [0, 0, 0],
-  )
-  const prunedVoxels = prune(voxels, width, height, depth).sort((a, b) => {
-    if (a.y !== b.y) {
-      return a.y - b.y
-    }
-    if (a.x !== b.x) {
-      return a.x - b.x
-    }
-    return a.z - b.z
-  })
-  const renderingModels = createRenderingModels(gl, prunedVoxels)
+  const voxelFile = (await response.json()) as ModelFormat
+
   return {
-    width: width,
-    height: height,
-    depth: depth,
-    voxelCount: prunedVoxels.length,
-    chunkSize: maxVoxelsPerChunk,
-    renderingModels: renderingModels,
+    width: voxelFile.width,
+    height: voxelFile.height,
+    depth: voxelFile.depth,
+    voxelCount: voxelFile.voxelCount,
+    chunkSize: voxelFile.chunkSize,
+    renderingModels: voxelFile.chunks.map((c) => createRenderingModel(gl, c.positions, c.indices, c.normals, c.colors)),
   }
 }

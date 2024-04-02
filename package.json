@@ -5,7 +5,8 @@
   "scripts": {
     "start": "parcel",
     "build": "parcel build --public-url ./",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "process-models": "npx tsc ./tools/processVoxelModels.ts && node ./tools/processVoxelModels.js"
   },
   "private": true,
   "source": "src/index.html",

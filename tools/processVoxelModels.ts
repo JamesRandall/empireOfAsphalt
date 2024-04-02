@@ -1,4 +1,5 @@
-import { readFile, writeFile } from "fs/promises"
+import { readFile, writeFile, readdir } from "fs/promises"
+import { extname } from "path"
 
 const maxVoxelsPerChunk = 1800
 
@@ -221,6 +222,26 @@ async function importJsonModel(filePath: string) {
   }
 }
 
-const model = await importJsonModel("./static/coalPower.json")
-const json = JSON.stringify(model)
-await writeFile("./src/resources/models/coalPower.json", json)
+;(async () => {
+  const files = await readdir("./sourceart/buildings", { withFileTypes: true })
+  const jsonFiles = files
+    .filter((file) => !file.isDirectory() && extname(file.name) === ".json")
+    .map((file) => file.name)
+
+  await Promise.all(
+    jsonFiles.map(async (file) => {
+      const model = await importJsonModel(`./sourceart/buildings/${file}`)
+      const json = JSON.stringify(model)
+      await writeFile(`./static/voxels/${file}`, json)
+      console.log(`Processed ${file}`)
+    }),
+  )
+
+  /*const model = await importJsonModel("./sourceart/buildings/coalPower.json")
+  const json = JSON.stringify(model)
+  await writeFile("./static/voxels/coalPower.json", json)
+
+  const model2 = await importJsonModel("./sourceart/buildings/smallHouse1.json")
+  const json2 = JSON.stringify(model2)
+  await writeFile("./static/voxels/smallHouse1.json", json2)*/
+})()
