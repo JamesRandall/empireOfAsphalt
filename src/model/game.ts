@@ -103,7 +103,7 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       lookAt: vec3.fromValues(0, 0, 0),
       rotation: 0,
       targetRotation: null,
-      zoom: 2,
+      zoom: 5,
     },
     light: {
       direction: vec3.fromValues(0, 300, 0),

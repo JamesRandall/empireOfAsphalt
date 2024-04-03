@@ -44,9 +44,10 @@ export function testGui(state: Game): GuiElement {
         <button
           padding={bp}
           onClick={() =>
-            openBuildWindow(
-              () => (state.gui.windows.bulldozer.isVisible.value = !state.gui.windows.bulldozer.isVisible.value),
-            )
+            openBuildWindow(() => {
+              state.gui.windows.bulldozer.isVisible.value = !state.gui.windows.bulldozer.isVisible.value
+              state.gui.currentTool = Tool.ClearTerrain
+            })
           }
           width={bs}
           height={bs}
@@ -56,9 +57,10 @@ export function testGui(state: Game): GuiElement {
         <button
           padding={bp}
           onClick={() =>
-            openBuildWindow(
-              () => (state.gui.windows.zoning.isVisible.value = !state.gui.windows.zoning.isVisible.value),
-            )
+            openBuildWindow(() => {
+              state.gui.windows.zoning.isVisible.value = !state.gui.windows.zoning.isVisible.value
+              state.gui.currentTool = Tool.LightResidential
+            })
           }
           width={bs}
           height={bs}
@@ -69,7 +71,7 @@ export function testGui(state: Game): GuiElement {
           padding={bp}
           width={bs}
           height={bs}
-          onClick={() => (state.gui.currentTool = Tool.Road)}
+          onClick={() => openBuildWindow(() => (state.gui.currentTool = Tool.Road))}
           isSelected={() => state.gui.currentTool === Tool.Road}
         >
           <image name="road" sizeToFitParent={SizeToFit.WidthAndHeight} />
@@ -77,7 +79,10 @@ export function testGui(state: Game): GuiElement {
         <button
           padding={bp}
           onClick={() =>
-            openBuildWindow(() => (state.gui.windows.power.isVisible.value = !state.gui.windows.power.isVisible.value))
+            openBuildWindow(() => {
+              state.gui.windows.power.isVisible.value = !state.gui.windows.power.isVisible.value
+              state.gui.currentTool = Tool.PowerLine
+            })
           }
           width={bs}
           height={bs}
@@ -195,10 +200,10 @@ export function testGui(state: Game): GuiElement {
             lightChrome={colors.build.light}
             midChrome={colors.build.medium}
             darkChrome={colors.build.dark}
-            onClick={() => (state.gui.currentTool = Tool.Dezone)}
-            isSelected={() => state.gui.currentTool === Tool.Dezone}
+            onClick={() => (state.gui.currentTool = Tool.ClearTerrain)}
+            isSelected={() => state.gui.currentTool === Tool.ClearTerrain}
           >
-            <image name="dezone" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="clearTerrain" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={bp}
@@ -207,10 +212,10 @@ export function testGui(state: Game): GuiElement {
             lightChrome={colors.build.light}
             midChrome={colors.build.medium}
             darkChrome={colors.build.dark}
-            onClick={() => (state.gui.currentTool = Tool.ClearTerrain)}
-            isSelected={() => state.gui.currentTool === Tool.ClearTerrain}
+            onClick={() => (state.gui.currentTool = Tool.Dezone)}
+            isSelected={() => state.gui.currentTool === Tool.Dezone}
           >
-            <image name="clearTerrain" sizeToFitParent={SizeToFit.WidthAndHeight} />
+            <image name="dezone" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
           <button
             padding={bp}

@@ -25,7 +25,12 @@ const patterns = [
 ]
 
 function getPowerlinePattern(game: Game, x: number, y: number) {
-  return getPattern(game, x, y, (ti) => ti.elevatedZone === ElevatedZoneEnum.PowerLine)
+  return getPattern(
+    game,
+    x,
+    y,
+    (ti) => ti.elevatedZone === ElevatedZoneEnum.PowerLine || ti.zone === ZoneEnum.CoalPowerPlant,
+  )
 }
 
 function getModelBuilderForPattern(pattern: number[][]) {
