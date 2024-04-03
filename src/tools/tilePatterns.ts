@@ -1,5 +1,5 @@
 import { Game } from "../model/game"
-import { ZoneEnum } from "../model/Landscape"
+import { TileInfo, ZoneEnum } from "../model/Landscape"
 
 export const tilePatterns = {
   northSouth: [
@@ -84,7 +84,7 @@ export const tilePatterns = {
   ],
 }
 
-export function getZonePattern(game: Game, x: number, y: number, zone: ZoneEnum) {
+export function getPattern(game: Game, x: number, y: number, isSet: (tileInfo: TileInfo) => Boolean) {
   const tileInfos = game.landscape.tileInfo
 
   const pattern = [
@@ -93,16 +93,16 @@ export function getZonePattern(game: Game, x: number, y: number, zone: ZoneEnum)
     [0, 0, 0],
   ]
   if (y > 0) {
-    pattern[0][1] = tileInfos[y - 1][x].zone === zone ? 1 : 0
+    pattern[0][1] = isSet(tileInfos[y - 1][x]) ? 1 : 0
   }
   if (y < game.landscape.size - 1) {
-    pattern[2][1] = tileInfos[y + 1][x].zone === zone ? 1 : 0
+    pattern[2][1] = isSet(tileInfos[y + 1][x]) ? 1 : 0
   }
   if (x > 0) {
-    pattern[1][0] = tileInfos[y][x - 1].zone === zone ? 1 : 0
+    pattern[1][0] = isSet(tileInfos[y][x - 1]) ? 1 : 0
   }
   if (x < game.landscape.size - 1) {
-    pattern[1][2] = tileInfos[y][x + 1].zone === zone ? 1 : 0
+    pattern[1][2] = isSet(tileInfos[y][x + 1]) ? 1 : 0
   }
   return pattern
 }

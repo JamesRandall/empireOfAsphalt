@@ -1,7 +1,7 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
-import { Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
+import { ElevatedZoneEnum, Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { Range } from "../model/range"
 
@@ -83,7 +83,13 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         heights[y][x] == heights[y][x + 1] &&
         heights[y][x] == heights[y + 1][x] &&
         heights[y][x] == heights[y + 1][x + 1]
-      row.push({ terrain: TerrainTypeEnum.Plain, zone: ZoneEnum.None, isFlat, textureIndex: null })
+      row.push({
+        terrain: TerrainTypeEnum.Plain,
+        zone: ZoneEnum.None,
+        elevatedZone: ElevatedZoneEnum.None,
+        isFlat,
+        textureIndex: null,
+      })
     }
     landscape.tileInfo.push(row)
   }

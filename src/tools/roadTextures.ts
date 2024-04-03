@@ -1,7 +1,7 @@
 import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { Game } from "../model/game"
 import { updateRendererTileInfo } from "../resources/landscape"
-import { getZonePattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
+import { getPattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
 
 const roadPatterns = [
   { type: LandscapeTexture.RoadNorthSouth, pattern: tilePatterns.northSouth },
@@ -23,7 +23,7 @@ const roadPatterns = [
 ]
 
 function getRoadPattern(game: Game, x: number, y: number) {
-  return getZonePattern(game, x, y, ZoneEnum.Road)
+  return getPattern(game, x, y, (ti) => ti.zone === ZoneEnum.Road)
 }
 
 function getTextureForPattern(pattern: number[][]) {

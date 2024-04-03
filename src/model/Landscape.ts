@@ -6,6 +6,11 @@ export enum TerrainTypeEnum {
   Grass = 1,
 }
 
+export enum ElevatedZoneEnum {
+  None = 0,
+  PowerLine = 1,
+}
+
 export enum ZoneEnum {
   None = 0,
   LightResidential = 1,
@@ -16,7 +21,6 @@ export enum ZoneEnum {
   DenseIndustrial = 6,
   Road = 7,
   CoalPowerPlant = 8,
-  PowerLine = 9,
 }
 
 // these are in the order of the landscape.png texture set
@@ -42,6 +46,7 @@ export enum LandscapeTexture {
 export interface TileInfo {
   terrain: TerrainTypeEnum
   zone: ZoneEnum
+  elevatedZone: ElevatedZoneEnum
   isFlat: boolean
   textureIndex: LandscapeTexture | null
   building?: Building

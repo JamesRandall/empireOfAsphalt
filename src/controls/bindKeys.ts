@@ -6,18 +6,22 @@ export function bindKeys(controlState: ControlState) {
     switch (e.key) {
       case "w":
       case "W":
+      case "ArrowUp":
         controlState.mapForwards = newState
         break
       case "s":
       case "S":
+      case "ArrowDown":
         controlState.mapBackwards = newState
         break
       case "a":
       case "A":
+      case "ArrowLeft":
         controlState.mapLeft = newState
         break
       case "d":
       case "D":
+      case "ArrowRight":
         controlState.mapRight = newState
         break
       case "e":

@@ -1,9 +1,9 @@
 import { addBuildingToGame, Game, removeBuildingFromGame } from "../model/game"
 import { Resources } from "../resources/resources"
-import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
-import { getZonePattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
+import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Landscape"
+import { getPattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
 import { updateRendererTileInfo } from "../resources/landscape"
-import { Building, createBuilding } from "../model/building"
+import { createBuilding } from "../model/building"
 
 const patterns = [
   { voxelModelBuilder: (r: Resources) => r.voxelModels.power.powerLineNorthSouth, pattern: tilePatterns.northSouth },
@@ -25,7 +25,7 @@ const patterns = [
 ]
 
 function getPowerlinePattern(game: Game, x: number, y: number) {
-  return getZonePattern(game, x, y, ZoneEnum.PowerLine)
+  return getPattern(game, x, y, (ti) => ti.elevatedZone === ElevatedZoneEnum.PowerLine)
 }
 
 function getModelBuilderForPattern(pattern: number[][]) {
@@ -47,13 +47,18 @@ export function applyPowerlineModels(
       if (x < 0 || x >= game.landscape.size || y < 0 || y >= game.landscape.size) continue
       // only have the one texture for now
       const tileInfo = game.landscape.tileInfo[y][x]
-      if (tileInfo.zone === ZoneEnum.PowerLine) {
+      if (tileInfo.elevatedZone === ElevatedZoneEnum.PowerLine) {
         if (tileInfo.building) {
           removeBuildingFromGame(game, tileInfo.building)
           tileInfo.building = undefined
         }
         const pattern = getPowerlinePattern(game, x, y)
-        const builder = getModelBuilderForPattern(pattern)
+        const builder =
+          tileInfo.zone === ZoneEnum.Road && tileInfo.textureIndex === LandscapeTexture.RoadNorthSouth
+            ? (r: Resources) => r.voxelModels.power.powerLineRoadEastWest
+            : tileInfo.zone === ZoneEnum.Road && tileInfo.textureIndex === LandscapeTexture.RoadEastWest
+              ? (r: Resources) => r.voxelModels.power.powerLineRoadNorthSouth
+              : getModelBuilderForPattern(pattern)
         if (builder) {
           const model = builder(resources)
           const building = createBuilding(model, 1, 1, x, y, model.voxelCount)

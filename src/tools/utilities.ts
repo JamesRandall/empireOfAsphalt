@@ -1,5 +1,5 @@
 import { Tool, ToolSelectionMode } from "../model/game"
-import { TileInfo, ZoneEnum } from "../model/Landscape"
+import { ElevatedZoneEnum, TileInfo, ZoneEnum } from "../model/Landscape"
 
 export function applyToolClearsSelection(tool: Tool) {
   switch (tool) {
@@ -62,7 +62,7 @@ export function toolIsAxisLocked(tool: Tool) {
   }
 }
 
-export function canApplyZoneToTile(tool: Tool, tileInfo: TileInfo) {
+export function canApplyToolToTile(tool: Tool, tileInfo: TileInfo) {
   switch (tool) {
     case Tool.LightCommercial:
     case Tool.LightIndustrial:
@@ -82,6 +82,15 @@ export function canApplyZoneToTile(tool: Tool, tileInfo: TileInfo) {
   }
 }
 
+export function isElevatedZoningTool(tool: Tool) {
+  switch (tool) {
+    case Tool.PowerLine:
+      return true
+    default:
+      return false
+  }
+}
+
 export function isZoningTool(tool: Tool) {
   switch (tool) {
     case Tool.LightCommercial:
@@ -95,7 +104,16 @@ export function isZoningTool(tool: Tool) {
     case Tool.CoalPowerPlant:
       return true
     default:
-      return true
+      return false
+  }
+}
+
+export function elevatedZoneForTool(tool: Tool) {
+  switch (tool) {
+    case Tool.PowerLine:
+      return ElevatedZoneEnum.PowerLine
+    default:
+      return ElevatedZoneEnum.None
   }
 }
 
@@ -117,8 +135,6 @@ export function zoneForTool(tool: Tool) {
       return ZoneEnum.Road
     case Tool.CoalPowerPlant:
       return ZoneEnum.CoalPowerPlant
-    case Tool.PowerLine:
-      return ZoneEnum.PowerLine
     default:
     case Tool.Dezone:
       return ZoneEnum.None

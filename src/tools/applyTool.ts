@@ -1,8 +1,8 @@
 import { addBuildingToGame, Game } from "../model/game"
 import { rectFromRange } from "../utilities"
-import { LandscapeTexture, ZoneEnum } from "../model/Landscape"
+import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { updateRendererTileInfo } from "../resources/landscape"
-import { canApplyZoneToTile, isZoningTool, zoneForTool } from "./utilities"
+import { canApplyToolToTile, elevatedZoneForTool, isElevatedZoningTool, isZoningTool, zoneForTool } from "./utilities"
 import { Resources } from "../resources/resources"
 import {
   blueprintFromTool,
@@ -16,6 +16,28 @@ import { applyPowerlineModels } from "./powerLineModels"
 export function applyTool(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   if (isZoningTool(game.gui.currentTool) && game.gui.selection !== null) {
     applyZoning(gl, game, resources)
+  } else if (isElevatedZoningTool(game.gui.currentTool) && game.gui.selection !== null) {
+    applyElevatedZoning(gl, game, resources)
+  }
+}
+
+function applyElevatedZoning(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
+  const newZone = elevatedZoneForTool(game.gui.currentTool)
+  const r = rectFromRange(game.gui.selection!)
+
+  for (let x = r.left; x <= r.right; x++) {
+    for (let y = r.top; y <= r.bottom; y++) {
+      if (canApplyToolToTile(game.gui.currentTool, game.landscape.tileInfo[y][x])) {
+        if (game.landscape.tileInfo[y][x].elevatedZone !== newZone) {
+          // TODO: delete buildings etc.
+        }
+        game.landscape.tileInfo[y][x].elevatedZone = newZone
+      }
+    }
+  }
+
+  if (newZone === ElevatedZoneEnum.PowerLine) {
+    applyPowerlineModels(gl, game, resources, r)
   }
 }
 
@@ -25,7 +47,7 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
 
   for (let x = r.left; x <= r.right; x++) {
     for (let y = r.top; y <= r.bottom; y++) {
-      if (canApplyZoneToTile(game.gui.currentTool, game.landscape.tileInfo[y][x])) {
+      if (canApplyToolToTile(game.gui.currentTool, game.landscape.tileInfo[y][x])) {
         if (game.landscape.tileInfo[y][x].zone !== newZone) {
           // TODO: delete buildings etc.
         }
@@ -37,8 +59,6 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
   // We have to apply the road textures after we've laid the road down as they impact each other and their neighbours
   if (newZone === ZoneEnum.Road) {
     applyRoadTextures(gl, game, r)
-  } else if (newZone === ZoneEnum.PowerLine) {
-    applyPowerlineModels(gl, game, resources, r)
   } else {
     const blueprint = blueprintFromTool(game.gui.currentTool)
     if (blueprint !== undefined) {
