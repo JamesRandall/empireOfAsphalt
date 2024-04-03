@@ -163,33 +163,37 @@ function createRenderingModels(voxels: SourceVoxel[]) {
   let colors: number[] = []
   let chunks: Chunk[] = []
 
-  let chunkCount = 0
-  voxels.forEach((voxel) => {
-    const offset = positions.length / 3
-    for (let pi = 0; pi < baseCubePositions.length; pi += 3) {
-      positions.push(baseCubePositions[pi] + voxel.x)
-      positions.push(baseCubePositions[pi + 1] + voxel.y)
-      positions.push(baseCubePositions[pi + 2] + voxel.z)
-    }
-    normals = [...normals, ...baseCubeNormals]
-    baseCubeIndices.forEach((vertexIndex) => indices.push(vertexIndex + offset))
-    for (let vi = 0; vi < baseCubePositions.length / 3; vi++) {
-      colors.push(voxel.color.r)
-      colors.push(voxel.color.g)
-      colors.push(voxel.color.b)
-      colors.push(1.0)
-    }
+  const isBlack = (v: SourceVoxel) => v.color.r === 0 && v.color.g === 0 && v.color.b === 0
 
-    chunkCount++
-    if (chunkCount > maxVoxelsPerChunk) {
-      chunkCount = 0
-      chunks.push({ positions, indices, normals, colors })
-      positions = []
-      indices = []
-      normals = []
-      colors = []
-    }
-  })
+  let chunkCount = 0
+  voxels
+    .filter((v) => !isBlack(v)) // we use completely black voxels as placemarkers - the volume is important as voxelbuilder will clip things otherwise
+    .forEach((voxel) => {
+      const offset = positions.length / 3
+      for (let pi = 0; pi < baseCubePositions.length; pi += 3) {
+        positions.push(baseCubePositions[pi] + voxel.x)
+        positions.push(baseCubePositions[pi + 1] + voxel.y)
+        positions.push(baseCubePositions[pi + 2] + voxel.z)
+      }
+      normals = [...normals, ...baseCubeNormals]
+      baseCubeIndices.forEach((vertexIndex) => indices.push(vertexIndex + offset))
+      for (let vi = 0; vi < baseCubePositions.length / 3; vi++) {
+        colors.push(voxel.color.r)
+        colors.push(voxel.color.g)
+        colors.push(voxel.color.b)
+        colors.push(1.0)
+      }
+
+      chunkCount++
+      if (chunkCount > maxVoxelsPerChunk) {
+        chunkCount = 0
+        chunks.push({ positions, indices, normals, colors })
+        positions = []
+        indices = []
+        normals = []
+        colors = []
+      }
+    })
   if (positions.length > 0) {
     chunks.push({ positions, indices, normals, colors })
   }
