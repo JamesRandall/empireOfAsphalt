@@ -63,6 +63,11 @@ export interface Game {
   buildingLight: {
     direction: vec3
   }
+  powerPulse: {
+    level: number
+    opacity: number
+  }
+
   landscape: Landscape
   buildings: Map<number, Building>
   selectedObjectId: number | null
@@ -110,6 +115,10 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     },
     buildingLight: {
       direction: vec3.fromValues(0, 300, 0),
+    },
+    powerPulse: {
+      level: 0.0,
+      opacity: 0.7,
     },
     landscape: landscape,
     buildings: new Map<number, Building>(),

@@ -3,7 +3,7 @@ import { Resources } from "../resources/resources"
 import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { getPattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
 import { updateRendererTileInfo } from "../resources/landscape"
-import { createBuilding } from "../model/building"
+import { blueprintForBuilding, BuildingType, createBuilding } from "../model/building"
 
 const patterns = [
   { voxelModelBuilder: (r: Resources) => r.voxelModels.power.powerLineNorthSouth, pattern: tilePatterns.northSouth },
@@ -47,6 +47,7 @@ export function applyPowerlineModels(
   resources: Resources,
   r: { top: number; left: number; bottom: number; right: number },
 ) {
+  const powerlineBlueprint = blueprintForBuilding(BuildingType.PowerLine)!
   for (let x = r.left - 1; x <= r.right + 1; x++) {
     for (let y = r.top - 1; y <= r.bottom + 1; y++) {
       if (x < 0 || x >= game.landscape.size || y < 0 || y >= game.landscape.size) continue
@@ -66,7 +67,7 @@ export function applyPowerlineModels(
               : getModelBuilderForPattern(pattern)
         if (builder) {
           const model = builder(resources)
-          const building = createBuilding(model, 1, 1, x, y, model.voxelCount)
+          const building = createBuilding(model, powerlineBlueprint, 1, 1, x, y, model.voxelCount)
           addBuildingToGame(game, building)
           tileInfo.building = building
         }

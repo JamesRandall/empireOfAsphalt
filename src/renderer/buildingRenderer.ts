@@ -57,8 +57,6 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
   const render = (projectionMatrix: mat4, game: Game) => {
     gl.enable(gl.CULL_FACE)
     gl.cullFace(gl.BACK)
-    //gl.blendFunc(gl.BLEND_SRC_ALPHA, gl.BLEND_SRC_ALPHA)
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE)
 
     gl.useProgram(programInfo.program)
     const lightPosition = game.buildingLight.direction
@@ -84,6 +82,12 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
 
       let voxelOffset = 0
 
+      if (building.blueprint.powerGenerated === 0 && !building.isPowered) {
+        gl.uniform1f(programInfo.uniformLocations.opacity, game.powerPulse.opacity)
+      } else {
+        gl.uniform1f(programInfo.uniformLocations.opacity, 1.0)
+      }
+
       building.model.renderingModels.forEach((chunk) => {
         const numberOfVoxelsInChunk = chunk.vertexCount / 36
         const vertexCount =
@@ -101,7 +105,7 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
         //  gl.uniform1f(programInfo.uniformLocations.opacity, 0.02)
         //  gl.drawElements(gl.TRIANGLES, chunk.vertexCount, type, offset)
         //}
-        gl.uniform1f(programInfo.uniformLocations.opacity, 1.0)
+
         voxelOffset += numberOfVoxelsInChunk
 
         if (vertexCount <= 0) return

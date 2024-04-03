@@ -89,6 +89,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         elevatedZone: ElevatedZoneEnum.None,
         isFlat,
         textureIndex: null,
+        isPowered: false,
       })
     }
     landscape.tileInfo.push(row)

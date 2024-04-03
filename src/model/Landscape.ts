@@ -50,6 +50,7 @@ export interface TileInfo {
   isFlat: boolean
   textureIndex: LandscapeTexture | null
   building?: Building
+  isPowered: Boolean
 }
 
 export interface Landscape {
