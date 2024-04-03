@@ -53,6 +53,7 @@ vec4 zoneColor(int zoneType, vec4 defaultColor) {
     const int denseCommercial = 4;
     const int lightIndustrial = 5;
     const int denseIndustrial = 6;
+    const int coalPowerPlant = 8;
 
     switch (zoneType) {
         case lightResidential: return vec4(128.0/255.0, 177.0/255.0, 121.0/255.0, 1.0);
@@ -61,19 +62,12 @@ vec4 zoneColor(int zoneType, vec4 defaultColor) {
         case denseCommercial: return vec4(36.0/255.0, 91.0/255.0, 209.0/255.0, 1.0);
         case lightIndustrial: return vec4(230.0/255.0, 229.0/255.0, 149.0/255.0, 1.0);
         case denseIndustrial: return vec4(216.0/255.0, 212.0/255.0, 72.0/255.0, 1.0);
+        case coalPowerPlant: return vec4(213.0/255.0, 146.0/255.0, 43.0/255.0, 1.0);
     }
     return defaultColor;
 }
 
 void main(void) {
-    const float zoneNone = 0.0;
-    const float zoneLightResidential = 1.0;
-    const float zoneDenseResidential = 2.0;
-    const float zoneLightCommercial = 3.0;
-    const float zoneDenseCommercial = 4.0;
-    const float zoneLightIndustrial = 5.0;
-    const float zoneDenseIndustrial = 6.0;
-    const float zoneRoad = 7.0;
     const int texturesAcross = 4;
     const int texturesDown = 4;
     const int textureSize = 128;

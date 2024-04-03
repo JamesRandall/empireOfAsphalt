@@ -14,9 +14,9 @@ export function testGui(state: Game): GuiElement {
       medium: constants.midGreen,
     },
     power: {
-      light: constants.lightRed,
-      dark: constants.darkRed,
-      medium: constants.midRed,
+      light: constants.lightOrange,
+      dark: constants.darkOrange,
+      medium: constants.midOrange,
     },
   }
 

@@ -70,6 +70,7 @@ export function canApplyZoneToTile(tool: Tool, tileInfo: TileInfo) {
     case Tool.DenseResidential:
     case Tool.DenseIndustrial:
     case Tool.DenseCommercial:
+    case Tool.CoalPowerPlant:
       return tileInfo.isFlat
     case Tool.Road:
     case Tool.Dezone:
@@ -90,6 +91,7 @@ export function isZoningTool(tool: Tool) {
     case Tool.DenseCommercial:
     case Tool.Road:
     case Tool.Dezone:
+    case Tool.CoalPowerPlant:
       return true
     default:
       return true

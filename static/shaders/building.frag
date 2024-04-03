@@ -6,6 +6,7 @@ in highp vec4 vColor;
 in highp vec3 vNormal;
 uniform vec3 uLightWorldPosition;
 out lowp vec4 outputColor;
+uniform float uOpacity;
 
 void main(void) {
     vec4 color = vColor;
@@ -16,4 +17,5 @@ void main(void) {
     outputColor = color;
     outputColor.rgb *= (light+0.6);
     outputColor = max(outputColor, minColor);
+    outputColor.a = uOpacity;
 }
