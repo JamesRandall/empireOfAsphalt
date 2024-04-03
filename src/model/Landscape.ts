@@ -1,4 +1,5 @@
 import { RenderingModel } from "../resources/models"
+import { Building } from "./building"
 
 export enum TerrainTypeEnum {
   Plain = 0,
@@ -15,7 +16,7 @@ export enum ZoneEnum {
   DenseIndustrial = 6,
   Road = 7,
   CoalPowerPlant = 8,
-  PowerLine,
+  PowerLine = 9,
 }
 
 // these are in the order of the landscape.png texture set
@@ -43,6 +44,7 @@ export interface TileInfo {
   zone: ZoneEnum
   isFlat: boolean
   textureIndex: LandscapeTexture | null
+  building?: Building
 }
 
 export interface Landscape {

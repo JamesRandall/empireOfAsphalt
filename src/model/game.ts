@@ -64,7 +64,7 @@ export interface Game {
     direction: vec3
   }
   landscape: Landscape
-  buildings: Building[]
+  buildings: Map<number, Building>
   selectedObjectId: number | null
   gui: {
     windows: {
@@ -112,7 +112,7 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       direction: vec3.fromValues(0, 300, 0),
     },
     landscape: landscape,
-    buildings: [],
+    buildings: new Map<number, Building>(),
     selectedObjectId: null,
     gui: {
       windows: {
@@ -124,4 +124,12 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       selection: null,
     },
   }
+}
+
+export function addBuildingToGame(game: Game, building: Building) {
+  game.buildings.set(building.buildingId, building)
+}
+
+export function removeBuildingFromGame(game: Game, building: Building) {
+  game.buildings.delete(building.buildingId)
 }

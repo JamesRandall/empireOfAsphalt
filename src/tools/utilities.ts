@@ -74,7 +74,8 @@ export function canApplyZoneToTile(tool: Tool, tileInfo: TileInfo) {
       return tileInfo.isFlat
     case Tool.Road:
     case Tool.Dezone:
-      // actually we can't road every kind of slope so we need to add that here
+    case Tool.PowerLine:
+      // actually we can't road and powerlines to every kind of slope so we need to add that here
       return true
     default:
       return false
@@ -116,6 +117,8 @@ export function zoneForTool(tool: Tool) {
       return ZoneEnum.Road
     case Tool.CoalPowerPlant:
       return ZoneEnum.CoalPowerPlant
+    case Tool.PowerLine:
+      return ZoneEnum.PowerLine
     default:
     case Tool.Dezone:
       return ZoneEnum.None

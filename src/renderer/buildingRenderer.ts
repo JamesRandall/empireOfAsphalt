@@ -63,6 +63,7 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
     gl.useProgram(programInfo.program)
     const lightPosition = game.buildingLight.direction
     game.buildings.forEach((building) => {
+      //for (const building of game.buildings.values()) {
       let worldMatrix = mat4.create()
       mat4.translate(worldMatrix, worldMatrix, [
         (building.position.x - game.landscape.size / 2) * sizes.tile - sizes.tile / 2,
@@ -82,6 +83,7 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
       })
 
       let voxelOffset = 0
+
       building.model.renderingModels.forEach((chunk) => {
         const numberOfVoxelsInChunk = chunk.vertexCount / 36
         const vertexCount =

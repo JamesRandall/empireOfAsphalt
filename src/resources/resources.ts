@@ -21,6 +21,17 @@ export interface Resources {
     }
     power: {
       coal: VoxelModel
+      powerLineCrossRoads: VoxelModel
+      powerLineEastT: VoxelModel
+      powerLineEastWest: VoxelModel
+      powerLineNorthEast: VoxelModel
+      powerLineNorthSouth: VoxelModel
+      powerLineNorthT: VoxelModel
+      powerLineNorthWest: VoxelModel
+      powerLineSouthEast: VoxelModel
+      powerLineSouthT: VoxelModel
+      powerLineSouthWest: VoxelModel
+      powerLineWestT: VoxelModel
     }
     misc: {
       sphere: VoxelModel
@@ -92,7 +103,22 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "windTurbine",
   ]
   const textureNames = ["grass", "dirt", "font", "noise", "landscape"]
-  const buildingNames = ["smallHouse1", "coalPower", "sphere"]
+  const buildingNames = [
+    "smallHouse1",
+    "coalPower",
+    "sphere",
+    "powerLineCrossRoads",
+    "powerLineEastT",
+    "powerLineEastWest",
+    "powerLineNorthEast",
+    "powerLineNorthSouth",
+    "powerLineNorthT",
+    "powerLineNorthWest",
+    "powerLineSouthEast",
+    "powerLineSouthT",
+    "powerLineSouthWest",
+    "powerLineWestT",
+  ]
 
   const loadedBuildings = await Promise.all(buildingNames.map((bn) => loadVoxelModel(gl, bn)))
   const buildingsMap = new Map<string, VoxelModel>(loadedBuildings.map((vm, i) => [buildingNames[i], vm]))
@@ -135,6 +161,17 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       },
       power: {
         coal: buildingsMap.get("coalPower")!,
+        powerLineCrossRoads: buildingsMap.get("powerLineCrossRoads")!,
+        powerLineEastT: buildingsMap.get("powerLineEastT")!,
+        powerLineEastWest: buildingsMap.get("powerLineEastWest")!,
+        powerLineNorthEast: buildingsMap.get("powerLineNorthEast")!,
+        powerLineNorthSouth: buildingsMap.get("powerLineNorthSouth")!,
+        powerLineNorthT: buildingsMap.get("powerLineNorthT")!,
+        powerLineNorthWest: buildingsMap.get("powerLineNorthWest")!,
+        powerLineSouthEast: buildingsMap.get("powerLineSouthEast")!,
+        powerLineSouthT: buildingsMap.get("powerLineSouthT")!,
+        powerLineSouthWest: buildingsMap.get("powerLineSouthWest")!,
+        powerLineWestT: buildingsMap.get("powerLineWestT")!,
       },
       misc: {
         sphere: buildingsMap.get("sphere")!,

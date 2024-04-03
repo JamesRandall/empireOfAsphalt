@@ -16,7 +16,7 @@ import { applyTool } from "../tools/applyTool"
 import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from "../tools/utilities"
 import { createBuildingRenderer } from "../renderer/buildingRenderer"
 import { gameLoop } from "../gameLoop/gameLoop"
-import { blueprintFromTool, buildingFromTool } from "../model/building"
+import { blueprintFromTool, createBuildingFromTool } from "../model/building"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
