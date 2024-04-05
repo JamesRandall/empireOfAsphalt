@@ -71,6 +71,7 @@ export interface Game {
   landscape: Landscape
   buildings: Map<number, Building>
   selectedObjectId: number | null
+  time: number
   gui: {
     windows: {
       zoning: WindowState
@@ -123,6 +124,7 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     landscape: landscape,
     buildings: new Map<number, Building>(),
     selectedObjectId: null,
+    time: 0.0,
     gui: {
       windows: {
         zoning: defaultWindowState(),
