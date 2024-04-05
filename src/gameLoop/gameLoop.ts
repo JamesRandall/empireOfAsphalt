@@ -2,6 +2,7 @@ import { Game } from "../model/game"
 import { constructBuildings } from "./construction"
 import { applyControlState } from "./applyControlState"
 import { glMatrix } from "gl-matrix"
+import { updatePowerGrid } from "./power"
 
 const radiansPerSecond = glMatrix.toRadian(90)
 
@@ -14,6 +15,7 @@ function updatePowerPulse(game: Game, timeDelta: number) {
 }
 
 export function gameLoop(game: Game, timeDelta: number) {
+  updatePowerGrid(game)
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
   constructBuildings(game, timeDelta)

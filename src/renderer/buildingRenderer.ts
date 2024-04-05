@@ -66,7 +66,9 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
       mat4.translate(worldMatrix, worldMatrix, [
         (building.position.x - game.landscape.size / 2) * sizes.tile - sizes.tile / 2,
         0,
-        (game.landscape.size / 2 - building.position.z) * sizes.tile - sizes.tile / 2,
+        (game.landscape.size / 2 - building.position.z) * sizes.tile -
+          sizes.tile / 2 -
+          sizes.tile * (building.blueprint.footprint.height - 1),
       ])
 
       const normalMatrix = mat4.create()
@@ -82,7 +84,7 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
 
       let voxelOffset = 0
 
-      if (building.blueprint.powerGenerated === 0 && !building.isPowered) {
+      if (building.blueprint.powerGenerated === 0 && building.isPoweredByBuildingId === null) {
         gl.uniform1f(programInfo.uniformLocations.opacity, game.powerPulse.opacity)
       } else {
         gl.uniform1f(programInfo.uniformLocations.opacity, 1.0)

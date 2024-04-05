@@ -62,7 +62,7 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
   } else {
     const blueprint = blueprintFromTool(game.gui.currentTool)
     if (blueprint !== undefined) {
-      const building = createBuildingFromBlueprint(resources, blueprint, { x: r.left, z: r.bottom })
+      const building = createBuildingFromBlueprint(resources, blueprint, { x: r.left, z: r.top })
       //building.numberOfVoxelsToDisplay = 0
       addBuildingToGame(game, building)
     }

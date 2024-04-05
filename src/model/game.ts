@@ -137,6 +137,11 @@ export function createGameWithLandscape(landscape: Landscape): Game {
 
 export function addBuildingToGame(game: Game, building: Building) {
   game.buildings.set(building.buildingId, building)
+  for (let z = building.position.z; z < building.position.z + building.blueprint.footprint.height; z++) {
+    for (let x = building.position.x; x < building.position.x + building.blueprint.footprint.width; x++) {
+      game.landscape.tileInfo[z][x].building = building
+    }
+  }
 }
 
 export function removeBuildingFromGame(game: Game, building: Building) {

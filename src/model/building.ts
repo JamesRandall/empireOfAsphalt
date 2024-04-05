@@ -31,7 +31,7 @@ export interface Building {
   }
   position: { x: number; z: number }
   numberOfVoxelsToDisplay: number
-  isPowered: Boolean
+  isPoweredByBuildingId: number | null // we track if a building is powered and if it is by which power station
   blueprint: Blueprint
 }
 
@@ -104,7 +104,7 @@ export function createBuildingFromBlueprint(
     footprint: { ...blueprint.footprint },
     position,
     numberOfVoxelsToDisplay: model.voxelCount,
-    isPowered: false,
+    isPoweredByBuildingId: null,
   } as Building
 }
 
@@ -123,7 +123,7 @@ export function createBuildingForZone(
     footprint: { width: size, height: size },
     position,
     numberOfVoxelsToDisplay: model.voxelCount,
-    isPowered: false,
+    isPoweredByBuildingId: null,
   } as Building
 }
 
@@ -143,6 +143,6 @@ export function createBuilding(
     footprint: { width, height },
     position: { x, z },
     numberOfVoxelsToDisplay,
-    isPowered: false,
+    isPoweredByBuildingId: null,
   } as Building
 }

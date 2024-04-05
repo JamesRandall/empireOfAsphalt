@@ -49,8 +49,8 @@ export interface TileInfo {
   elevatedZone: ElevatedZoneEnum
   isFlat: boolean
   textureIndex: LandscapeTexture | null
-  building?: Building
-  isPowered: Boolean
+  building: Building | null
+  isPoweredByBuildingId: number | null // we track if a building is powered and if it is by which power station
 }
 
 export interface Landscape {

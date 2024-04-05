@@ -56,7 +56,7 @@ export function applyPowerlineModels(
       if (tileInfo.elevatedZone === ElevatedZoneEnum.PowerLine) {
         if (tileInfo.building) {
           removeBuildingFromGame(game, tileInfo.building)
-          tileInfo.building = undefined
+          tileInfo.building = null
         }
         const pattern = getPowerlinePattern(game, x, y)
         const builder =
