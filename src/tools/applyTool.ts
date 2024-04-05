@@ -65,12 +65,15 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
       const building = createBuildingFromBlueprint(resources, blueprint, { x: r.left, z: r.top })
       //building.numberOfVoxelsToDisplay = 0
       addBuildingToGame(game, building)
+      // after we place a building we re-evaluate the orientation of the power line models as we might want to connect
+      // some to the building
+      applyPowerlineModels(gl, game, resources, {
+        top: r.top - 1,
+        left: r.left - 1,
+        bottom: r.bottom + 1,
+        right: r.right + 1,
+      })
     }
-    // this was just in for test purposes
-    /*else if (newZone === ZoneEnum.LightResidential) {
-      const building = createBuilding(resources.voxelModels.residential.house, 1, 1, r.left, r.top, 0)
-      addBuildingToGame(game, building)
-    }*/
     updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
   }
 }

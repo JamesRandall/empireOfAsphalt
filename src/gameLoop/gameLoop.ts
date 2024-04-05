@@ -15,7 +15,7 @@ function updatePowerPulse(game: Game, timeDelta: number) {
 }
 
 export function gameLoop(game: Game, timeDelta: number) {
-  updatePowerGrid(game)
+  updatePowerGrid(game) // we won't need to run this every turn
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
   constructBuildings(game, timeDelta)
