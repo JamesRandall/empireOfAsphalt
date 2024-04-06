@@ -6,10 +6,6 @@ import { Shape } from "./Shape"
 export class Rect extends Shape {
   renderControl(context: GuiRenderContext) {
     super.renderControl(context)
-    context.primitives.rect(
-      [this.outerFrame.left, this.outerFrame.top],
-      [this.outerFrame.width, this.outerFrame.height],
-      this.fill,
-    )
+    context.primitives.rect(context.frame.topLeft, context.frame.size, this.fill)
   }
 }

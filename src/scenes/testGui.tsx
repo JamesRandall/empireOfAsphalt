@@ -341,7 +341,7 @@ export function testGui(state: Game): GuiElement {
         isVisible={state.gui.windows.info.isVisible}
         left={state.gui.windows.info.left}
         top={state.gui.windows.info.top}
-        width={bs * 3 + spacerWidth * 2}
+        width={bs * 3 + spacerWidth}
         height={bs + constants.window.titleBarHeight}
         padding={0}
         lightChrome={colors.info.light}
@@ -379,7 +379,7 @@ export function testGui(state: Game): GuiElement {
           >
             <image name="whiteZones" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
-          <rect width={spacerWidth * 2} height={bs} fill={colors.info.medium} />
+          <rect width={spacerWidth} height={bs} fill={colors.info.medium} />
           <button
             padding={bp}
             width={bs}
