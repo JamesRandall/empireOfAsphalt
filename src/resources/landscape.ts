@@ -88,7 +88,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         heights[y][x] == heights[y + 1][x] &&
         heights[y][x] == heights[y + 1][x + 1]
       row.push({
-        terrain: TerrainTypeEnum.Plain,
+        terrain: x >= 130 && x <= 140 && y >= 130 && y <= 140 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
         zone: ZoneEnum.None,
         elevatedZone: ElevatedZoneEnum.None,
         isFlat,

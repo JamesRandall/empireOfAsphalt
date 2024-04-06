@@ -4,6 +4,7 @@ import { Building } from "./building"
 export enum TerrainTypeEnum {
   Plain = 0,
   Grass = 1,
+  Water = 2,
 }
 
 export enum ElevatedZoneEnum {

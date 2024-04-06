@@ -42,6 +42,10 @@ const int road = 7;
 const int coalPowerPlant = 8;
 const int powerLine = 1;
 
+const int terrainPlain = 0;
+const int terrainGrass = 1;
+const int terrainWater = 2;
+
 float modI(float a,float b) {
     float m=a-floor((a+0.5)/b)*b;
     return floor(m+0.5);
@@ -63,11 +67,15 @@ bool requiresPower(int zoneType, int elevatedZoneType) {
     return elevatedZoneType != 0 || (zoneType != 0 && zoneType != road);
 }
 
-vec4 tileColor(int zoneType, int elevatedZoneType, vec4 defaultColor) {
+vec4 tileColor(int terrainType, int zoneType, int elevatedZoneType, vec4 defaultColor) {
     bool showPower = (uLayerConfiguration & 1) == 1;
     bool showBuildings = (uLayerConfiguration & 2) == 2;
     bool showZones = (uLayerConfiguration & 4) == 4;
     bool isPowered = vTileInfo.a > 0.0;
+
+    if (terrainType == terrainWater) {
+        return vec4(0.0, 0.0, 1.0, 0.5);
+    }
 
     if (showPower) {
         if (isPowered) {
@@ -131,12 +139,12 @@ void main(void) {
             color = tex;
         }
         else {
-            color = tileColor(int(vTileInfo.g), int(vAdditionalTileInfo.g), vColor);
+            color = tileColor(int(vTileInfo.r), int(vTileInfo.g), int(vAdditionalTileInfo.g), vColor);
         }
     }
 
     float borderSize = lineThickness/uZoomedTileSize;
-    if ((vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) && (vAdditionalTileInfo.r == 0.0 || tex.a == 0.0)) {
+    if (int(vTileInfo.r) != terrainWater && (vTextureCoord.x < borderSize || vTextureCoord.y < borderSize || vTextureCoord.x > (1.0-borderSize) || vTextureCoord.y > (1.0-borderSize)) && (vAdditionalTileInfo.r == 0.0 || tex.a == 0.0)) {
         outputColor = lineColor;
     }
     else {
