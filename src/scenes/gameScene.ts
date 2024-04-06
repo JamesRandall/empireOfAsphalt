@@ -17,18 +17,21 @@ import { applyToolClearsSelection, toolIsAxisLocked, toolSelectionMode } from ".
 import { createBuildingRenderer } from "../renderer/buildingRenderer"
 import { gameLoop } from "../gameLoop/gameLoop"
 import { blueprintFromTool, createBuildingFromTool } from "../model/building"
+import { createWaterRenderer } from "../renderer/waterRenderer"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
   let buildingRenderer = createBuildingRenderer(gl, resources)
+  let waterRenderer = createWaterRenderer(gl, resources)
 
   let objectPickerRenderer = createObjectPickerRenderer(gl, resources, (projectionMatrix, game) => {
     tileRenderer.renderObjectPicker(projectionMatrix, game)
     gui.renderObjectPicker()
   })
-  let rootRenderer = createRootRenderer(gl, resources, (game, timeDelta) => {
-    tileRenderer.render(game, timeDelta)
-    buildingRenderer.render(game, timeDelta)
+  let rootRenderer = createRootRenderer(gl, resources, (projectionMatrix, game, timeDelta) => {
+    tileRenderer.render(projectionMatrix, game)
+    waterRenderer.render(projectionMatrix, game, timeDelta)
+    buildingRenderer.render(projectionMatrix, game)
   })
 
   const heightmap = generateHeightMap(256)
@@ -63,14 +66,16 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
     resize: () => {
       rootRenderer.dispose()
       tileRenderer.dispose()
+      waterRenderer.dispose()
       buildingRenderer.dispose()
       objectPickerRenderer.dispose()
       gui.dispose()
       tileRenderer = createLandscapeRenderer(gl, resources)
       buildingRenderer = createBuildingRenderer(gl, resources)
-      rootRenderer = createRootRenderer(gl, resources, (game, timeDelta) => {
-        tileRenderer.render(game, timeDelta)
-        buildingRenderer.render(game, timeDelta)
+      rootRenderer = createRootRenderer(gl, resources, (projectionMatrix, game, timeDelta) => {
+        tileRenderer.render(projectionMatrix, game)
+        waterRenderer.render(projectionMatrix, game, timeDelta)
+        buildingRenderer.render(projectionMatrix, game)
       })
       gui = createRuntime(
         gl,

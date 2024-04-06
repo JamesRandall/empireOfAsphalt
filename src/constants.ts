@@ -7,7 +7,7 @@ export const map = {
   maxHeight: 8,
   smoothingIterations: 3,
   unitRenderHeight: sizes.tile / 2,
-  maxZoom: 15.0,
+  maxZoom: 30.0,
   minZoom: 0.1,
 }
 

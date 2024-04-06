@@ -51,6 +51,7 @@ export interface Resources {
     directional: ShaderSource
     objectPicking: ShaderSource
     building: ShaderSource
+    water: ShaderSource
   }
   soundEffects: SoundEffects
 }
@@ -77,6 +78,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "directional",
     "objectPicking",
     "building",
+    "water",
   ]
   const guiTextureNames = [
     "road",
@@ -163,6 +165,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
       directional: namedShaders.get("directional")!,
       objectPicking: namedShaders.get("objectPicking")!,
       building: namedShaders.get("building")!,
+      water: namedShaders.get("water")!,
     },
     soundEffects: await createSoundEffects(),
     voxelModels: {

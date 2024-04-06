@@ -1,5 +1,6 @@
 import { RenderingModel } from "../resources/models"
 import { Building } from "./building"
+import { Water } from "../resources/water"
 
 export enum TerrainTypeEnum {
   Plain = 0,
@@ -65,4 +66,5 @@ export interface Landscape {
     fromY: number
     model: RenderingModel
   }[]
+  water: Water
 }

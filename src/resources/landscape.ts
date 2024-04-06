@@ -4,6 +4,7 @@ import { RenderingModel } from "./models"
 import { ElevatedZoneEnum, Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { Range } from "../model/range"
+import { createWater } from "./water"
 
 const chunkSize = 32
 
@@ -79,6 +80,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     chunkSize: chunkSize,
     chunks: [],
     size: heightMapSize,
+    water: { chunks: [] },
   }
   for (let y = 0; y < heightMapSize - 1; y++) {
     const row: TileInfo[] = []
@@ -88,7 +90,8 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         heights[y][x] == heights[y + 1][x] &&
         heights[y][x] == heights[y + 1][x + 1]
       row.push({
-        terrain: x >= 130 && x <= 140 && y >= 130 && y <= 140 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        terrain: x >= 126 && x <= 130 && y >= 120 && y <= 151 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        //terrain: x >= 40 && x <= 50 && y >= 40 && y <= 50 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
         zone: ZoneEnum.None,
         elevatedZone: ElevatedZoneEnum.None,
         isFlat,
@@ -112,6 +115,9 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       landscape.chunks.push(chunk)
     }
   }
+
+  landscape.water = createWater(gl, landscape)
+
   return landscape
 }
 
@@ -150,6 +156,8 @@ function createLandscapeChunk(
 
     const top = -sizes.tile * y - topExtent
     for (let x = fromX; x <= toX; x++) {
+      const tileInfo = rowZones[x]
+      if (tileInfo.terrain === TerrainTypeEnum.Water) continue
       const objectId = y * heightMapSize + x
       const objectIdColor = objectIdToVec4(objectId)
       const left = sizes.tile * x - leftExtent
@@ -161,7 +169,7 @@ function createLandscapeChunk(
         vec3.fromValues(half + left, rowBottomHeights[x + 1], -half + top), //br
         vec3.fromValues(-half + left, rowBottomHeights[x], -half + top), // bl
       ]
-      const tileInfo = rowZones[x]
+
       // I can imagine us eventually having enough info that we have to bit twiddle it in
       const [vectorTileInfo, vectorAdditionalTileInfo] = vecFromTileInfo(tileInfo)
 
