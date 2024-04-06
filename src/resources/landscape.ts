@@ -17,8 +17,13 @@ function getChunksForRange(landscape: Landscape, range: Range) {
 function vecFromTileInfo(tileInfo: TileInfo) {
   // I can imagine us eventually having enough info that we have to bit twiddle it in
   return [
-    vec4.fromValues(tileInfo.terrain, tileInfo.zone, tileInfo.isFlat ? 1.0 : 0.0, 0.0),
-    vec4.fromValues((tileInfo.textureIndex ?? -1.0) + 1.0, 0.0, 0.0, 0.0),
+    vec4.fromValues(
+      tileInfo.terrain,
+      tileInfo.zone,
+      tileInfo.isFlat ? 1.0 : 0.0,
+      tileInfo.isPoweredByBuildingId !== null ? 1.0 : 0.0,
+    ),
+    vec4.fromValues((tileInfo.textureIndex ?? -1.0) + 1.0, tileInfo.elevatedZone, 0.0, 0.0),
   ]
 }
 
@@ -77,7 +82,6 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
   }
   for (let y = 0; y < heightMapSize - 1; y++) {
     const row: TileInfo[] = []
-    const heightRow = heights[y]
     for (let x = 0; x < heightMapSize - 1; x++) {
       const isFlat =
         heights[y][x] == heights[y][x + 1] &&
@@ -90,6 +94,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         isFlat,
         textureIndex: null,
         isPoweredByBuildingId: null,
+        wasPoweredByBuildingId: null,
         building: null,
       })
     }
@@ -132,11 +137,7 @@ function createLandscapeChunk(
 
   const half = sizes.tile / 2
   const faceIndices = [0, 1, 2, 3, 4, 5] //[3, 0, 1, 3, 1, 2]
-  const grass = vec4.fromValues(0, 0.8, 0, 1)
   const dirt = vec4.fromValues(152.0 / 255.0, 132.0 / 255.0, 68.0 / 255.0, 1.0)
-  const water = vec4.fromValues(0, 0, 1, 1)
-  const desert = vec4.fromValues(1, 1, 0, 1)
-  const fire = vec4.fromValues(1, 0, 0, 1)
 
   const leftExtent = (sizes.tile * heights[0].length) / 2
   const topExtent = (-sizes.tile * heights[0].length) / 2

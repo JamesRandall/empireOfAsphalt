@@ -11,8 +11,10 @@ in highp vec4 vTileId;
 //  r - the terrain type (TerrainTypeEnum)
 //  g - the zone type (ZoneEnum)
 //  b - is flat, > 0 = flat, 0 == hilly
+//  a - is powered
 in highp vec4 vTileInfo;
 // r - the index of the texture (we will use this to pick a slice out of a tileset texture)
+// g - the elevated zone type
 in highp vec4 vAdditionalTileInfo;
 
 uniform vec3 uLightWorldPosition;
@@ -26,8 +28,19 @@ uniform int uRangeBottom;
 uniform int uMapSize;
 uniform bool uAllowRangeOnSloped;
 uniform sampler2D uTextureSampler;
+uniform int uLayerConfiguration;
 
 out lowp vec4 outputColor;
+
+const int lightResidential = 1;
+const int denseResidential = 2;
+const int lightCommercial = 3;
+const int denseCommercial = 4;
+const int lightIndustrial = 5;
+const int denseIndustrial = 6;
+const int road = 7;
+const int coalPowerPlant = 8;
+const int powerLine = 1;
 
 float modI(float a,float b) {
     float m=a-floor((a+0.5)/b)*b;
@@ -46,24 +59,42 @@ int getYFromObjectId(int objectId) {
     return objectId / uMapSize;
 }
 
-vec4 zoneColor(int zoneType, vec4 defaultColor) {
-    const int lightResidential = 1;
-    const int denseResidential = 2;
-    const int lightCommercial = 3;
-    const int denseCommercial = 4;
-    const int lightIndustrial = 5;
-    const int denseIndustrial = 6;
-    const int coalPowerPlant = 8;
+bool requiresPower(int zoneType, int elevatedZoneType) {
+    return elevatedZoneType != 0 || (zoneType != 0 && zoneType != road);
+}
 
-    switch (zoneType) {
-        case lightResidential: return vec4(128.0/255.0, 177.0/255.0, 121.0/255.0, 1.0);
-        case denseResidential: return vec4(33.0/255.0, 179.0/255.0, 13.0/255.0, 1.0);
-        case lightCommercial: return vec4(119.0/255.0, 150.0/255.0, 218.0/255.0, 1.0);
-        case denseCommercial: return vec4(36.0/255.0, 91.0/255.0, 209.0/255.0, 1.0);
-        case lightIndustrial: return vec4(230.0/255.0, 229.0/255.0, 149.0/255.0, 1.0);
-        case denseIndustrial: return vec4(216.0/255.0, 212.0/255.0, 72.0/255.0, 1.0);
-        case coalPowerPlant: return vec4(213.0/255.0, 146.0/255.0, 43.0/255.0, 1.0);
+vec4 tileColor(int zoneType, int elevatedZoneType, vec4 defaultColor) {
+    bool showPower = (uLayerConfiguration & 1) == 1;
+    bool showBuildings = (uLayerConfiguration & 2) == 2;
+    bool showZones = (uLayerConfiguration & 4) == 4;
+    bool isPowered = vTileInfo.a > 0.0;
+
+    if (showPower) {
+        if (isPowered) {
+            return vec4(213.0/255.0, 146.0/255.0, 43.0/255.0, 1.0);
+        }
+        else if (requiresPower(zoneType, elevatedZoneType)) {
+            return vec4(143.0/255.0, 86.0/255.0, 0.0, 1.0);
+        }
+
+        return defaultColor;
     }
+
+    if (showZones) {
+        if (!showBuildings && elevatedZoneType == powerLine) {
+            return vec4(213.0/255.0, 146.0/255.0, 43.0/255.0, 1.0);
+        }
+        switch (zoneType) {
+            case lightResidential: return vec4(128.0/255.0, 177.0/255.0, 121.0/255.0, 1.0);
+            case denseResidential: return vec4(33.0/255.0, 179.0/255.0, 13.0/255.0, 1.0);
+            case lightCommercial: return vec4(119.0/255.0, 150.0/255.0, 218.0/255.0, 1.0);
+            case denseCommercial: return vec4(36.0/255.0, 91.0/255.0, 209.0/255.0, 1.0);
+            case lightIndustrial: return vec4(230.0/255.0, 229.0/255.0, 149.0/255.0, 1.0);
+            case denseIndustrial: return vec4(216.0/255.0, 212.0/255.0, 72.0/255.0, 1.0);
+            case coalPowerPlant: return vec4(213.0/255.0, 146.0/255.0, 43.0/255.0, 1.0);
+        }
+    }
+
     return defaultColor;
 }
 
@@ -73,6 +104,7 @@ void main(void) {
     const int textureSize = 128;
     const float textureScaleX = 1.0 / float(texturesAcross);
     const float textureScaleY = 1.0 / float(texturesDown);
+
     int textureIndex = int(vAdditionalTileInfo.r) - 1;
     float textureRow = float(textureIndex / texturesAcross);
     float textureColumn = modI(float(textureIndex), float(texturesAcross));
@@ -99,7 +131,7 @@ void main(void) {
             color = tex;
         }
         else {
-            color = zoneColor(int(vTileInfo.g), vColor);
+            color = tileColor(int(vTileInfo.g), int(vAdditionalTileInfo.g), vColor);
         }
     }
 

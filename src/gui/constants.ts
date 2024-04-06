@@ -9,6 +9,10 @@ function gray(g: number, a: number = 255.0) {
 }
 
 export const constants = {
+  lightDarkChrome: 0x666666ff,
+  midDarkChrome: 0x333333ff,
+  darkDarkChrome: 0x000000ff,
+
   lightChrome: 0xa8a8a8ff,
   midChrome: 0x848484ff,
   darkChrome: 0x606060ff,

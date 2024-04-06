@@ -2,10 +2,14 @@ import { compileShaderProgram2 } from "./coregl/shader"
 import { mat4 } from "gl-matrix"
 import { setCommonAttributes, setViewUniformLocations } from "./coregl/programInfo"
 import { Resources } from "../resources/resources"
-import { Game } from "../model/game"
+import { Game, ViewLayers } from "../model/game"
 import { sizes } from "../constants"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { toolAllowsSlopedSelection } from "../tools/utilities"
+
+function packLayerConfiguration(layers: ViewLayers) {
+  return (layers.power ? 1 : 0) + (layers.buildings ? 2 : 0) + (layers.zones ? 4 : 0)
+}
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.directional)
@@ -41,6 +45,7 @@ function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
       uRangeBottom: gl.getUniformLocation(shaderProgram, "uRangeBottom"),
       uAllowRangeOnSloped: gl.getUniformLocation(shaderProgram, "uAllowRangeOnSloped"),
       textureSampler: gl.getUniformLocation(shaderProgram, "uTextureSampler")!,
+      uLayerConfiguration: gl.getUniformLocation(shaderProgram, "uLayerConfiguration")!,
     },
   }
 }
@@ -111,10 +116,10 @@ export function createLandscapeRenderer(gl: WebGL2RenderingContext, resources: R
       programInfo.uniformLocations.uAllowRangeOnSloped,
       toolAllowsSlopedSelection(game.gui.currentTool) ? 1 : 0,
     )
-
     gl.uniform4fv(programInfo.uniformLocations.uSelectedTileId, selectedObjectId)
     gl.uniform1f(programInfo.uniformLocations.zoomedTileSize, sizes.tile * 1.5)
     gl.uniform4fv(programInfo.uniformLocations.lineColorPosition, [120.0 / 255.0, 92.0 / 255.0, 40.0 / 255.0, 1.0])
+    gl.uniform1i(programInfo.uniformLocations.uLayerConfiguration, packLayerConfiguration(game.gui.layers))
 
     game.landscape.chunks.forEach((chunk) => {
       setCommonAttributes(gl, chunk.model, programInfo)

@@ -51,6 +51,7 @@ export interface TileInfo {
   textureIndex: LandscapeTexture | null
   building: Building | null
   isPoweredByBuildingId: number | null // we track if a building is powered and if it is by which power station
+  wasPoweredByBuildingId: number | null // we track if the building was powered on the previous update as this allows us to optimise the renderer updates
 }
 
 export interface Landscape {

@@ -188,8 +188,6 @@ export abstract class GuiElement {
     )
 
     this.layoutChildren(context)
-
-    //this._layoutRequired = false
   }
 
   protected calculateInnerFrame() {

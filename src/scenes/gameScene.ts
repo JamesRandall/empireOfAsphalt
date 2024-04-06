@@ -98,7 +98,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
       deltaTime = now - then
       then = now
 
-      gameLoop(game, deltaTime)
+      gameLoop(gl, game, deltaTime)
       const guiHandledInteraction = gui.applyControlState(
         game.controlState.current,
         deltaTime,

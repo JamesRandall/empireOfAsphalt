@@ -103,6 +103,12 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "nuclearPowerPlant",
     "solarPowerPlant",
     "windTurbine",
+    "info",
+    "layers",
+    "whiteLayers",
+    "whiteBuildings",
+    "whiteElectric",
+    "whiteZones",
   ]
   const textureNames = ["grass", "dirt", "font", "noise", "landscape"]
   const buildingNames = [

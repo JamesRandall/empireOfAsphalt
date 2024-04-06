@@ -3,6 +3,7 @@ import { constructBuildings } from "./construction"
 import { applyControlState } from "./applyControlState"
 import { glMatrix } from "gl-matrix"
 import { updatePowerGrid } from "./power"
+import { applyTime } from "./time"
 
 const radiansPerSecond = glMatrix.toRadian(90)
 
@@ -14,8 +15,10 @@ function updatePowerPulse(game: Game, timeDelta: number) {
   game.powerPulse.opacity = ((Math.sin(game.powerPulse.level) + 1) / 2) * 0.4 + 0.6
 }
 
-export function gameLoop(game: Game, timeDelta: number) {
-  updatePowerGrid(game) // we won't need to run this every turn
+export function gameLoop(gl: WebGL2RenderingContext, game: Game, timeDelta: number) {
+  applyTime(game, timeDelta)
+
+  updatePowerGrid(gl, game) // we won't need to run this every turn
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
   constructBuildings(game, timeDelta)

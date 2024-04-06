@@ -18,7 +18,14 @@ export function testGui(state: Game): GuiElement {
       dark: constants.darkOrange,
       medium: constants.midOrange,
     },
+    info: {
+      light: constants.lightDarkChrome,
+      dark: constants.darkDarkChrome,
+      medium: constants.midDarkChrome,
+    },
   }
+
+  const spacerWidth = 4
 
   const openBuildWindow = (action: () => void) => {
     state.gui.windows.zoning.isVisible.value = false
@@ -40,7 +47,7 @@ export function testGui(state: Game): GuiElement {
         <button padding={bp} width={bs} height={bs}>
           <image name="doublespeed" sizeToFitParent={SizeToFit.WidthAndHeight} />
         </button>
-        <rect width={4} height={bs} fill={0xaa000033} />
+        <rect width={spacerWidth} height={bs} fill={0xaa000033} />
         <button
           padding={bp}
           onClick={() =>
@@ -88,6 +95,15 @@ export function testGui(state: Game): GuiElement {
           height={bs}
         >
           <image name="power" sizeToFitParent={SizeToFit.WidthAndHeight} />
+        </button>
+        <rect width={4} height={bs} fill={0xaa000033} />
+        <button
+          padding={bp}
+          onClick={() => (state.gui.windows.info.isVisible.value = !state.gui.windows.info.isVisible.value)}
+          width={bs}
+          height={bs}
+        >
+          <image name="layers" sizeToFitParent={SizeToFit.WidthAndHeight} />
         </button>
       </hlayout>
       <window
@@ -317,6 +333,64 @@ export function testGui(state: Game): GuiElement {
             isSelected={() => state.gui.currentTool === Tool.WindTurbine}
           >
             <image name="windTurbine" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+        </hlayout>
+      </window>
+      <window
+        title="Overlays"
+        isVisible={state.gui.windows.info.isVisible}
+        left={state.gui.windows.info.left}
+        top={state.gui.windows.info.top}
+        width={bs * 3 + spacerWidth * 2}
+        height={bs + constants.window.titleBarHeight}
+        padding={0}
+        lightChrome={colors.info.light}
+        midChrome={colors.info.medium}
+        darkChrome={colors.info.dark}
+      >
+        <hlayout horizontalAlignment={HorizontalAlignment.Left} sizeToFitParent={SizeToFit.Width}>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.info.light}
+            midChrome={colors.info.medium}
+            darkChrome={colors.info.dark}
+            onClick={() => {
+              state.gui.layers.power = true
+              state.gui.layers.zones = false
+            }}
+            isSelected={() => state.gui.layers.power}
+          >
+            <image name="whiteElectric" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.info.light}
+            midChrome={colors.info.medium}
+            darkChrome={colors.info.dark}
+            onClick={() => {
+              state.gui.layers.zones = true
+              state.gui.layers.power = false
+            }}
+            isSelected={() => state.gui.layers.zones}
+          >
+            <image name="whiteZones" sizeToFitParent={SizeToFit.WidthAndHeight} />
+          </button>
+          <rect width={spacerWidth * 2} height={bs} fill={colors.info.medium} />
+          <button
+            padding={bp}
+            width={bs}
+            height={bs}
+            lightChrome={colors.info.light}
+            midChrome={colors.info.medium}
+            darkChrome={colors.info.dark}
+            onClick={() => (state.gui.layers.buildings = !state.gui.layers.buildings)}
+            isSelected={() => state.gui.layers.buildings}
+          >
+            <image name="whiteBuildings" sizeToFitParent={SizeToFit.WidthAndHeight} />
           </button>
         </hlayout>
       </window>

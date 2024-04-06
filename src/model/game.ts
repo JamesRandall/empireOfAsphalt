@@ -45,6 +45,12 @@ export interface Position {
   y: number
 }
 
+export interface ViewLayers {
+  power: boolean
+  buildings: boolean
+  zones: boolean
+}
+
 export interface Game {
   controlState: {
     current: ControlState
@@ -71,13 +77,19 @@ export interface Game {
   landscape: Landscape
   buildings: Map<number, Building>
   selectedObjectId: number | null
-  time: number
+  time: {
+    clock: number
+    lastZoneUpdateAt: number
+    lastPowerGridUpdateAt: number
+  }
   gui: {
     windows: {
       zoning: WindowState
       bulldozer: WindowState
       power: WindowState
+      info: WindowState
     }
+    layers: ViewLayers
     currentTool: Tool
     selection: Range | null
   }
@@ -124,15 +136,25 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     landscape: landscape,
     buildings: new Map<number, Building>(),
     selectedObjectId: null,
-    time: 0.0,
+    time: {
+      clock: 0.0,
+      lastPowerGridUpdateAt: 0.0,
+      lastZoneUpdateAt: 0.0,
+    },
     gui: {
       windows: {
         zoning: defaultWindowState(),
         bulldozer: defaultWindowState(),
         power: defaultWindowState(),
+        info: defaultWindowState(),
       },
       currentTool: Tool.None,
       selection: null,
+      layers: {
+        power: false,
+        buildings: true,
+        zones: true,
+      },
     },
   }
 }

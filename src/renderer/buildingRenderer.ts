@@ -55,6 +55,8 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
 
   const dispose = () => {}
   const render = (projectionMatrix: mat4, game: Game) => {
+    if (!game.gui.layers.buildings) return
+
     gl.enable(gl.CULL_FACE)
     gl.cullFace(gl.BACK)
 

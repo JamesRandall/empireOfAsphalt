@@ -2,10 +2,12 @@ import { Game } from "../model/game"
 import { ElevatedZoneEnum, Landscape, ZoneEnum } from "../model/Landscape"
 import { Building } from "../model/building"
 import { Stack } from "../model/stack"
+import { updateRendererTileInfo } from "../resources/landscape"
 
 const clearPoweredStatus = (landscape: Landscape) => {
   landscape.tileInfo.forEach((row) =>
     row.forEach((ti) => {
+      ti.wasPoweredByBuildingId = ti.isPoweredByBuildingId
       ti.isPoweredByBuildingId = null
       if (ti.building !== null) ti.building.isPoweredByBuildingId = null
     }),
@@ -24,7 +26,7 @@ const isTileConductive = (landscape: Landscape, x: number, z: number) => {
     case ZoneEnum.None:
       return false
     default:
-      return ti.building !== undefined
+      return ti.building !== null
   }
 }
 
@@ -101,7 +103,29 @@ const walkPowerGrid = (landscape: Landscape, powerStation: Building) => {
   return consumedPower
 }
 
-export function updatePowerGrid(game: Game) {
+function updateRenderer(gl: WebGL2RenderingContext, landscape: Landscape) {
+  let minZ = landscape.size
+  let minX = landscape.size
+  let maxZ = -1
+  let maxX = -1
+  for (let z = 0; z < landscape.size - 1; z++) {
+    for (let x = 0; x < landscape.size - 1; x++) {
+      const ti = landscape.tileInfo[z][x]
+      if (!ti) debugger
+      if (ti.wasPoweredByBuildingId !== ti.isPoweredByBuildingId) {
+        minZ = Math.min(z, minZ)
+        minX = Math.min(x, minX)
+        maxZ = Math.max(z, maxZ)
+        maxX = Math.max(x, maxX)
+      }
+    }
+  }
+  if (maxZ !== -1) {
+    updateRendererTileInfo(gl, landscape, { start: { x: minX, y: minZ }, end: { x: maxX, y: maxZ } })
+  }
+}
+
+export function updatePowerGrid(gl: WebGL2RenderingContext, game: Game) {
   clearPoweredStatus(game.landscape)
   const powerStations = getPowerStations(game.buildings)
   const totalPowerAvailable = powerStations.reduce((v, ps) => v + ps.blueprint.powerGenerated, 0)
@@ -109,4 +133,5 @@ export function updatePowerGrid(game: Game) {
     (remaining, powerStation) => remaining - walkPowerGrid(game.landscape, powerStation),
     totalPowerAvailable,
   )
+  updateRenderer(gl, game.landscape)
 }
