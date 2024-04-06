@@ -72,6 +72,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
       gui.dispose()
       tileRenderer = createLandscapeRenderer(gl, resources)
       buildingRenderer = createBuildingRenderer(gl, resources)
+      waterRenderer = createWaterRenderer(gl, resources)
       rootRenderer = createRootRenderer(gl, resources, (projectionMatrix, game, timeDelta) => {
         tileRenderer.render(projectionMatrix, game)
         waterRenderer.render(projectionMatrix, game, timeDelta)

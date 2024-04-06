@@ -74,7 +74,8 @@ vec4 tileColor(int terrainType, int zoneType, int elevatedZoneType, vec4 default
     bool isPowered = vTileInfo.a > 0.0;
 
     if (terrainType == terrainWater) {
-        return vec4(0.0, 0.0, 1.0, 0.5);
+        discard;
+        //return vec4(0.0, 0.0, 1.0, 0.5);
     }
 
     if (showPower) {

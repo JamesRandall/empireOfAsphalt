@@ -22,13 +22,15 @@ const float fullRadians = PI * 2.0;
 const float radiansPerWaveUnit = fullRadians / 8.0;
 
 void main(void) {
-    float waveOffset = mod(aObjectInfo.r + uWaveOffset, 8.0);
-    float unitSize = uTileSize / uVoxelsPerTile;
-    float waveHeight = unitSize * (1.0+sin(radiansPerWaveUnit * waveOffset))/2.0;
-    //float quarterSize = unitSize / 4.0;
     vec4 translatedVertexPosition = vec4(aVertexPosition);
-    translatedVertexPosition.y -= unitSize - (unitSize/4.0);
-    translatedVertexPosition.y += waveHeight;
+    if (aObjectInfo.r >= 0.0) {
+        float waveOffset = mod(aObjectInfo.r + uWaveOffset, 8.0);
+        float unitSize = uTileSize / uVoxelsPerTile;
+        float waveHeight = unitSize * (1.0+sin(radiansPerWaveUnit * waveOffset))/2.0;
+        translatedVertexPosition.y -= unitSize - (unitSize/4.0);
+        translatedVertexPosition.y += waveHeight;
+    }
+
 
     vNormal = mat3(uModelViewMatrix) * aVertexNormal;
     gl_Position = uProjectionMatrix * uModelViewMatrix * translatedVertexPosition;

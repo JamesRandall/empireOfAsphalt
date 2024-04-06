@@ -65,14 +65,6 @@ export function createWaterRenderer(gl: WebGL2RenderingContext, resources: Resou
     gl.useProgram(programInfo.program)
     const lightPosition = game.buildingLight.direction
     let worldMatrix = mat4.create()
-    /*mat4.translate(worldMatrix, worldMatrix, [
-      (building.position.x - game.landscape.size / 2) * sizes.tile - sizes.tile / 2,
-      0,
-      (game.landscape.size / 2 - building.position.z) * sizes.tile -
-        sizes.tile / 2 -
-        sizes.tile * (building.blueprint.footprint.height - 1),
-    ])*/
-
     const normalMatrix = mat4.create()
     mat4.invert(normalMatrix, worldMatrix)
     mat4.transpose(normalMatrix, normalMatrix)
@@ -88,7 +80,7 @@ export function createWaterRenderer(gl: WebGL2RenderingContext, resources: Resou
     gl.uniform1f(programInfo.uniformLocations.zoom, game.view.zoom)
     gl.uniform1f(programInfo.uniformLocations.tileSize, sizes.tile)
     gl.uniform1f(programInfo.uniformLocations.voxelsPerTile, 4.0)
-    gl.uniform1f(programInfo.uniformLocations.waveOffset, time % 8)
+    gl.uniform1f(programInfo.uniformLocations.waveOffset, (time * 1.5) % 8)
 
     game.landscape.water.chunks.forEach((chunk) => {
       const vertexCount = chunk.model.vertexCount

@@ -90,8 +90,8 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         heights[y][x] == heights[y + 1][x] &&
         heights[y][x] == heights[y + 1][x + 1]
       row.push({
-        terrain: x >= 126 && x <= 130 && y >= 120 && y <= 151 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
-        //terrain: x >= 40 && x <= 50 && y >= 40 && y <= 50 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        terrain: x >= 126 && x <= 132 && y >= 124 && y <= 132 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        //terrain: TerrainTypeEnum.Plain,
         zone: ZoneEnum.None,
         elevatedZone: ElevatedZoneEnum.None,
         isFlat,
@@ -157,7 +157,8 @@ function createLandscapeChunk(
     const top = -sizes.tile * y - topExtent
     for (let x = fromX; x <= toX; x++) {
       const tileInfo = rowZones[x]
-      if (tileInfo.terrain === TerrainTypeEnum.Water) continue
+      //if (tileInfo.terrain === TerrainTypeEnum.Water) continue
+
       const objectId = y * heightMapSize + x
       const objectIdColor = objectIdToVec4(objectId)
       const left = sizes.tile * x - leftExtent

@@ -2,8 +2,6 @@ import { RenderingModel } from "./models"
 import { Landscape, TerrainTypeEnum } from "../model/Landscape"
 import { sizes } from "../constants"
 
-const chunkSize = 32
-
 const waterVoxelsPerTile = 4
 const waterVoxelSize = sizes.tile / waterVoxelsPerTile
 
@@ -30,14 +28,25 @@ export function createWater(gl: WebGL2RenderingContext, landscape: Landscape) {
       colors: [],
       offsets: [],
     }) as CurrentChunk
-  let heightMapSize = landscape.heights.length
   let currentChunk = createEmptyChunk()
   let water: Water = { chunks: [] }
-  for (let y = 0; y < heightMapSize - 1; y++) {
-    for (let x = 0; x < heightMapSize - 1; x++) {
+  for (let y = 0; y < landscape.size - 1; y++) {
+    for (let x = 0; x < landscape.size - 1; x++) {
       const tileInfo = landscape.tileInfo[y][x]
       if (tileInfo.terrain === TerrainTypeEnum.Water) {
         addWaterToChunk(currentChunk, landscape.size - 1, x, y)
+        if (x > 0 && landscape.tileInfo[y][x - 1].terrain != TerrainTypeEnum.Water) {
+          addBorderVoxel(currentChunk, landscape.size - 1, x - 1, y)
+        }
+        if (x < landscape.size - 1 && landscape.tileInfo[y][x + 1].terrain != TerrainTypeEnum.Water) {
+          addBorderVoxel(currentChunk, landscape.size - 1, x + 1, y)
+        }
+        if (y > 0 && landscape.tileInfo[y - 1][x].terrain != TerrainTypeEnum.Water) {
+          addBorderVoxel(currentChunk, landscape.size - 1, x, y - 1)
+        }
+        if (y < landscape.size - 1 && landscape.tileInfo[y + 1][x].terrain != TerrainTypeEnum.Water) {
+          addBorderVoxel(currentChunk, landscape.size - 1, x, y + 1)
+        }
       }
       if (currentChunk.positions.length > 48000) {
         water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk) })
@@ -161,12 +170,46 @@ const baseCubeNormals = [
 function addWaterToChunk(chunk: CurrentChunk, mapSize: number, tileX: number, tileY: number) {
   for (let subZ = 0; subZ < waterVoxelsPerTile; subZ++) {
     for (let subX = 0; subX < waterVoxelsPerTile; subX++) {
-      addVoxel(chunk, mapSize, tileX, tileY, subX, subZ)
+      addWavingVoxel(chunk, mapSize, tileX, tileY, subX, subZ)
     }
   }
 }
 
-function addVoxel(chunk: CurrentChunk, mapSize: number, tileX: number, tileY: number, subX: number, subY: number) {
+function addBorderVoxel(chunk: CurrentChunk, mapSize: number, tileX: number, tileY: number) {
+  const offset = chunk.positions.length / 3
+  const voxelX = (tileX - mapSize / 2) * sizes.tile - sizes.tile
+  const voxelZ = (mapSize / 2 - tileY) * sizes.tile
+  const waveOffset = -1 // don't wave it
+  const color = [0.0, 52.0 / 255.0, 107.0 / 255.0, 1.0]
+
+  for (let pi = 0; pi < baseCubePositions.length; pi += 3) {
+    chunk.positions.push(baseCubePositions[pi] * sizes.tile + voxelX)
+    chunk.positions.push(baseCubePositions[pi + 1] * sizes.tile - sizes.tile - 0.1)
+    chunk.positions.push(baseCubePositions[pi + 2] * sizes.tile + voxelZ)
+  }
+  chunk.normals = [...chunk.normals, ...baseCubeNormals]
+  baseCubeIndices.forEach((vertexIndex) => chunk.indices.push(vertexIndex + offset))
+  for (let vi = 0; vi < baseCubePositions.length / 3; vi++) {
+    chunk.colors.push(color[0])
+    chunk.colors.push(color[1])
+    chunk.colors.push(color[2])
+    chunk.colors.push(color[3])
+
+    chunk.offsets.push(waveOffset)
+    chunk.offsets.push(waveOffset)
+    chunk.offsets.push(waveOffset)
+    chunk.offsets.push(waveOffset)
+  }
+}
+
+function addWavingVoxel(
+  chunk: CurrentChunk,
+  mapSize: number,
+  tileX: number,
+  tileY: number,
+  subX: number,
+  subY: number,
+) {
   const offset = chunk.positions.length / 3
   const voxelX = (tileX - mapSize / 2) * sizes.tile - sizes.tile + subX * waterVoxelSize
   const voxelZ = (mapSize / 2 - tileY) * sizes.tile + subY * waterVoxelSize
@@ -175,14 +218,10 @@ function addVoxel(chunk: CurrentChunk, mapSize: number, tileX: number, tileY: nu
   const waterZ = tileY * waterVoxelsPerTile + subY
   const waveOffset = waterZ % 8
 
-  const color =
-    waterZ % 2 == 0
-      ? waterX % 2 == 0
-        ? [30.0 / 255.0, 127.0 / 255.0, 232.0 / 255.0, 1.0]
-        : [120.0 / 255.0, 175.0 / 255.0, 235.0 / 255.0, 1.0]
-      : waterX % 2 == 0
-        ? [120.0 / 255.0, 175.0 / 255.0, 235.0 / 255.0, 1.0]
-        : [30.0 / 255.0, 127.0 / 255.0, 232.0 / 255.0, 1.0]
+  const darkColor = [4.0 / 255.0, 79.0 / 255.0, 159.0 / 255.0, 1.0]
+  const lightColor = [22.0 / 255.0, 114.0 / 255.0, 212.0 / 255.0, 1.0]
+
+  const color = waterZ % 2 == 0 ? (waterX % 2 == 0 ? darkColor : lightColor) : waterX % 2 == 0 ? lightColor : darkColor
 
   for (let pi = 0; pi < baseCubePositions.length; pi += 3) {
     chunk.positions.push(baseCubePositions[pi] * waterVoxelSize + voxelX)
