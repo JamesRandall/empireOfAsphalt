@@ -20,7 +20,11 @@ function updatePowerPulse(game: Game, timeDelta: number) {
 export function gameLoop(gl: WebGL2RenderingContext, resources: Resources, game: Game, timeDelta: number) {
   const { isNewDay, isNewWeek, isNewMonth } = applyTime(game, timeDelta)
   if (isNewDay) {
-    updatePowerGrid(gl, game) // we might do this weekly going forwards
+    console.log("D")
+    updatePowerGrid(gl, game)
+  }
+  if (isNewWeek) {
+    console.log("W")
     applyGrowth(game, resources)
   }
 

@@ -15,5 +15,5 @@ export interface Demand {
 }
 
 export function getExternalDemand(time: number): Demand {
-  return { industrial: { light: 100, heavy: 2, highTech: 0 } }
+  return { industrial: { light: Math.ceil(time / 14), heavy: 0, highTech: 0 } }
 }

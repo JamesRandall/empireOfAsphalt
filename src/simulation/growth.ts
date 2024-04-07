@@ -24,7 +24,7 @@ const transportScoreTable = [
 
 const weightings = {
   transport: 1,
-  industrialDemand: 1,
+  industrialDemand: 2,
 }
 
 function isDynamicZone(tile: TileInfo) {
@@ -65,8 +65,9 @@ function evaluateAdjacentTiles(landscape: Landscape, x: number, z: number, evalF
 // TODO: this needs to consider adjacent tiles with power
 function canBeConsideredForGrowth(landscape: Landscape, tile: TileInfo, x: number, z: number) {
   return (
-    tile.isPoweredByBuildingId !== null ||
-    evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)
+    (tile.isPoweredByBuildingId !== null ||
+      evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)) &&
+    tile.accruingGrowthScore < getGrowthCapForTile(tile)
   )
 }
 
@@ -155,14 +156,17 @@ function applyIndustrialGrowthScore(tile: TileInfo, demand: Demand) {
   if (tile.zone === ZoneEnum.LightIndustrial) {
     if (canConstructOnTile(tile) && demand.industrial.light > 0) {
       tile.accruingGrowthScore += 1 * weightings.industrialDemand
-      demand.industrial.light--
+      if (tile.accruingGrowthScore > growthCapForTile) {
+        tile.accruingGrowthScore = growthCapForTile
+      }
+      demand.industrial.light = Math.max(0, demand.industrial.light - 1 * weightings.industrialDemand)
     }
-  } else if (tile.zone === ZoneEnum.DenseIndustrial) {
+  } /*else if (tile.zone === ZoneEnum.DenseIndustrial) {
     if (demand.industrial.heavy > 0) {
       tile.accruingGrowthScore += 1 * weightings.industrialDemand
       demand.industrial.heavy--
     }
-  }
+  }*/
 }
 
 function forceDeclineOfTile(externalDemand: Demand, landscape: Landscape, tile: TileInfo, x: number, z: number) {
@@ -188,7 +192,7 @@ function blueprintCategoryForZone(zone: ZoneEnum) {
 
 function applyGrowthScoreToTile(game: Game, resources: Resources, tile: TileInfo, x: number, z: number) {
   //const growthCapForTile = getGrowthCapForTile(tile)
-  const growthScore = tile.baselineGrowthScore + tile.accruingGrowthScore
+  const growthScore = tile.accruingGrowthScore
   if (canConstructOnTile(tile)) {
     const category = blueprintCategoryForZone(tile.zone)
     const blueprints = blueprintsForCategoryAndGrowth(category, growthScore)
@@ -210,7 +214,9 @@ function consumeDemand(demand: Demand, buildings: Building[]) {
   })
 }
 
-export function applyGrowth(game: Game, resources: Resources) {
+/*
+export function applyGrowthOld(game: Game, resources: Resources) {
+  // TODO: to make this feel more natural we need to change a few thinsgs and make it a multi-stage process
   const externalDemand = getExternalDemand(game.time.clock)
   consumeDemand(externalDemand, Array.from(game.buildings.values()))
   for (let z = 0; z < game.landscape.size - 1; z++) {
@@ -227,4 +233,59 @@ export function applyGrowth(game: Game, resources: Resources) {
       applyGrowthScoreToTile(game, resources, tile, x, z)
     }
   }
+}
+
+ */
+
+export function applyGrowth(game: Game, resources: Resources) {
+  const demand = getExternalDemand(game.time.clock)
+  const growthCandidates: { tile: TileInfo; x: number; z: number }[] = []
+  consumeDemand(demand, Array.from(game.buildings.values()))
+  // 1. first we calculate the base growth scores for tiles - water, transport, power links etc.
+  for (let z = 0; z < game.landscape.size - 1; z++) {
+    const tileRow = game.landscape.tileInfo[z]
+    for (let x = 0; x < game.landscape.size - 1; x++) {
+      const tile = tileRow[x]
+      if (!isDynamicZone(tile)) continue
+      if (canBeConsideredForGrowth(game.landscape, tile, x, z)) {
+        setBaseGrowthScoreForTile(game.landscape, demand, tile, x, z)
+        if (tile.baselineGrowthScore > 0) {
+          growthCandidates.push({ tile, x, z })
+        }
+      }
+    }
+  }
+  // 2. now we grow the tiles based on surplus demand - higher scoring tiles first
+  const sortedGrowthCandidates = growthCandidates.sort(
+    (a, b) => b.tile.baselineGrowthScore - a.tile.baselineGrowthScore,
+  )
+  for (let i = 0; i < sortedGrowthCandidates.length; i++) {
+    if (demand.industrial.light <= 0) break
+    const candidate = sortedGrowthCandidates[i]
+    applyIndustrialGrowthScore(candidate.tile, demand)
+    applyGrowthScoreToTile(game, resources, candidate.tile, candidate.x, candidate.z)
+  }
+}
+
+function hasAccessToPower(landscape: Landscape, tile: TileInfo, x: number, z: number) {
+  return (
+    tile.isPoweredByBuildingId !== null ||
+    evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)
+  )
+}
+
+function setBaseGrowthScoreForTile(landscape: Landscape, demand: Demand, tile: TileInfo, x: number, z: number) {
+  if (!hasAccessToPower(landscape, tile, x, z)) {
+    tile.baselineGrowthScore = 0
+    return
+  }
+  const transportScore = evaluatePatternBasedScore(
+    landscape,
+    x,
+    z,
+    transportScoreTable,
+    (ti) => ti.zone === ZoneEnum.Road,
+  )
+
+  tile.baselineGrowthScore = transportScore * weightings.transport
 }
