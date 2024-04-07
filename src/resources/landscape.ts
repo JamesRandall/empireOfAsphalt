@@ -117,7 +117,7 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
     }
   }
 
-  landscape.water = createWater(gl, landscape)
+  landscape.water = createWater(gl, landscape, chunkSize)
 
   return landscape
 }

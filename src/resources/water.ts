@@ -1,14 +1,18 @@
 import { RenderingModel } from "./models"
-import { Landscape, TerrainTypeEnum } from "../model/Landscape"
+import { Landscape, TerrainTypeEnum, TileInfo } from "../model/Landscape"
 import { sizes } from "../constants"
 
 const waterVoxelsPerTile = 4
 const waterVoxelSize = sizes.tile / waterVoxelsPerTile
 
+export interface WaterChunk {
+  model: RenderingModel
+  fromX: number
+  fromZ: number
+}
+
 export interface Water {
-  chunks: {
-    model: RenderingModel
-  }[]
+  chunks: WaterChunk[]
 }
 
 interface CurrentChunk {
@@ -19,43 +23,91 @@ interface CurrentChunk {
   offsets: number[] //this is the animation offset for the water cube
 }
 
-export function createWater(gl: WebGL2RenderingContext, landscape: Landscape) {
-  const createEmptyChunk = () =>
-    ({
-      positions: [],
-      indices: [],
-      normals: [],
-      colors: [],
-      offsets: [],
-    }) as CurrentChunk
+export function createWater(gl: WebGL2RenderingContext, landscape: Landscape, chunkSize: number) {
+  const waterChunks: WaterChunk[] = []
+  for (let y = 0; y < landscape.size - 1; y += chunkSize) {
+    for (let x = 0; x < landscape.size - 1; x += chunkSize) {
+      const toX = Math.min(landscape.size - 1, x + chunkSize - 1)
+      const toY = Math.min(landscape.size - 1, y + chunkSize - 1)
+      const chunk = {
+        fromX: x,
+        fromZ: y,
+        model: createWaterChunk(gl, landscape, x, y, toX, toY),
+      }
+      waterChunks.push(chunk)
+    }
+  }
+
+  return { chunks: waterChunks }
+}
+
+const createEmptyChunk = () =>
+  ({
+    positions: [],
+    indices: [],
+    normals: [],
+    colors: [],
+    offsets: [],
+  }) as CurrentChunk
+
+function createWaterChunk(
+  gl: WebGL2RenderingContext,
+  landscape: Landscape,
+  fromX: number,
+  fromZ: number,
+  toX: number,
+  toZ: number,
+) {
+  let currentChunk = createEmptyChunk()
+  for (let z = fromZ; z <= toZ; z++) {
+    let row = landscape.tileInfo[z]
+    for (let x = fromX; x <= toX; x++) {
+      const tileInfo = row[x]
+      createVoxelForTileInfo(currentChunk, landscape, tileInfo, x, z)
+    }
+  }
+  return createWaterRenderingModel(gl, currentChunk)
+}
+
+function createVoxelForTileInfo(
+  currentChunk: CurrentChunk,
+  landscape: Landscape,
+  tileInfo: TileInfo,
+  x: number,
+  y: number,
+) {
+  if (tileInfo.terrain === TerrainTypeEnum.Water) {
+    addWaterToChunk(currentChunk, landscape.size - 1, x, y)
+    if (x > 0 && landscape.tileInfo[y][x - 1].terrain != TerrainTypeEnum.Water) {
+      addBorderVoxel(currentChunk, landscape.size - 1, x - 1, y)
+    }
+    if (x < landscape.size - 1 && landscape.tileInfo[y][x + 1].terrain != TerrainTypeEnum.Water) {
+      addBorderVoxel(currentChunk, landscape.size - 1, x + 1, y)
+    }
+    if (y > 0 && landscape.tileInfo[y - 1][x].terrain != TerrainTypeEnum.Water) {
+      addBorderVoxel(currentChunk, landscape.size - 1, x, y - 1)
+    }
+    if (y < landscape.size - 1 && landscape.tileInfo[y + 1][x].terrain != TerrainTypeEnum.Water) {
+      addBorderVoxel(currentChunk, landscape.size - 1, x, y + 1)
+    }
+  }
+}
+
+export function createWaterDynamicChunks(gl: WebGL2RenderingContext, landscape: Landscape) {
   let currentChunk = createEmptyChunk()
   let water: Water = { chunks: [] }
   for (let y = 0; y < landscape.size - 1; y++) {
     for (let x = 0; x < landscape.size - 1; x++) {
       const tileInfo = landscape.tileInfo[y][x]
-      if (tileInfo.terrain === TerrainTypeEnum.Water) {
-        addWaterToChunk(currentChunk, landscape.size - 1, x, y)
-        if (x > 0 && landscape.tileInfo[y][x - 1].terrain != TerrainTypeEnum.Water) {
-          addBorderVoxel(currentChunk, landscape.size - 1, x - 1, y)
-        }
-        if (x < landscape.size - 1 && landscape.tileInfo[y][x + 1].terrain != TerrainTypeEnum.Water) {
-          addBorderVoxel(currentChunk, landscape.size - 1, x + 1, y)
-        }
-        if (y > 0 && landscape.tileInfo[y - 1][x].terrain != TerrainTypeEnum.Water) {
-          addBorderVoxel(currentChunk, landscape.size - 1, x, y - 1)
-        }
-        if (y < landscape.size - 1 && landscape.tileInfo[y + 1][x].terrain != TerrainTypeEnum.Water) {
-          addBorderVoxel(currentChunk, landscape.size - 1, x, y + 1)
-        }
-      }
+      createVoxelForTileInfo(currentChunk, landscape, tileInfo, x, y)
       if (currentChunk.positions.length > 48000) {
-        water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk) })
+        water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk), fromX: -1, fromZ: -1 })
         currentChunk = createEmptyChunk()
       }
     }
   }
   if (currentChunk.positions.length > 0) {
-    water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk) })
+    water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk), fromX: -1, fromZ: -1 })
   }
   landscape.water = water
   return water
