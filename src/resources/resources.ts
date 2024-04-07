@@ -35,6 +35,9 @@ export interface Resources {
       powerLineRoadEastWest: VoxelModel
       powerLineRoadNorthSouth: VoxelModel
     }
+    industrial: {
+      smallChemicalFactory: VoxelModel
+    }
     misc: {
       sphere: VoxelModel
     }
@@ -130,6 +133,7 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
     "powerLineWestT",
     "powerLineRoadEastWest",
     "powerLineRoadNorthSouth",
+    "smallChemicalFactory",
   ]
 
   const loadedBuildings = await Promise.all(buildingNames.map((bn) => loadVoxelModel(gl, bn)))
@@ -187,6 +191,9 @@ export async function loadResources(gl: WebGL2RenderingContext): Promise<Resourc
         powerLineWestT: buildingsMap.get("powerLineWestT")!,
         powerLineRoadNorthSouth: buildingsMap.get("powerLineRoadNorthSouth")!,
         powerLineRoadEastWest: buildingsMap.get("powerLineRoadEastWest")!,
+      },
+      industrial: {
+        smallChemicalFactory: buildingsMap.get("smallChemicalFactory")!,
       },
       misc: {
         sphere: buildingsMap.get("sphere")!,
