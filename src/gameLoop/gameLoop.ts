@@ -4,6 +4,8 @@ import { applyControlState } from "./applyControlState"
 import { glMatrix } from "gl-matrix"
 import { updatePowerGrid } from "./power"
 import { applyTime } from "./time"
+import { applyGrowth } from "../simulation/growth"
+import { Resources } from "../resources/resources"
 
 const radiansPerSecond = glMatrix.toRadian(90)
 
@@ -15,10 +17,13 @@ function updatePowerPulse(game: Game, timeDelta: number) {
   game.powerPulse.opacity = ((Math.sin(game.powerPulse.level) + 1) / 2) * 0.4 + 0.6
 }
 
-export function gameLoop(gl: WebGL2RenderingContext, game: Game, timeDelta: number) {
-  applyTime(game, timeDelta)
+export function gameLoop(gl: WebGL2RenderingContext, resources: Resources, game: Game, timeDelta: number) {
+  const { isNewDay, isNewWeek, isNewMonth } = applyTime(game, timeDelta)
+  if (isNewDay) {
+    updatePowerGrid(gl, game) // we might do this weekly going forwards
+    applyGrowth(game, resources)
+  }
 
-  updatePowerGrid(gl, game) // we won't need to run this every turn
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
   constructBuildings(game, timeDelta)

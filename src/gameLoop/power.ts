@@ -1,8 +1,9 @@
 import { Game } from "../model/game"
-import { ElevatedZoneEnum, Landscape, ZoneEnum } from "../model/Landscape"
+import { Landscape } from "../model/Landscape"
 import { Building } from "../model/building"
 import { Stack } from "../model/stack"
 import { updateRendererTileInfo } from "../resources/landscape"
+import { ElevatedZoneEnum, ZoneEnum } from "../model/Tile"
 
 const clearPoweredStatus = (landscape: Landscape) => {
   landscape.tileInfo.forEach((row) =>

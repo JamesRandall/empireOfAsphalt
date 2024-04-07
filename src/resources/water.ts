@@ -1,6 +1,7 @@
 import { RenderingModel } from "./models"
-import { Landscape, TerrainTypeEnum, TileInfo } from "../model/Landscape"
+import { Landscape } from "../model/Landscape"
 import { sizes } from "../constants"
+import { TerrainTypeEnum, TileInfo } from "../model/Tile"
 
 const waterVoxelsPerTile = 4
 const waterVoxelSize = sizes.tile / waterVoxelsPerTile

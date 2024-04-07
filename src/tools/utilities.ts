@@ -1,5 +1,5 @@
 import { Tool, ToolSelectionMode } from "../model/game"
-import { ElevatedZoneEnum, TileInfo, ZoneEnum } from "../model/Landscape"
+import { ElevatedZoneEnum, TileInfo, ZoneEnum } from "../model/Tile"
 
 export function applyToolClearsSelection(tool: Tool) {
   switch (tool) {

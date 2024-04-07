@@ -1,6 +1,5 @@
 import { addBuildingToGame, Game } from "../model/game"
 import { rectFromRange } from "../utilities"
-import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { canApplyToolToTile, elevatedZoneForTool, isElevatedZoningTool, isZoningTool, zoneForTool } from "./utilities"
 import { Resources } from "../resources/resources"
@@ -12,6 +11,7 @@ import {
 } from "../model/building"
 import { applyRoadTextures } from "./roadTextures"
 import { applyPowerlineModels } from "./powerLineModels"
+import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Tile"
 
 export function applyTool(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   if (isZoningTool(game.gui.currentTool) && game.gui.selection !== null) {

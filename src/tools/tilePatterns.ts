@@ -1,5 +1,5 @@
 import { Game } from "../model/game"
-import { TileInfo, ZoneEnum } from "../model/Landscape"
+import { TileInfo, ZoneEnum } from "../model/Tile"
 
 export const tilePatterns = {
   northSouth: [

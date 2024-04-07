@@ -37,4 +37,4 @@ async function mount(viewCanvas: HTMLCanvasElement) {
   requestAnimationFrame(render)
 }
 
-mount(document.getElementById("canvas") as HTMLCanvasElement)
+;(async () => await mount(document.getElementById("canvas") as HTMLCanvasElement))()

@@ -1,7 +1,8 @@
 import { VoxelModel } from "../resources/voxelModel"
 import { Resources } from "../resources/resources"
 import { Tool } from "./game"
-import { ZoneEnum } from "./Landscape"
+
+import { ZoneEnum } from "./Tile"
 
 let nextBuildingId = 1
 
@@ -9,9 +10,20 @@ export enum BuildingType {
   CoalPowerStation = 0,
   PowerLine = 1,
   SmallHouse,
+  SmallChemicalStorage,
+}
+
+export enum BlueprintCategory {
+  Residential,
+  Industrial,
+  Commercial,
+  Other,
 }
 
 export interface Blueprint {
+  blueprintCategory: BlueprintCategory
+  isHeavyIndustrial: boolean
+  output: number
   buildingType: BuildingType
   getModel: (resources: Resources) => VoxelModel
   footprint: {
@@ -20,6 +32,7 @@ export interface Blueprint {
   }
   powerGenerated: number
   powerConsumed: number
+  growthCap: number | null // buildings can have their own growth cap by type, if none is specified the growth cap for the zone is used
 }
 
 export interface Building {
@@ -41,39 +54,85 @@ const toolBuildingTypes: [Tool, BuildingType][] = [
 ]
 const toolBuildingTypesMap = new Map<Tool, BuildingType>(toolBuildingTypes)
 
+const zeroOutput = () => ({ residential: 0, industrial: 0, commercial: 0 })
+
 const blueprints: [BuildingType, Blueprint][] = [
   [
     BuildingType.CoalPowerStation,
     {
+      blueprintCategory: BlueprintCategory.Other,
       buildingType: BuildingType.CoalPowerStation,
       getModel: (r: Resources) => r.voxelModels.power.coal,
       footprint: { width: 4, height: 4 },
       powerGenerated: 2000,
       powerConsumed: 0,
+      output: 0,
+      isHeavyIndustrial: false,
+      growthCap: null,
     },
   ],
   [
     BuildingType.PowerLine,
     {
+      blueprintCategory: BlueprintCategory.Other,
       buildingType: BuildingType.PowerLine,
       getModel: (r: Resources) => r.voxelModels.power.powerLineEastWest,
       footprint: { width: 1, height: 1 },
       powerGenerated: 0,
       powerConsumed: 0,
+      output: 0,
+      isHeavyIndustrial: false,
+      growthCap: null,
     },
   ],
   [
     BuildingType.SmallHouse,
     {
+      blueprintCategory: BlueprintCategory.Residential,
       buildingType: BuildingType.SmallHouse,
       getModel: (r: Resources) => r.voxelModels.power.coal,
       footprint: { width: 1, height: 1 },
       powerGenerated: 0,
       powerConsumed: 10,
+      output: 0,
+      isHeavyIndustrial: false,
+      growthCap: null,
+    },
+  ],
+  [
+    BuildingType.SmallChemicalStorage,
+    {
+      blueprintCategory: BlueprintCategory.Industrial,
+      buildingType: BuildingType.SmallChemicalStorage,
+      getModel: (r: Resources) => r.voxelModels.industrial.smallChemicalStorage,
+      footprint: { width: 1, height: 1 },
+      powerGenerated: 0,
+      powerConsumed: 30,
+      output: 10,
+      isHeavyIndustrial: false,
+      growthCap: null,
     },
   ],
 ]
 const blueprintsMap = new Map<BuildingType, Blueprint>(blueprints)
+const blueprintsList = blueprints.map(([_, blueprint]) => blueprint)
+const blueprintsForCategory = new Map<BlueprintCategory, Blueprint[]>(
+  [
+    BlueprintCategory.Other,
+    BlueprintCategory.Residential,
+    BlueprintCategory.Commercial,
+    BlueprintCategory.Industrial,
+  ].map((bc) => [bc, blueprintsList.filter((bp) => bp.blueprintCategory === bc)]),
+)
+
+export function blueprintsForCategoryAndGrowth(category: BlueprintCategory, growthScore: number) {
+  return (
+    blueprintsForCategory
+      .get(category)
+      ?.filter((bp) => bp.output <= growthScore)
+      .sort((a, b) => a.output - b.output) ?? []
+  )
+}
 
 export function blueprintFromTool(tool: Tool) {
   const buildingType = toolBuildingTypesMap.get(tool)!

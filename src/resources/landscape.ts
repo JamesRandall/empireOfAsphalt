@@ -1,10 +1,11 @@
 import { vec3, vec4 } from "gl-matrix"
 import { sizes } from "../constants"
 import { RenderingModel } from "./models"
-import { ElevatedZoneEnum, Landscape, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Landscape"
+import { Landscape } from "../model/Landscape"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { Range } from "../model/range"
 import { createWater } from "./water"
+import { ElevatedZoneEnum, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Tile"
 
 const chunkSize = 32
 
@@ -100,6 +101,8 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
         isPoweredByBuildingId: null,
         wasPoweredByBuildingId: null,
         building: null,
+        accruingGrowthScore: 0,
+        baselineGrowthScore: 0,
       })
     }
     landscape.tileInfo.push(row)

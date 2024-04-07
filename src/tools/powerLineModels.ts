@@ -1,9 +1,9 @@
 import { addBuildingToGame, Game, removeBuildingFromGame } from "../model/game"
 import { Resources } from "../resources/resources"
-import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Landscape"
 import { getPattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { blueprintForBuilding, BuildingType, createBuilding } from "../model/building"
+import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Tile"
 
 const patterns = [
   { voxelModelBuilder: (r: Resources) => r.voxelModels.power.powerLineNorthSouth, pattern: tilePatterns.northSouth },

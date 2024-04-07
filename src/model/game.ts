@@ -169,5 +169,10 @@ export function addBuildingToGame(game: Game, building: Building) {
 }
 
 export function removeBuildingFromGame(game: Game, building: Building) {
+  for (let z = 0; z < building.blueprint.footprint.height; z++) {
+    for (let x = 0; x < building.blueprint.footprint.width; x++) {
+      game.landscape.tileInfo[building.position.z + z][building.position.x + x].building = null
+    }
+  }
   game.buildings.delete(building.buildingId)
 }
