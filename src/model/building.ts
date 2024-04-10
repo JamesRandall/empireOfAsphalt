@@ -3,6 +3,7 @@ import { Resources } from "../resources/resources"
 import { Tool } from "./game"
 
 import { ZoneEnum } from "./Tile"
+import { RenderingModel } from "../resources/models"
 
 let nextBuildingId = 1
 
@@ -25,7 +26,6 @@ export interface Blueprint {
   isHeavyIndustrial: boolean
   output: number
   buildingType: BuildingType
-  getModel: (resources: Resources) => VoxelModel
   footprint: {
     width: number
     height: number
@@ -37,7 +37,6 @@ export interface Blueprint {
 
 export interface Building {
   buildingId: number
-  model: VoxelModel
   footprint: {
     width: number
     height: number
@@ -56,13 +55,18 @@ const toolBuildingTypesMap = new Map<Tool, BuildingType>(toolBuildingTypes)
 
 const zeroOutput = () => ({ residential: 0, industrial: 0, commercial: 0 })
 
+const blueprintModels: [BuildingType, (r: Resources) => VoxelModel][] = [
+  [BuildingType.CoalPowerStation, (r: Resources) => r.voxelModels.power.coal],
+  [BuildingType.PowerLine, (r: Resources) => r.voxelModels.power.powerLineEastWest],
+  [BuildingType.SmallHouse, (r: Resources) => r.voxelModels.residential.house],
+  [BuildingType.SmallChemicalStorage, (r: Resources) => r.voxelModels.industrial.smallChemicalStorage],
+]
 const blueprints: [BuildingType, Blueprint][] = [
   [
     BuildingType.CoalPowerStation,
     {
       blueprintCategory: BlueprintCategory.Other,
       buildingType: BuildingType.CoalPowerStation,
-      getModel: (r: Resources) => r.voxelModels.power.coal,
       footprint: { width: 4, height: 4 },
       powerGenerated: 2000,
       powerConsumed: 0,
@@ -76,7 +80,6 @@ const blueprints: [BuildingType, Blueprint][] = [
     {
       blueprintCategory: BlueprintCategory.Other,
       buildingType: BuildingType.PowerLine,
-      getModel: (r: Resources) => r.voxelModels.power.powerLineEastWest,
       footprint: { width: 1, height: 1 },
       powerGenerated: 0,
       powerConsumed: 0,
@@ -90,7 +93,6 @@ const blueprints: [BuildingType, Blueprint][] = [
     {
       blueprintCategory: BlueprintCategory.Residential,
       buildingType: BuildingType.SmallHouse,
-      getModel: (r: Resources) => r.voxelModels.power.coal,
       footprint: { width: 1, height: 1 },
       powerGenerated: 0,
       powerConsumed: 10,
@@ -104,7 +106,6 @@ const blueprints: [BuildingType, Blueprint][] = [
     {
       blueprintCategory: BlueprintCategory.Industrial,
       buildingType: BuildingType.SmallChemicalStorage,
-      getModel: (r: Resources) => r.voxelModels.industrial.smallChemicalStorage,
       footprint: { width: 1, height: 1 },
       powerGenerated: 0,
       powerConsumed: 30,
@@ -115,6 +116,7 @@ const blueprints: [BuildingType, Blueprint][] = [
   ],
 ]
 const blueprintsMap = new Map<BuildingType, Blueprint>(blueprints)
+const blueprintsModelsMap = new Map(blueprintModels)
 const blueprintsList = blueprints.map(([_, blueprint]) => blueprint)
 const blueprintsForCategory = new Map<BlueprintCategory, Blueprint[]>(
   [
@@ -124,6 +126,14 @@ const blueprintsForCategory = new Map<BlueprintCategory, Blueprint[]>(
     BlueprintCategory.Industrial,
   ].map((bc) => [bc, blueprintsList.filter((bp) => bp.blueprintCategory === bc)]),
 )
+
+export function voxelModelForBuilding(building: Building) {
+  return blueprintsModelsMap.get(building.blueprint.buildingType)!
+}
+
+export function voxelModelForBlueprint(blueprint: Blueprint) {
+  return blueprintsModelsMap.get(blueprint.buildingType)!
+}
 
 export function blueprintsForCategoryAndGrowth(category: BlueprintCategory, growthScore: number) {
   return (
@@ -155,11 +165,10 @@ export function createBuildingFromBlueprint(
   blueprint: Blueprint,
   position: { x: number; z: number },
 ) {
-  const model = blueprint.getModel(resources)
+  const model = blueprintsModelsMap.get(blueprint.buildingType)!(resources)
   return {
     blueprint: blueprint,
     buildingId: nextBuildingId++,
-    model: model,
     footprint: { ...blueprint.footprint },
     position,
     numberOfVoxelsToDisplay: model.voxelCount,
@@ -173,8 +182,8 @@ export function createBuildingForZone(
   size: number,
   position: { x: number; z: number },
 ) {
-  const blueprint = blueprintsMap.get(BuildingType.SmallHouse)
-  const model = resources.voxelModels.residential.house
+  const blueprint = blueprintsMap.get(BuildingType.SmallHouse)!
+  const model = blueprintsModelsMap.get(blueprint.buildingType)!(resources)
   return {
     blueprint: blueprint,
     buildingId: nextBuildingId++,
@@ -187,7 +196,6 @@ export function createBuildingForZone(
 }
 
 export function createBuilding(
-  model: VoxelModel,
   blueprint: Blueprint,
   width: number,
   height: number,
@@ -198,7 +206,6 @@ export function createBuilding(
   return {
     blueprint: blueprint,
     buildingId: nextBuildingId++,
-    model,
     footprint: { width, height },
     position: { x, z },
     numberOfVoxelsToDisplay,

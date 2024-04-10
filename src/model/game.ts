@@ -4,6 +4,7 @@ import { Landscape } from "./Landscape"
 import { MutableProperty } from "../gui/properties/MutableProperty"
 import { Range } from "./range"
 import { Building } from "./building"
+import { initialiseSimulation, Simulation } from "./simulation"
 
 type HeightMap = number[][]
 
@@ -51,6 +52,12 @@ export interface ViewLayers {
   zones: boolean
 }
 
+export enum DifficultyLevel {
+  Easy = 0,
+  Medium = 1,
+  Hard = 2,
+}
+
 export interface Game {
   controlState: {
     current: ControlState
@@ -73,15 +80,11 @@ export interface Game {
     level: number
     opacity: number
   }
-
   landscape: Landscape
   buildings: Map<number, Building>
+  simulation: Simulation
   selectedObjectId: number | null
-  time: {
-    clock: number
-    lastZoneUpdateAt: number
-    lastPowerGridUpdateAt: number
-  }
+  difficultyLevel: DifficultyLevel
   gui: {
     windows: {
       zoning: WindowState
@@ -136,11 +139,8 @@ export function createGameWithLandscape(landscape: Landscape): Game {
     landscape: landscape,
     buildings: new Map<number, Building>(),
     selectedObjectId: null,
-    time: {
-      clock: 0.0,
-      lastPowerGridUpdateAt: 0.0,
-      lastZoneUpdateAt: 0.0,
-    },
+    simulation: initialiseSimulation(),
+    difficultyLevel: DifficultyLevel.Easy,
     gui: {
       windows: {
         zoning: defaultWindowState(),

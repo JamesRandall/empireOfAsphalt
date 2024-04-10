@@ -3,9 +3,10 @@ import { constructBuildings } from "./construction"
 import { applyControlState } from "./applyControlState"
 import { glMatrix } from "gl-matrix"
 import { updatePowerGrid } from "./power"
-import { applyTime } from "./time"
+import { applyTime } from "../simulation/time"
 import { applyGrowth } from "../simulation/growth"
 import { Resources } from "../resources/resources"
+import { simulate } from "../simulation/simulate"
 
 const radiansPerSecond = glMatrix.toRadian(90)
 
@@ -18,7 +19,9 @@ function updatePowerPulse(game: Game, timeDelta: number) {
 }
 
 export function gameLoop(gl: WebGL2RenderingContext, resources: Resources, game: Game, timeDelta: number) {
-  const { isNewDay, isNewWeek, isNewMonth } = applyTime(game, timeDelta)
+  simulate(game.difficultyLevel, game.simulation, timeDelta)
+
+  /*const { isNewDay, isNewWeek, isNewMonth } = applyTime(game.simulation, timeDelta)
   if (isNewDay) {
     console.log("D")
     updatePowerGrid(gl, game)
@@ -26,9 +29,9 @@ export function gameLoop(gl: WebGL2RenderingContext, resources: Resources, game:
   if (isNewWeek) {
     console.log("W")
     applyGrowth(game, resources)
-  }
+  }*/
 
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
-  constructBuildings(game, timeDelta)
+  constructBuildings(game, resources, timeDelta)
 }

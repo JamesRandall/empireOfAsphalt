@@ -67,7 +67,7 @@ export function applyPowerlineModels(
               : getModelBuilderForPattern(pattern)
         if (builder) {
           const model = builder(resources)
-          const building = createBuilding(model, powerlineBlueprint, 1, 1, x, y, model.voxelCount)
+          const building = createBuilding(powerlineBlueprint, 1, 1, x, y, model.voxelCount)
           addBuildingToGame(game, building)
           tileInfo.building = building
         }

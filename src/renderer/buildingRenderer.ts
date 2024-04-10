@@ -6,6 +6,7 @@ import { Game } from "../model/game"
 import { sizes } from "../constants"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { toolAllowsSlopedSelection } from "../tools/utilities"
+import { voxelModelForBuilding } from "../model/building"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.building)
@@ -89,7 +90,8 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
         gl.uniform1f(programInfo.uniformLocations.opacity, 1.0)
       }
 
-      building.model.renderingModels.forEach((chunk) => {
+      const model = voxelModelForBuilding(building)(resources)
+      model.renderingModels.forEach((chunk) => {
         const numberOfVoxelsInChunk = chunk.vertexCount / 36
         const vertexCount =
           voxelOffset + numberOfVoxelsInChunk < building.numberOfVoxelsToDisplay
@@ -123,7 +125,8 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
         projectionMatrix,
         modelViewMatrix: worldMatrix,
       })
-      building.model.renderingModels.forEach((chunk) => {
+      const model = voxelModelForBuilding(building)(resources)
+      model.renderingModels.forEach((chunk) => {
         setCommonAttributes(gl, chunk, pickerProgramInfo)
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
 

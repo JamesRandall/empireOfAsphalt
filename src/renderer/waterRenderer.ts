@@ -6,6 +6,7 @@ import { Game } from "../model/game"
 import { sizes } from "../constants"
 import { objectIdToVec4, rectFromRange } from "../utilities"
 import { toolAllowsSlopedSelection } from "../tools/utilities"
+import { voxelModelForBuilding } from "../model/building"
 
 function initShaderProgram(gl: WebGL2RenderingContext, resources: Resources) {
   const shaderProgram = compileShaderProgram2(gl, resources.shaderSource.water)
@@ -102,7 +103,8 @@ export function createWaterRenderer(gl: WebGL2RenderingContext, resources: Resou
         projectionMatrix,
         modelViewMatrix: worldMatrix,
       })
-      building.model.renderingModels.forEach((chunk) => {
+      const model = voxelModelForBuilding(building)(resources)
+      model.renderingModels.forEach((chunk) => {
         setCommonAttributes(gl, chunk, pickerProgramInfo)
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
 

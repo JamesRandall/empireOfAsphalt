@@ -238,7 +238,7 @@ export function applyGrowthOld(game: Game, resources: Resources) {
  */
 
 export function applyGrowth(game: Game, resources: Resources) {
-  const demand = getExternalDemand(game.time.clock)
+  const demand = getExternalDemand(game.simulation.time.clock)
   const growthCandidates: { tile: TileInfo; x: number; z: number }[] = []
   consumeDemand(demand, Array.from(game.buildings.values()))
   // 1. first we calculate the base growth scores for tiles - water, transport, power links etc.
