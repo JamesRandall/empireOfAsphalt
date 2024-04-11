@@ -90,7 +90,10 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
         gl.uniform1f(programInfo.uniformLocations.opacity, 1.0)
       }
 
-      const model = voxelModelForBuilding(building)(resources)
+      const model =
+        game.powerlineModels[building.position.z][building.position.x] !== null
+          ? game.powerlineModels[building.position.z][building.position.x]!
+          : voxelModelForBuilding(building)(resources)
       model.renderingModels.forEach((chunk) => {
         const numberOfVoxelsInChunk = chunk.vertexCount / 36
         const vertexCount =

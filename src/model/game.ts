@@ -5,6 +5,7 @@ import { MutableProperty } from "../gui/properties/MutableProperty"
 import { Range } from "./range"
 import { Building } from "./building"
 import { initialiseSimulation, Simulation, SimulationLandscape } from "./simulation"
+import { VoxelModel } from "../resources/voxelModel"
 
 type HeightMap = number[][]
 
@@ -80,6 +81,7 @@ export interface Game {
     level: number
     opacity: number
   }
+  powerlineModels: (VoxelModel | null)[][]
   landscape: Landscape
   simulation: Simulation
   selectedObjectId: number | null
@@ -135,6 +137,9 @@ export function createGameWithLandscape(simulationLandscape: SimulationLandscape
       level: 0.0,
       opacity: 0.7,
     },
+    powerlineModels: Array.from({ length: simulationLandscape.size }, () =>
+      new Array(simulationLandscape.size).fill(null),
+    ),
     landscape: rendererLandscape,
     selectedObjectId: null,
     simulation: initialiseSimulation(simulationLandscape),

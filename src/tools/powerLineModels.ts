@@ -55,9 +55,12 @@ export function applyPowerlineModels(
       // only have the one texture for now
       const tileInfo = game.simulation.landscape.tileInfo[y][x]
       if (tileInfo.elevatedZone === ElevatedZoneEnum.PowerLine) {
+        let wasPowered: number | null = null
         if (tileInfo.building) {
+          wasPowered = tileInfo.building.isPoweredByBuildingId
           removeBuildingFromSimulation(game.simulation, tileInfo.building)
           tileInfo.building = null
+          game.powerlineModels[y][x] = null
         }
         const pattern = getPowerlinePattern(game, x, y)
         const builder =
@@ -69,8 +72,10 @@ export function applyPowerlineModels(
         if (builder) {
           const model = builder(resources)
           const building = createBuilding(powerlineBlueprint, 1, 1, x, y, model.voxelCount)
+          building.isPoweredByBuildingId = wasPowered
           addBuildingToSimulation(game.simulation, building)
           tileInfo.building = building
+          game.powerlineModels[y][x] = model
         }
       }
     }

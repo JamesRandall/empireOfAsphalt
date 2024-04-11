@@ -1,10 +1,7 @@
-import { Game } from "../model/game"
-import { Landscape } from "../model/Landscape"
 import { Building } from "../model/building"
 import { Stack } from "../model/stack"
-import { updateRendererTileInfo } from "../resources/landscape"
 import { ElevatedZoneEnum, ZoneEnum } from "../model/Tile"
-import { SimulationLandscape } from "../model/simulation"
+import { Simulation, SimulationLandscape } from "../model/simulation"
 
 const clearPoweredStatus = (landscape: SimulationLandscape) => {
   landscape.tileInfo.forEach((row) =>
@@ -15,6 +12,7 @@ const clearPoweredStatus = (landscape: SimulationLandscape) => {
     }),
   )
 }
+
 const getPowerStations = (buildings: Map<number, Building>) =>
   Array.from(buildings)
     .filter(([buildingId, building]) => building.blueprint.powerGenerated > 0)
@@ -47,7 +45,6 @@ const isTileConductive = (landscape: SimulationLandscape, x: number, z: number) 
 const walkPowerGrid = (landscape: SimulationLandscape, powerStation: Building) => {
   let consumedPower = 0
   const stack = new Stack<{ x: number; z: number }>()
-  let heightMinusOne = landscape.size - 1
   stack.push(powerStation.position)
   const tileVisited: boolean[][] = Array.from({ length: landscape.size }, () => new Array(landscape.size).fill(false))
 
@@ -105,36 +102,12 @@ const walkPowerGrid = (landscape: SimulationLandscape, powerStation: Building) =
   return consumedPower
 }
 
-function updateRenderer(gl: WebGL2RenderingContext, game: Game) {
-  const landscape = game.simulation.landscape
-  let minZ = landscape.size
-  let minX = landscape.size
-  let maxZ = -1
-  let maxX = -1
-  for (let z = 0; z < landscape.size - 1; z++) {
-    for (let x = 0; x < landscape.size - 1; x++) {
-      const ti = landscape.tileInfo[z][x]
-      if (!ti) debugger
-      if (ti.wasPoweredByBuildingId !== ti.isPoweredByBuildingId) {
-        minZ = Math.min(z, minZ)
-        minX = Math.min(x, minX)
-        maxZ = Math.max(z, maxZ)
-        maxX = Math.max(x, maxX)
-      }
-    }
-  }
-  if (maxZ !== -1) {
-    updateRendererTileInfo(gl, game, { start: { x: minX, y: minZ }, end: { x: maxX, y: maxZ } })
-  }
-}
-
-export function updatePowerGrid(gl: WebGL2RenderingContext, game: Game) {
-  clearPoweredStatus(game.simulation.landscape)
-  const powerStations = getPowerStations(game.simulation.buildings)
+export function updatePowerGrid(simulation: Simulation) {
+  clearPoweredStatus(simulation.landscape)
+  const powerStations = getPowerStations(simulation.buildings)
   const totalPowerAvailable = powerStations.reduce((v, ps) => v + ps.blueprint.powerGenerated, 0)
   const remainingPower = powerStations.reduce(
-    (remaining, powerStation) => remaining - walkPowerGrid(game.simulation.landscape, powerStation),
+    (remaining, powerStation) => remaining - walkPowerGrid(simulation.landscape, powerStation),
     totalPowerAvailable,
   )
-  updateRenderer(gl, game)
 }
