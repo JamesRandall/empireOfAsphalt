@@ -94,27 +94,7 @@ export function createWaterRenderer(gl: WebGL2RenderingContext, resources: Resou
       gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
     })
   }
-  const renderObjectPicker = (projectionMatrix: mat4, game: Game) => {
-    gl.useProgram(pickerProgramInfo.program)
-    game.buildings.forEach((building) => {
-      let worldMatrix = mat4.create()
-
-      setViewUniformLocations(gl, pickerProgramInfo, {
-        projectionMatrix,
-        modelViewMatrix: worldMatrix,
-      })
-      const model = voxelModelForBuilding(building)(resources)
-      model.renderingModels.forEach((chunk) => {
-        setCommonAttributes(gl, chunk, pickerProgramInfo)
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.indices)
-
-        const vertexCount = chunk.vertexCount
-        const type = gl.UNSIGNED_SHORT
-        const offset = 0
-        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
-      })
-    })
-  }
+  const renderObjectPicker = (projectionMatrix: mat4, game: Game) => {}
 
   return { dispose, render, renderObjectPicker }
 }

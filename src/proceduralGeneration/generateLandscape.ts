@@ -1,4 +1,5 @@
 import { map } from "../constants"
+import { ElevatedZoneEnum, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Tile"
 
 const seedrandom = require("seedrandom")
 const rnd = seedrandom() // seedrandom("hello.")
@@ -15,7 +16,7 @@ const flatter = false
 // Its harder to get this than a smooth rolling landscape - if you want that basically
 // remove the alignment to whole numbers on heights and the limits on "1 rise or fall per unit" rules
 // and smooth the result and you'll get a lovely rolling landscape
-export function generateHeightMap(size: number) {
+export function generateSimulationLandscape(size: number) {
   if (!isPowerOfTwo(size)) {
     throw Error("Map sizes must be a power of two: 16, 32, 64, etc.")
   }
@@ -36,7 +37,38 @@ export function generateHeightMap(size: number) {
     rows = smooth(rows)
   }
 
-  return rows.map((row) => row.map((h) => h * map.unitRenderHeight))
+  const tileInfos: TileInfo[][] = []
+  const heights = rows.map((row) => row.map((h) => h * map.unitRenderHeight))
+  for (let y = 0; y < size - 1; y++) {
+    const row: TileInfo[] = []
+    for (let x = 0; x < size - 1; x++) {
+      const isFlat =
+        heights[y][x] == heights[y][x + 1] &&
+        heights[y][x] == heights[y + 1][x] &&
+        heights[y][x] == heights[y + 1][x + 1]
+      row.push({
+        terrain: x >= 126 && x <= 132 && y >= 124 && y <= 132 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        //terrain: x >= 10 && x <= 132 && y >= 10 && y <= 132 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
+        //terrain: TerrainTypeEnum.Plain,
+        zone: ZoneEnum.None,
+        elevatedZone: ElevatedZoneEnum.None,
+        isFlat,
+        textureIndex: null,
+        isPoweredByBuildingId: null,
+        wasPoweredByBuildingId: null,
+        building: null,
+        accruingGrowthScore: 0,
+        baselineGrowthScore: 0,
+      })
+    }
+    tileInfos.push(row)
+  }
+
+  return {
+    tileInfo: tileInfos,
+    size: size,
+    heights: heights,
+  }
 }
 
 function generateHills(rows: number[][], fromX: number, toX: number, fromY: number, toY: number) {

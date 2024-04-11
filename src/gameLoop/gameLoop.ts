@@ -33,5 +33,5 @@ export function gameLoop(gl: WebGL2RenderingContext, resources: Resources, game:
 
   updatePowerPulse(game, timeDelta)
   applyControlState(game, timeDelta)
-  constructBuildings(game, resources, timeDelta)
+  constructBuildings(game.simulation, resources, timeDelta)
 }

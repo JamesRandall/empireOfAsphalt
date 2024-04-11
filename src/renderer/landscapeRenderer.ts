@@ -96,7 +96,7 @@ export function createLandscapeRenderer(gl: WebGL2RenderingContext, resources: R
       resources.textures.landscape.handle,
     )
     const selectedObjectId = objectIdToVec4(game.selectedObjectId ?? -1)
-    gl.uniform1i(programInfo.uniformLocations.uMapSize, game.landscape.size)
+    gl.uniform1i(programInfo.uniformLocations.uMapSize, game.simulation.landscape.size)
 
     if (game.gui.selection !== null) {
       const r = rectFromRange(game.gui.selection)

@@ -1,7 +1,16 @@
+import { TileInfo } from "./Tile"
+import { Building } from "./building"
+
 export interface RCI {
   residential: number
   commercial: number
   industrial: number
+}
+
+export interface SimulationLandscape {
+  heights: number[][]
+  size: number
+  tileInfo: TileInfo[][]
 }
 
 export interface Simulation {
@@ -16,13 +25,15 @@ export interface Simulation {
   }
   taxLevel: number
   taxTable: number[]
+  landscape: SimulationLandscape
+  buildings: Map<number, Building>
 }
 
 export function zeroRCI() {
   return { residential: 0, commercial: 0, industrial: 0 }
 }
 
-export function initialiseSimulation(): Simulation {
+export function initialiseSimulation(simulationLandscape: SimulationLandscape): Simulation {
   return {
     population: { ...zeroRCI(), total: 0 },
     valves: zeroRCI(),
@@ -35,5 +46,7 @@ export function initialiseSimulation(): Simulation {
     },
     taxLevel: 3,
     taxTable: Array.from({ length: 20 }, (_, index) => index),
+    landscape: simulationLandscape,
+    buildings: new Map<number, Building>(),
   }
 }

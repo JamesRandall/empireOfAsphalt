@@ -4,8 +4,9 @@ import { Building } from "../model/building"
 import { Stack } from "../model/stack"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { ElevatedZoneEnum, ZoneEnum } from "../model/Tile"
+import { SimulationLandscape } from "../model/simulation"
 
-const clearPoweredStatus = (landscape: Landscape) => {
+const clearPoweredStatus = (landscape: SimulationLandscape) => {
   landscape.tileInfo.forEach((row) =>
     row.forEach((ti) => {
       ti.wasPoweredByBuildingId = ti.isPoweredByBuildingId
@@ -19,7 +20,7 @@ const getPowerStations = (buildings: Map<number, Building>) =>
     .filter(([buildingId, building]) => building.blueprint.powerGenerated > 0)
     .map(([_, building]) => building)
 
-const isTileConductive = (landscape: Landscape, x: number, z: number) => {
+const isTileConductive = (landscape: SimulationLandscape, x: number, z: number) => {
   const ti = landscape.tileInfo[z][x]
   if (ti.elevatedZone === ElevatedZoneEnum.PowerLine) return true
   switch (ti.zone) {
@@ -43,7 +44,7 @@ const isTileConductive = (landscape: Landscape, x: number, z: number) => {
 // So the complexity is we need to be able to "walk" through buildings in the flood fill.
 // Another complexity is that if a tile is already powered by another station then we can't "fill" it and so we
 // have to track what tiles have been visited (filled) by the current walk or we'll end up filling forever
-const walkPowerGrid = (landscape: Landscape, powerStation: Building) => {
+const walkPowerGrid = (landscape: SimulationLandscape, powerStation: Building) => {
   let consumedPower = 0
   const stack = new Stack<{ x: number; z: number }>()
   let heightMinusOne = landscape.size - 1
@@ -104,7 +105,8 @@ const walkPowerGrid = (landscape: Landscape, powerStation: Building) => {
   return consumedPower
 }
 
-function updateRenderer(gl: WebGL2RenderingContext, landscape: Landscape) {
+function updateRenderer(gl: WebGL2RenderingContext, game: Game) {
+  const landscape = game.simulation.landscape
   let minZ = landscape.size
   let minX = landscape.size
   let maxZ = -1
@@ -122,17 +124,17 @@ function updateRenderer(gl: WebGL2RenderingContext, landscape: Landscape) {
     }
   }
   if (maxZ !== -1) {
-    updateRendererTileInfo(gl, landscape, { start: { x: minX, y: minZ }, end: { x: maxX, y: maxZ } })
+    updateRendererTileInfo(gl, game, { start: { x: minX, y: minZ }, end: { x: maxX, y: maxZ } })
   }
 }
 
 export function updatePowerGrid(gl: WebGL2RenderingContext, game: Game) {
-  clearPoweredStatus(game.landscape)
-  const powerStations = getPowerStations(game.buildings)
+  clearPoweredStatus(game.simulation.landscape)
+  const powerStations = getPowerStations(game.simulation.buildings)
   const totalPowerAvailable = powerStations.reduce((v, ps) => v + ps.blueprint.powerGenerated, 0)
   const remainingPower = powerStations.reduce(
-    (remaining, powerStation) => remaining - walkPowerGrid(game.landscape, powerStation),
+    (remaining, powerStation) => remaining - walkPowerGrid(game.simulation.landscape, powerStation),
     totalPowerAvailable,
   )
-  updateRenderer(gl, game.landscape)
+  updateRenderer(gl, game)
 }

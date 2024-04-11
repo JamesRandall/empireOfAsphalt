@@ -41,15 +41,15 @@ export function applyRoadTextures(
 ) {
   for (let x = r.left - 1; x <= r.right + 1; x++) {
     for (let y = r.top - 1; y <= r.bottom + 1; y++) {
-      if (x < 0 || x >= game.landscape.size || y < 0 || y >= game.landscape.size) continue
+      if (x < 0 || x >= game.simulation.landscape.size || y < 0 || y >= game.simulation.landscape.size) continue
       // only have the one texture for now
-      if (game.landscape.tileInfo[y][x].zone === ZoneEnum.Road) {
+      if (game.simulation.landscape.tileInfo[y][x].zone === ZoneEnum.Road) {
         const pattern = getRoadPattern(game, x, y)
-        game.landscape.tileInfo[y][x].textureIndex = getTextureForPattern(pattern) ?? null
+        game.simulation.landscape.tileInfo[y][x].textureIndex = getTextureForPattern(pattern) ?? null
       }
     }
   }
 
   const range = { start: { x: r.left - 1, y: r.top - 1 }, end: { x: r.right + 1, y: r.bottom + 1 } }
-  updateRendererTileInfo(gl, game.landscape, range)
+  updateRendererTileInfo(gl, game, range)
 }

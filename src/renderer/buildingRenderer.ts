@@ -60,13 +60,13 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
 
     gl.useProgram(programInfo.program)
     const lightPosition = game.buildingLight.direction
-    game.buildings.forEach((building) => {
+    game.simulation.buildings.forEach((building) => {
       //for (const building of game.buildings.values()) {
       let worldMatrix = mat4.create()
       mat4.translate(worldMatrix, worldMatrix, [
-        (building.position.x - game.landscape.size / 2) * sizes.tile - sizes.tile / 2,
+        (building.position.x - game.simulation.landscape.size / 2) * sizes.tile - sizes.tile / 2,
         0,
-        (game.landscape.size / 2 - building.position.z) * sizes.tile -
+        (game.simulation.landscape.size / 2 - building.position.z) * sizes.tile -
           sizes.tile / 2 -
           sizes.tile * (building.blueprint.footprint.height - 1),
       ])
@@ -118,7 +118,7 @@ export function createBuildingRenderer(gl: WebGL2RenderingContext, resources: Re
   }
   const renderObjectPicker = (projectionMatrix: mat4, game: Game) => {
     gl.useProgram(pickerProgramInfo.program)
-    game.buildings.forEach((building) => {
+    game.simulation.buildings.forEach((building) => {
       let worldMatrix = mat4.create()
 
       setViewUniformLocations(gl, pickerProgramInfo, {

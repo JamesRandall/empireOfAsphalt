@@ -1,9 +1,10 @@
-import { addBuildingToGame, Game, removeBuildingFromGame } from "../model/game"
+import { Game } from "../model/game"
 import { Resources } from "../resources/resources"
 import { getPattern, isMatchingPattern, tilePatterns } from "./tilePatterns"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { blueprintForBuilding, BuildingType, createBuilding } from "../model/building"
 import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Tile"
+import { addBuildingToSimulation, removeBuildingFromSimulation } from "../simulation/buildings"
 
 const patterns = [
   { voxelModelBuilder: (r: Resources) => r.voxelModels.power.powerLineNorthSouth, pattern: tilePatterns.northSouth },
@@ -50,12 +51,12 @@ export function applyPowerlineModels(
   const powerlineBlueprint = blueprintForBuilding(BuildingType.PowerLine)!
   for (let x = r.left - 1; x <= r.right + 1; x++) {
     for (let y = r.top - 1; y <= r.bottom + 1; y++) {
-      if (x < 0 || x >= game.landscape.size || y < 0 || y >= game.landscape.size) continue
+      if (x < 0 || x >= game.simulation.landscape.size || y < 0 || y >= game.simulation.landscape.size) continue
       // only have the one texture for now
-      const tileInfo = game.landscape.tileInfo[y][x]
+      const tileInfo = game.simulation.landscape.tileInfo[y][x]
       if (tileInfo.elevatedZone === ElevatedZoneEnum.PowerLine) {
         if (tileInfo.building) {
-          removeBuildingFromGame(game, tileInfo.building)
+          removeBuildingFromSimulation(game.simulation, tileInfo.building)
           tileInfo.building = null
         }
         const pattern = getPowerlinePattern(game, x, y)
@@ -68,7 +69,7 @@ export function applyPowerlineModels(
         if (builder) {
           const model = builder(resources)
           const building = createBuilding(powerlineBlueprint, 1, 1, x, y, model.voxelCount)
-          addBuildingToGame(game, building)
+          addBuildingToSimulation(game.simulation, building)
           tileInfo.building = building
         }
       }
@@ -76,5 +77,5 @@ export function applyPowerlineModels(
   }
 
   const range = { start: { x: r.left - 1, y: r.top - 1 }, end: { x: r.right + 1, y: r.bottom + 1 } }
-  updateRendererTileInfo(gl, game.landscape, range)
+  updateRendererTileInfo(gl, game, range)
 }

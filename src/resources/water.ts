@@ -2,6 +2,7 @@ import { RenderingModel } from "./models"
 import { Landscape } from "../model/Landscape"
 import { sizes } from "../constants"
 import { TerrainTypeEnum, TileInfo } from "../model/Tile"
+import { SimulationLandscape } from "../model/simulation"
 
 const waterVoxelsPerTile = 4
 const waterVoxelSize = sizes.tile / waterVoxelsPerTile
@@ -24,7 +25,7 @@ interface CurrentChunk {
   offsets: number[] //this is the animation offset for the water cube
 }
 
-export function createWater(gl: WebGL2RenderingContext, landscape: Landscape, chunkSize: number) {
+export function createWater(gl: WebGL2RenderingContext, landscape: SimulationLandscape, chunkSize: number) {
   const waterChunks: WaterChunk[] = []
   for (let y = 0; y < landscape.size - 1; y += chunkSize) {
     for (let x = 0; x < landscape.size - 1; x += chunkSize) {
@@ -53,7 +54,7 @@ const createEmptyChunk = () =>
 
 function createWaterChunk(
   gl: WebGL2RenderingContext,
-  landscape: Landscape,
+  landscape: SimulationLandscape,
   fromX: number,
   fromZ: number,
   toX: number,
@@ -72,7 +73,7 @@ function createWaterChunk(
 
 function createVoxelForTileInfo(
   currentChunk: CurrentChunk,
-  landscape: Landscape,
+  landscape: SimulationLandscape,
   tileInfo: TileInfo,
   x: number,
   y: number,
@@ -94,7 +95,7 @@ function createVoxelForTileInfo(
   }
 }
 
-export function createWaterDynamicChunks(gl: WebGL2RenderingContext, landscape: Landscape) {
+export function createWaterDynamicChunks(gl: WebGL2RenderingContext, landscape: SimulationLandscape) {
   let currentChunk = createEmptyChunk()
   let water: Water = { chunks: [] }
   for (let y = 0; y < landscape.size - 1; y++) {
@@ -110,7 +111,6 @@ export function createWaterDynamicChunks(gl: WebGL2RenderingContext, landscape: 
   if (currentChunk.positions.length > 0) {
     water.chunks.push({ model: createWaterRenderingModel(gl, currentChunk), fromX: -1, fromZ: -1 })
   }
-  landscape.water = water
   return water
 }
 

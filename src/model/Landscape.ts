@@ -3,9 +3,6 @@ import { Water } from "../resources/water"
 import { TileInfo } from "./Tile"
 
 export interface Landscape {
-  heights: number[][]
-  size: number
-  tileInfo: TileInfo[][]
   chunkSize: number
   chunks: {
     fromX: number

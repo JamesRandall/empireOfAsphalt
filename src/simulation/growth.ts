@@ -1,4 +1,4 @@
-import { addBuildingToGame, Game, removeBuildingFromGame } from "../model/game"
+import { Game } from "../model/game"
 import { TileInfo, ZoneEnum } from "../model/Tile"
 import { Landscape } from "../model/Landscape"
 import { Demand, getExternalDemand } from "./industrialDemand"
@@ -10,6 +10,8 @@ import {
   createBuildingFromBlueprint,
 } from "../model/building"
 import { Resources } from "../resources/resources"
+import { addBuildingToSimulation, removeBuildingFromSimulation } from "./buildings"
+import { SimulationLandscape } from "../model/simulation"
 
 // the closer the tile is to transport the higher the score and therefore the more likely growth is to occur
 const transportScoreTable = [
@@ -46,7 +48,12 @@ function isDynamicZone(tile: TileInfo) {
   }
 }
 
-function evaluateAdjacentTiles(landscape: Landscape, x: number, z: number, evalFunc: (tile: TileInfo) => boolean) {
+function evaluateAdjacentTiles(
+  landscape: SimulationLandscape,
+  x: number,
+  z: number,
+  evalFunc: (tile: TileInfo) => boolean,
+) {
   if (z > 0 && evalFunc(landscape.tileInfo[z - 1][x])) {
     return true
   }
@@ -63,7 +70,7 @@ function evaluateAdjacentTiles(landscape: Landscape, x: number, z: number, evalF
 }
 
 // TODO: this needs to consider adjacent tiles with power
-function canBeConsideredForGrowth(landscape: Landscape, tile: TileInfo, x: number, z: number) {
+function canBeConsideredForGrowth(landscape: SimulationLandscape, tile: TileInfo, x: number, z: number) {
   return (
     (tile.isPoweredByBuildingId !== null ||
       evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)) &&
@@ -71,7 +78,7 @@ function canBeConsideredForGrowth(landscape: Landscape, tile: TileInfo, x: numbe
   )
 }
 
-function mustBeForcedToDecline(landscape: Landscape, tile: TileInfo, x: number, z: number) {
+function mustBeForcedToDecline(landscape: SimulationLandscape, tile: TileInfo, x: number, z: number) {
   const isPowered =
     tile.isPoweredByBuildingId !== null ||
     evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)
@@ -79,7 +86,7 @@ function mustBeForcedToDecline(landscape: Landscape, tile: TileInfo, x: number, 
 }
 
 function evaluatePatternBasedScore(
-  landscape: Landscape,
+  landscape: SimulationLandscape,
   tx: number,
   tz: number,
   scoreTable: number[][],
@@ -107,7 +114,13 @@ function evaluatePatternBasedScore(
   return score
 }
 
-function growOrShrinkTile(externalDemand: Demand, landscape: Landscape, tile: TileInfo, x: number, z: number) {
+function growOrShrinkTile(
+  externalDemand: Demand,
+  landscape: SimulationLandscape,
+  tile: TileInfo,
+  x: number,
+  z: number,
+) {
   let growthScore = 0
   // all zones need access to transport and the closer the transport the better
   const transportScore = evaluatePatternBasedScore(
@@ -169,7 +182,13 @@ function applyIndustrialGrowthScore(tile: TileInfo, demand: Demand) {
   }*/
 }
 
-function forceDeclineOfTile(externalDemand: Demand, landscape: Landscape, tile: TileInfo, x: number, z: number) {
+function forceDeclineOfTile(
+  externalDemand: Demand,
+  landscape: SimulationLandscape,
+  tile: TileInfo,
+  x: number,
+  z: number,
+) {
   // if there is no access to power - reduce the zones score
   // if there is no access to transport - reduce the zones score
 }
@@ -198,11 +217,11 @@ function applyGrowthScoreToTile(game: Game, resources: Resources, tile: TileInfo
     const blueprints = blueprintsForCategoryAndGrowth(category, growthScore)
     if (blueprints.length > 0) {
       if (tile.building !== null) {
-        removeBuildingFromGame(game, tile.building)
+        removeBuildingFromSimulation(game.simulation, tile.building)
       }
       const building = createBuildingFromBlueprint(resources, blueprints[0], { x: x, z: z })
       building.numberOfVoxelsToDisplay = 0
-      addBuildingToGame(game, building)
+      addBuildingToSimulation(game.simulation, building)
     }
   }
 }
@@ -240,15 +259,15 @@ export function applyGrowthOld(game: Game, resources: Resources) {
 export function applyGrowth(game: Game, resources: Resources) {
   const demand = getExternalDemand(game.simulation.time.clock)
   const growthCandidates: { tile: TileInfo; x: number; z: number }[] = []
-  consumeDemand(demand, Array.from(game.buildings.values()))
+  consumeDemand(demand, Array.from(game.simulation.buildings.values()))
   // 1. first we calculate the base growth scores for tiles - water, transport, power links etc.
-  for (let z = 0; z < game.landscape.size - 1; z++) {
-    const tileRow = game.landscape.tileInfo[z]
-    for (let x = 0; x < game.landscape.size - 1; x++) {
+  for (let z = 0; z < game.simulation.landscape.size - 1; z++) {
+    const tileRow = game.simulation.landscape.tileInfo[z]
+    for (let x = 0; x < game.simulation.landscape.size - 1; x++) {
       const tile = tileRow[x]
       if (!isDynamicZone(tile)) continue
-      if (canBeConsideredForGrowth(game.landscape, tile, x, z)) {
-        setBaseGrowthScoreForTile(game.landscape, demand, tile, x, z)
+      if (canBeConsideredForGrowth(game.simulation.landscape, tile, x, z)) {
+        setBaseGrowthScoreForTile(game.simulation.landscape, demand, tile, x, z)
         if (tile.baselineGrowthScore > 0) {
           growthCandidates.push({ tile, x, z })
         }
@@ -267,14 +286,20 @@ export function applyGrowth(game: Game, resources: Resources) {
   }
 }
 
-function hasAccessToPower(landscape: Landscape, tile: TileInfo, x: number, z: number) {
+function hasAccessToPower(landscape: SimulationLandscape, tile: TileInfo, x: number, z: number) {
   return (
     tile.isPoweredByBuildingId !== null ||
     evaluateAdjacentTiles(landscape, x, z, (t) => t.isPoweredByBuildingId !== null)
   )
 }
 
-function setBaseGrowthScoreForTile(landscape: Landscape, demand: Demand, tile: TileInfo, x: number, z: number) {
+function setBaseGrowthScoreForTile(
+  landscape: SimulationLandscape,
+  demand: Demand,
+  tile: TileInfo,
+  x: number,
+  z: number,
+) {
   if (!hasAccessToPower(landscape, tile, x, z)) {
     tile.baselineGrowthScore = 0
     return

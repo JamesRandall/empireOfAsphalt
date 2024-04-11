@@ -6,6 +6,8 @@ import { objectIdToVec4, rectFromRange } from "../utilities"
 import { Range } from "../model/range"
 import { createWater } from "./water"
 import { ElevatedZoneEnum, TerrainTypeEnum, TileInfo, ZoneEnum } from "../model/Tile"
+import { Game } from "../model/game"
+import { Simulation, SimulationLandscape } from "../model/simulation"
 
 const chunkSize = 32
 
@@ -29,15 +31,15 @@ function vecFromTileInfo(tileInfo: TileInfo) {
   ]
 }
 
-export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: Landscape, range: Range) {
-  const chunks = getChunksForRange(landscape, range)
+export function updateRendererTileInfo(gl: WebGL2RenderingContext, game: Game, range: Range) {
+  const chunks = getChunksForRange(game.landscape, range)
   chunks.forEach((chunk) => {
-    const toX = Math.min(landscape.size - 1, chunk.fromX + chunkSize - 1)
-    const toY = Math.min(landscape.size - 1, chunk.fromY + chunkSize - 1)
+    const toX = Math.min(game.simulation.landscape.size - 1, chunk.fromX + chunkSize - 1)
+    const toY = Math.min(game.simulation.landscape.size - 1, chunk.fromY + chunkSize - 1)
     const tileInfos: number[] = []
     const additionalTileInfos: number[] = []
     for (let y = chunk.fromY; y <= toY; y++) {
-      let row = landscape.tileInfo[y]
+      let row = game.simulation.landscape.tileInfo[y]
       for (let x = chunk.fromX; x <= toX; x++) {
         const tileInfo = row[x]
         // I can imagine us eventually having enough info that we have to bit twiddle it in
@@ -73,40 +75,16 @@ export function updateRendererTileInfo(gl: WebGL2RenderingContext, landscape: La
 // so we chunk them up - doing ths will probably help us with terrain levelling performance in any case as we'll
 // have less geometry to update
 
-export function createLandscape(gl: WebGL2RenderingContext, heights: number[][]) {
-  let heightMapSize = heights.length
+export function createLandscape(gl: WebGL2RenderingContext, simulationLandscape: SimulationLandscape) {
+  let heightMapSize = simulationLandscape.size
   const landscape: Landscape = {
-    heights: heights,
-    tileInfo: [],
     chunkSize: chunkSize,
     chunks: [],
-    size: heightMapSize,
     water: { chunks: [] },
   }
-  for (let y = 0; y < heightMapSize - 1; y++) {
-    const row: TileInfo[] = []
-    for (let x = 0; x < heightMapSize - 1; x++) {
-      const isFlat =
-        heights[y][x] == heights[y][x + 1] &&
-        heights[y][x] == heights[y + 1][x] &&
-        heights[y][x] == heights[y + 1][x + 1]
-      row.push({
-        terrain: x >= 126 && x <= 132 && y >= 124 && y <= 132 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
-        //terrain: x >= 10 && x <= 132 && y >= 10 && y <= 132 ? TerrainTypeEnum.Water : TerrainTypeEnum.Plain,
-        //terrain: TerrainTypeEnum.Plain,
-        zone: ZoneEnum.None,
-        elevatedZone: ElevatedZoneEnum.None,
-        isFlat,
-        textureIndex: null,
-        isPoweredByBuildingId: null,
-        wasPoweredByBuildingId: null,
-        building: null,
-        accruingGrowthScore: 0,
-        baselineGrowthScore: 0,
-      })
-    }
-    landscape.tileInfo.push(row)
-  }
+  const heights = simulationLandscape.heights
+  const tileInfo = simulationLandscape.tileInfo
+
   for (let y = 0; y < heightMapSize - 1; y += chunkSize) {
     for (let x = 0; x < heightMapSize - 1; x += chunkSize) {
       const toX = Math.min(heightMapSize - 1, x + chunkSize - 1)
@@ -114,13 +92,13 @@ export function createLandscape(gl: WebGL2RenderingContext, heights: number[][])
       const chunk = {
         fromX: x,
         fromY: y,
-        model: createLandscapeChunk(gl, heights, landscape.tileInfo, x, y, toX, toY, heightMapSize),
+        model: createLandscapeChunk(gl, heights, tileInfo, x, y, toX, toY, heightMapSize),
       }
       landscape.chunks.push(chunk)
     }
   }
 
-  landscape.water = createWater(gl, landscape, chunkSize)
+  landscape.water = createWater(gl, simulationLandscape, chunkSize)
 
   return landscape
 }

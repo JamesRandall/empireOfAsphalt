@@ -1,4 +1,4 @@
-import { addBuildingToGame, Game } from "../model/game"
+import { Game } from "../model/game"
 import { rectFromRange } from "../utilities"
 import { updateRendererTileInfo } from "../resources/landscape"
 import { canApplyToolToTile, elevatedZoneForTool, isElevatedZoningTool, isZoningTool, zoneForTool } from "./utilities"
@@ -12,6 +12,8 @@ import {
 import { applyRoadTextures } from "./roadTextures"
 import { applyPowerlineModels } from "./powerLineModels"
 import { ElevatedZoneEnum, LandscapeTexture, ZoneEnum } from "../model/Tile"
+
+import { addBuildingToSimulation } from "../simulation/buildings"
 
 export function applyTool(gl: WebGL2RenderingContext, game: Game, resources: Resources) {
   if (isZoningTool(game.gui.currentTool) && game.gui.selection !== null) {
@@ -27,11 +29,11 @@ function applyElevatedZoning(gl: WebGL2RenderingContext, game: Game, resources: 
 
   for (let x = r.left; x <= r.right; x++) {
     for (let y = r.top; y <= r.bottom; y++) {
-      if (canApplyToolToTile(game.gui.currentTool, game.landscape.tileInfo[y][x])) {
-        if (game.landscape.tileInfo[y][x].elevatedZone !== newZone) {
+      if (canApplyToolToTile(game.gui.currentTool, game.simulation.landscape.tileInfo[y][x])) {
+        if (game.simulation.landscape.tileInfo[y][x].elevatedZone !== newZone) {
           // TODO: delete buildings etc.
         }
-        game.landscape.tileInfo[y][x].elevatedZone = newZone
+        game.simulation.landscape.tileInfo[y][x].elevatedZone = newZone
       }
     }
   }
@@ -47,11 +49,11 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
 
   for (let x = r.left; x <= r.right; x++) {
     for (let y = r.top; y <= r.bottom; y++) {
-      if (canApplyToolToTile(game.gui.currentTool, game.landscape.tileInfo[y][x])) {
-        if (game.landscape.tileInfo[y][x].zone !== newZone) {
+      if (canApplyToolToTile(game.gui.currentTool, game.simulation.landscape.tileInfo[y][x])) {
+        if (game.simulation.landscape.tileInfo[y][x].zone !== newZone) {
           // TODO: delete buildings etc.
         }
-        game.landscape.tileInfo[y][x].zone = newZone
+        game.simulation.landscape.tileInfo[y][x].zone = newZone
       }
     }
   }
@@ -64,7 +66,7 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
     if (blueprint !== undefined) {
       const building = createBuildingFromBlueprint(resources, blueprint, { x: r.left, z: r.top })
       //building.numberOfVoxelsToDisplay = 0
-      addBuildingToGame(game, building)
+      addBuildingToSimulation(game.simulation, building)
       // after we place a building we re-evaluate the orientation of the power line models as we might want to connect
       // some to the building
       applyPowerlineModels(gl, game, resources, {
@@ -74,6 +76,6 @@ function applyZoning(gl: WebGL2RenderingContext, game: Game, resources: Resource
         right: r.right + 1,
       })
     }
-    updateRendererTileInfo(gl, game.landscape, game.gui.selection!)
+    updateRendererTileInfo(gl, game, game.gui.selection!)
   }
 }

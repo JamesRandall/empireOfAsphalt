@@ -4,7 +4,7 @@ import { Landscape } from "./Landscape"
 import { MutableProperty } from "../gui/properties/MutableProperty"
 import { Range } from "./range"
 import { Building } from "./building"
-import { initialiseSimulation, Simulation } from "./simulation"
+import { initialiseSimulation, Simulation, SimulationLandscape } from "./simulation"
 
 type HeightMap = number[][]
 
@@ -81,7 +81,6 @@ export interface Game {
     opacity: number
   }
   landscape: Landscape
-  buildings: Map<number, Building>
   simulation: Simulation
   selectedObjectId: number | null
   difficultyLevel: DifficultyLevel
@@ -107,7 +106,7 @@ const eyeX = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
 const eyeY = 32 * Math.sin(radians)
 const eyeZ = (distance * Math.cos(radians) * Math.sqrt(2)) / 2
 
-export function createGameWithLandscape(landscape: Landscape): Game {
+export function createGameWithLandscape(simulationLandscape: SimulationLandscape, rendererLandscape: Landscape): Game {
   const defaultWindowState = () => ({
     isVisible: MutableProperty.with(false),
     left: MutableProperty.with(500),
@@ -136,10 +135,9 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       level: 0.0,
       opacity: 0.7,
     },
-    landscape: landscape,
-    buildings: new Map<number, Building>(),
+    landscape: rendererLandscape,
     selectedObjectId: null,
-    simulation: initialiseSimulation(),
+    simulation: initialiseSimulation(simulationLandscape),
     difficultyLevel: DifficultyLevel.Easy,
     gui: {
       windows: {
@@ -157,22 +155,4 @@ export function createGameWithLandscape(landscape: Landscape): Game {
       },
     },
   }
-}
-
-export function addBuildingToGame(game: Game, building: Building) {
-  game.buildings.set(building.buildingId, building)
-  for (let z = building.position.z; z < building.position.z + building.blueprint.footprint.height; z++) {
-    for (let x = building.position.x; x < building.position.x + building.blueprint.footprint.width; x++) {
-      game.landscape.tileInfo[z][x].building = building
-    }
-  }
-}
-
-export function removeBuildingFromGame(game: Game, building: Building) {
-  for (let z = 0; z < building.blueprint.footprint.height; z++) {
-    for (let x = 0; x < building.blueprint.footprint.width; x++) {
-      game.landscape.tileInfo[building.position.z + z][building.position.x + x].building = null
-    }
-  }
-  game.buildings.delete(building.buildingId)
 }

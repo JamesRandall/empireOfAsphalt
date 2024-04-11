@@ -85,7 +85,7 @@ export const tilePatterns = {
 }
 
 export function getPattern(game: Game, x: number, y: number, isSet: (tileInfo: TileInfo) => Boolean) {
-  const tileInfos = game.landscape.tileInfo
+  const tileInfos = game.simulation.landscape.tileInfo
 
   const pattern = [
     [0, 0, 0],
@@ -95,13 +95,13 @@ export function getPattern(game: Game, x: number, y: number, isSet: (tileInfo: T
   if (y > 0) {
     pattern[0][1] = isSet(tileInfos[y - 1][x]) ? 1 : 0
   }
-  if (y < game.landscape.size - 1) {
+  if (y < game.simulation.landscape.size - 1) {
     pattern[2][1] = isSet(tileInfos[y + 1][x]) ? 1 : 0
   }
   if (x > 0) {
     pattern[1][0] = isSet(tileInfos[y][x - 1]) ? 1 : 0
   }
-  if (x < game.landscape.size - 1) {
+  if (x < game.simulation.landscape.size - 1) {
     pattern[1][2] = isSet(tileInfos[y][x + 1]) ? 1 : 0
   }
   return pattern

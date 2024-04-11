@@ -4,7 +4,6 @@ import { createLandscapeRenderer } from "../renderer/landscapeRenderer"
 import { createGameWithLandscape, Game, Tool, ToolSelectionMode } from "../model/game"
 import { bindKeys } from "../controls/bindKeys"
 import { glMatrix, mat4, vec3 } from "gl-matrix"
-import { generateHeightMap } from "../proceduralGeneration/generateLandscape"
 import { createLandscape } from "../resources/landscape"
 import { bindMouse } from "../controls/bindMouse"
 import { cycleControlState } from "../gameLoop/applyControlState"
@@ -18,6 +17,7 @@ import { createBuildingRenderer } from "../renderer/buildingRenderer"
 import { gameLoop } from "../gameLoop/gameLoop"
 import { blueprintFromTool, createBuildingFromTool } from "../model/building"
 import { createWaterRenderer } from "../renderer/waterRenderer"
+import { generateSimulationLandscape } from "../proceduralGeneration/generateLandscape"
 
 export function createGameScene(gl: WebGL2RenderingContext, resources: Resources) {
   let tileRenderer = createLandscapeRenderer(gl, resources)
@@ -34,9 +34,9 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
     buildingRenderer.render(projectionMatrix, game)
   })
 
-  const heightmap = generateHeightMap(256)
-  const landscape = createLandscape(gl, heightmap)
-  const game = createGameWithLandscape(landscape)
+  const simulationLandscape = generateSimulationLandscape(256)
+  const rendererLandscape = createLandscape(gl, simulationLandscape)
+  const game = createGameWithLandscape(simulationLandscape, rendererLandscape)
 
   for (let bi = 0; bi < 1; bi++) {
     //game.buildings.push(buildingFromTool(resources, Tool.CoalPowerPlant, { x: 128, z: 128 })!)
@@ -49,7 +49,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
     gl.canvas.height,
     () => testGui(game),
     (name) => resources.guiTextures[name],
-    game.landscape.size * game.landscape.size + 1, // start the gui object IDs after the landscape picker number range
+    game.simulation.landscape.size * game.simulation.landscape.size + 1, // start the gui object IDs after the landscape picker number range
   )
 
   // we use different light directions to get the effect we want
@@ -85,7 +85,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
         gl.canvas.height,
         () => testGui(game),
         (name) => resources.guiTextures[name],
-        game.landscape.size * game.landscape.size + 1, // start the gui object IDs after the landscape picker number range
+        game.simulation.landscape.size * game.simulation.landscape.size + 1, // start the gui object IDs after the landscape picker number range
       )
       objectPickerRenderer = createObjectPickerRenderer(gl, resources, (projectionMatrix, game) => {
         tileRenderer.renderObjectPicker(projectionMatrix, game)
@@ -121,7 +121,7 @@ export function createGameScene(gl: WebGL2RenderingContext, resources: Resources
           game.selectedObjectId = objectPickerRenderer.getObjectId()
           const toolMode = toolSelectionMode(game.gui.currentTool)
           if (toolMode !== ToolSelectionMode.None) {
-            const p = getPositionFromObjectId(game.selectedObjectId, game.landscape.size)
+            const p = getPositionFromObjectId(game.selectedObjectId, game.simulation.landscape.size)
             if (game.gui.selection === null) {
               switch (toolMode) {
                 case ToolSelectionMode.Prefab:
